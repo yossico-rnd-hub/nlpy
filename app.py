@@ -16,21 +16,17 @@ def home():
 
 @app.route('/api/v1.0/docs', methods=['POST'])
 def process_doc():
+    '''
+    Extract entities\n
+    Usage: curl -i -H "Content-Type: application/json" -X POST -d '{"text": "foo"}' http://localhost:5000/api/v1.0/docs
+    '''
     # text is a required field
     if not request.json or not 'text' in request.json:
         abort(400) # bad request
 
-    # doc = request.json
-
-    #lilo: test
+    # process the document 
     doc = Document()
-    doc.text = (u"When Sebastian Thrun started working on self-driving cars at "
-            u"Google in 2007, few people outside of the company took him "
-            u"seriously. “I can tell you very senior CEOs of major American "
-            u"car companies would shake my hand and turn away because I wasn’t "
-            u"worth talking to,” said Thrun, now the co-founder and CEO of "
-            u"online higher education startup Udacity, in an interview with "
-            u"Recode earlier this week.")
+    doc.text = request.json['text']
     
     res = nlp.process(doc)
     return json.dumps(res.entities, indent=4, default=lambda x: x.__dict__), 200
