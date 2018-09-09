@@ -9,46 +9,46 @@
     
     "entities": [
         {
+            "start_char": 5,
             "label": "PERSON",
             "text": "Sebastian Thrun",
-            "end_char": 20,
-            "start_char": 5
+            "end_char": 20
         },
         {
-            "label": "FAC",
-            "text": "\nGoogle",
-            "end_char": 67,
-            "start_char": 60
+            "start_char": 61,
+            "label": "ORG",
+            "text": "Google",
+            "end_char": 67
         },
         {
+            "start_char": 71,
             "label": "DATE",
             "text": "2007",
-            "end_char": 75,
-            "start_char": 71
+            "end_char": 75
         },
         {
-            "label": "ORG",
-            "text": "American\n",
-            "end_char": 182,
-            "start_char": 173
+            "start_char": 173,
+            "label": "NORP",
+            "text": "American",
+            "end_char": 181
         },
         {
+            "start_char": 271,
             "label": "PERSON",
             "text": "Thrun",
-            "end_char": 276,
-            "start_char": 271
+            "end_char": 276
         },
         {
+            "start_char": 370,
             "label": "ORG",
             "text": "Recode",
-            "end_char": 376,
-            "start_char": 370
+            "end_char": 376
         },
         {
+            "start_char": 377,
             "label": "DATE",
             "text": "earlier this week",
-            "end_char": 394,
-            "start_char": 377
+            "end_char": 394
         }
     ]
 }
