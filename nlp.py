@@ -18,7 +18,7 @@ class Entity(object):
 
 class Nlp(object):
     """Nlp class"""
-    def __init__(self, language = 'en'):
+    def __init__(self, language = 'en_core_web_sm'):
         # Load English tokenizer, tagger, parser, NER and word vectors
         self.nlp = spacy.load(language)
         # self.nlp = spacy.load('es')

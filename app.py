@@ -6,7 +6,7 @@ import json
 
 app = Flask(__name__)
 
-nlp = Nlp('en')
+nlp = Nlp('en_core_web_sm')
 
 @app.route('/')
 def home():

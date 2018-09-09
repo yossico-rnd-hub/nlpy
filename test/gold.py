@@ -18,7 +18,6 @@ class Gold(Document):
         with open(file, 'r') as f:
             self.file = file
             self.gold = jsonpickle.decode(f.read())
-            print(self.gold)
         
         #lilo:TODO
 
