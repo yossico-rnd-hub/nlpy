@@ -1,4 +1,8 @@
+import os
+import logging
+import jsonpickle
 from nlp import Document, Entity
+from types import SimpleNamespace as Namespace
 
 class Scoring(object):
     def __init__(self, precision = 0, recall = 0, fscore = 0):
@@ -7,8 +11,16 @@ class Scoring(object):
         self.fscore = fscore
 
 class Gold(Document):
-    def __init__(self, goldpath):
-        self.goldpath = goldpath
+    def __init__(self, file):
+        # try loading the corresponding gold file
+        file = os.path.basename(file)
+        file = os.path.join(os.path.dirname(__file__), 'gold', file + '.gold')
+        with open(file, 'r') as f:
+            self.file = file
+            self.gold = jsonpickle.decode(f.read())
+            print(self.gold)
+        
+        #lilo:TODO
 
     def test_match(self, e):
         '''
@@ -18,7 +30,7 @@ class Gold(Document):
         #lilo: TODO
         return 0.0
 
-    def score(self, doc):
+    def scoring(self, doc):
         '''
         produces a scoring (precision, recall & fscore) for the given doc entities.
         '''
@@ -34,4 +46,3 @@ class Gold(Document):
 
         scoring = Scoring()
         return scoring
-

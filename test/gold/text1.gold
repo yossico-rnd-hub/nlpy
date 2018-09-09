@@ -1,0 +1,84 @@
+{
+    "text": "When Sebastian Thrun started working on self-driving cars at 
+    Google in 2007, few people outside of the company took him 
+    seriously. “I can tell you very senior CEOs of major American 
+    car companies would shake my hand and turn away because I wasn’t 
+    worth talking to,” said Thrun, now the co-founder and CEO of 
+    online higher education startup Udacity, in an interview with 
+    Recode earlier this week.",
+    
+    "entities": [
+        {
+            "label": "PERSON",
+            "text": "Sebastian Thrun",
+            "end_char": 20,
+            "start_char": 5
+        },
+        {
+            "label": "FAC",
+            "text": "\nGoogle",
+            "end_char": 67,
+            "start_char": 60
+        },
+        {
+            "label": "DATE",
+            "text": "2007",
+            "end_char": 75,
+            "start_char": 71
+        },
+        {
+            "label": "GPE",
+            "text": "\n",
+            "end_char": 120,
+            "start_char": 119
+        },
+        {
+            "label": "ORG",
+            "text": "American\n",
+            "end_char": 182,
+            "start_char": 173
+        },
+        {
+            "label": "GPE",
+            "text": "\n",
+            "end_char": 247,
+            "start_char": 246
+        },
+        {
+            "label": "PERSON",
+            "text": "Thrun",
+            "end_char": 276,
+            "start_char": 271
+        },
+        {
+            "label": "GPE",
+            "text": "\n",
+            "end_char": 308,
+            "start_char": 307
+        },
+        {
+            "label": "GPE",
+            "text": "\n",
+            "end_char": 370,
+            "start_char": 369
+        },
+        {
+            "label": "ORG",
+            "text": "Recode",
+            "end_char": 376,
+            "start_char": 370
+        },
+        {
+            "label": "DATE",
+            "text": "earlier this week",
+            "end_char": 394,
+            "start_char": 377
+        },
+        {
+            "label": "GPE",
+            "text": "\n",
+            "end_char": 396,
+            "start_char": 395
+        }
+    ]
+}

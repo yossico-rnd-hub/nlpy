@@ -6,7 +6,9 @@ import os.path
 import requests
 import logging
 import json
+import jsonpickle
 from gold import Gold, Scoring
+from nlp import Document
 
 class NlpTest(object):
     """
@@ -25,10 +27,9 @@ class NlpTest(object):
         output for a directory - scoring for all files (recursively).
         '''
 
-        # lilo
-        file = 'text1'
-        # args = self.parser.parse_args()
-        # file = args.file
+        # read command-line args
+        args = self.parser.parse_args()
+        file = args.file
 
         # process input (file/directory)
         scoring = [] # result scoring
@@ -44,7 +45,8 @@ class NlpTest(object):
                     exit(-1)
             self.process_file(file, scoring)
 
-        print (scoring)
+        #lilo:TODO
+        print (scoring[0][0].text)
 
     def process_directory(self, dir, scoring):
         '''
@@ -82,7 +84,8 @@ class NlpTest(object):
         try:
             with open(file, 'r') as myfile:
                 text = myfile.read()
-        except:
+        except Exception as e:
+            logging.exception(e)
             logging.error('failed to read file: ' + file)
             return False
         else:
@@ -92,13 +95,18 @@ class NlpTest(object):
                 data = { 'text': text }
                 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 json_doc = requests.post(url, data=json.dumps(data), headers = headers)
-            except:
-                logging.error('http failed!\n' + url + '\n' + data)
+
+                doc = Document()
+                doc.text = text
+                doc.entities = jsonpickle.decode(json_doc.text)
+            except Exception as e:
+                logging.exception(e)
+                logging.error('http failed!\n' + url)
                 return False
             else:
                 gold = Gold(file)
-                s = gold.score(file)
-                scoring.append((json_doc, s))
+                s = gold.scoring(doc)
+                scoring.append((doc, s))
                 return True
 
 test = NlpTest()
