@@ -27,40 +27,16 @@
             "start_char": 71
         },
         {
-            "label": "GPE",
-            "text": "\n",
-            "end_char": 120,
-            "start_char": 119
-        },
-        {
             "label": "ORG",
             "text": "American\n",
             "end_char": 182,
             "start_char": 173
         },
         {
-            "label": "GPE",
-            "text": "\n",
-            "end_char": 247,
-            "start_char": 246
-        },
-        {
             "label": "PERSON",
             "text": "Thrun",
             "end_char": 276,
             "start_char": 271
-        },
-        {
-            "label": "GPE",
-            "text": "\n",
-            "end_char": 308,
-            "start_char": 307
-        },
-        {
-            "label": "GPE",
-            "text": "\n",
-            "end_char": 370,
-            "start_char": 369
         },
         {
             "label": "ORG",
@@ -73,12 +49,6 @@
             "text": "earlier this week",
             "end_char": 394,
             "start_char": 377
-        },
-        {
-            "label": "GPE",
-            "text": "\n",
-            "end_char": 396,
-            "start_char": 395
         }
     ]
 }

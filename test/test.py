@@ -45,9 +45,6 @@ class NlpTest(object):
                     exit(-1)
             self.process_file(file, scoring)
 
-        #lilo:TODO
-        print (scoring[0][0].text)
-
     def process_directory(self, dir, scoring):
         '''
         recursively process all files and sub-directories in given dir.\n
@@ -74,6 +71,13 @@ class NlpTest(object):
         return True
 
     def process_file(self, file, scoring):
+        '''
+        process text file (REST call to nlp-service to extract e.g., entities)
+        than, compute the scoring of the labeling using a corresponding gold 
+        with the name of the same file under the test/gold directory.\n
+        the labled document and its scoring are appended to the supplied scoring list.
+        '''
+
         # skip hidden files
         file = file.strip()
         if (file[0] == '.'):
