@@ -7,58 +7,116 @@ import os.path
 import requests
 import logging
 import json
-import jsonpickle
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from nlp import Document, Entity
 from types import SimpleNamespace as Namespace
 
 class Scoring(object):
-    def __init__(self, precision = 0, recall = 0, fscore = 0):
+    def __init__(self, precision = 0, recall = 0, f1score = 0):
         self.precision = precision
         self.recall = recall
-        self.fscore = fscore
+        self.f1score = f1score
 
 class Gold(Document):
     def __init__(self, file):
         # try loading the corresponding gold file
         file = os.path.basename(file)
         file = os.path.join(os.path.dirname(__file__), 'gold', file + '.gold')
-        with open(file, 'r') as f:
-            self.file = file
-            self.gold = jsonpickle.decode(f.read())
-        
-        #lilo:TODO
-
-    def test_match(self, e):
-        '''
-        test if and how much the given entity matches a gold antity.\n
-        return a real value in [0,1]
-        '''
-        #lilo: TODO
-        return 0.0
+        self.from_json_file(file)
 
     def scoring(self, doc):
         '''
-        produces a scoring (precision, recall & fscore) for the given doc entities.
+        produces a scoring (precision, recall & f1score) for the given doc entities.
         '''
         # lilo:TODO
         # calculate per class, then overall
         true_positives = 0
         false_positives = 0
-        true_negatives = 0
         false_negatives = 0
 
-        # for (e in doc.entities):
-        #     match = test_match(e)
+        sorted(doc.entities, key=lambda x: x.start_char)
+        sorted(self.entities, key=lambda x: x.start_char)
 
-        scoring = Scoring()
+        doc_index = 0
+        gold_index = 0
+
+        doc_entities_len = len(doc.entities)
+        gold_entities_len = len(self.entities)
+
+        while True:
+            if (doc_index < doc_entities_len):
+                e_doc = doc.entities[doc_index]
+            else:
+                e_doc = None
+
+            if (gold_index < gold_entities_len):
+                e_gold = self.entities[gold_index]
+            else:
+                e_gold = None
+
+            if (None == e_doc and None == e_gold):
+                break # done
+
+            if (None != e_doc and None == e_gold):
+                # only e_doc valid => false positive
+                false_positives += 1
+                doc_index += 1
+                continue
+
+            if (None == e_doc and None != e_gold):
+                # only e_gold valid => false negative
+                false_negatives += 1
+                gold_index += 1
+                continue
+
+            # both valid
+            overlapping_score = self.test_overlapping(e_doc, e_gold)
+            if (overlapping_score >= 0.5):
+                doc_index += 1
+                gold_index += 1
+                if (e_doc.label == e_gold.label):
+                    true_positives += 1 # successful match!
+                    continue
+                # overlap but labels do not match!
+                false_positives += 1
+                false_negatives += 1
+                continue
+            
+            # overlapping < 0.5 (no match!)
+            if (e_doc.start_char < e_gold.start_char):
+                false_positives += 1
+                doc_index += 1
+                continue
+            if (e_gold.start_char < e_doc.start_char):
+                false_negatives += 1
+                gold_index += 1
+                continue
+
+        precision = true_positives / (true_positives + false_positives)
+        recall = true_positives / (true_positives + false_negatives) 
+        f1score = 2 * (precision * recall) / (precision + recall)
+        scoring = Scoring(precision, recall, f1score)
         return scoring
+    
+    def test_overlapping(self, e_doc, e_gold):
+        '''
+        test if and how much the doc entity overlaps the gold antity.\n
+        return a real value in the range [0.0, 1.0].
+        '''
+        
+        start = max(e_gold.start_char, e_doc.start_char)
+        end = min(e_gold.end_char, e_doc.end_char)
+        num_overlapping_chars = end - start
+        if (num_overlapping_chars <= 0):
+            return 0.0
+        
+        return float(num_overlapping_chars) / (e_gold.end_char - e_gold.start_char)
 
 class GoldTest(object):
     """
     Nlp test class\n
-    compute scoring (precision, recall & fscore) for the given file/directory
+    compute scoring (precision, recall & f1score) for the given file/directory
     """
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='this module is used for nlp testing.')
@@ -67,7 +125,7 @@ class GoldTest(object):
     def run(self, debug = False):
         '''
         given a file or directory:\n
-        compute scoring (precision, recall & fscore).\n
+        compute scoring (precision, recall & f1score).\n
         output for a single file - scoring for that file.\n
         output for a directory - scoring for all files (recursively).
         '''
@@ -147,7 +205,7 @@ class GoldTest(object):
 
                 doc = Document()
                 doc.text = text
-                doc.entities = jsonpickle.decode(json_doc.text)
+                doc.entities = doc.entities_from_json(json_doc.text)
             except Exception as e:
                 logging.exception(e)
                 logging.error('http failed!\n' + url)
