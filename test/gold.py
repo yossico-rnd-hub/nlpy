@@ -22,6 +22,12 @@ class Scoring(object):
         self.recall = recall
         self.f1score = f1score
 
+class TrueFalseCounter(object):
+    def __init__(self):
+        self.true_positives = 0
+        self.false_positives = 0
+        self.false_negatives = 0
+
 class Gold(Document):
     def __init__(self, file):
         # try loading the corresponding gold file
@@ -33,10 +39,11 @@ class Gold(Document):
         '''
         produces a scoring (precision, recall & f1score) for the given doc entities.
         '''
-        # lilo:TODO - calculate per class, then overall
+        # calculate per class, then overall
         true_positives = 0
         false_positives = 0
         false_negatives = 0
+        by_label = {}
 
         sorted(doc.entities, key=lambda x: x.start_char)
         sorted(self.entities, key=lambda x: x.start_char)
@@ -65,12 +72,22 @@ class Gold(Document):
                 # only e_doc valid => false positive
                 false_positives += 1
                 doc_index += 1
+
+                # by label
+                if not e_doc.label in by_label:
+                    by_label[e_doc.label] = TrueFalseCounter() 
+                by_label[e_doc.label].false_positives += 1 
                 continue
 
             if (None == e_doc and None != e_gold):
                 # only e_gold valid => false negative
                 false_negatives += 1
                 gold_index += 1
+
+                # by label
+                if not e_gold.label in by_label:
+                    by_label[e_gold.label] = TrueFalseCounter() 
+                by_label[e_gold.label].false_negatives += 1 
                 continue
 
             # both valid
@@ -80,26 +97,68 @@ class Gold(Document):
                 gold_index += 1
                 if (e_doc.label == e_gold.label):
                     true_positives += 1 # successful match!
+                    # by label
+                    if not e_gold.label in by_label:
+                        by_label[e_gold.label] = TrueFalseCounter() 
+                    by_label[e_gold.label].true_positives += 1 
                     continue
                 # overlap but labels do not match!
                 false_positives += 1
                 false_negatives += 1
+                # by label
+                if not e_gold.label in by_label:
+                    by_label[e_gold.label] = TrueFalseCounter() 
+                by_label[e_gold.label].false_positives += 1 
+                by_label[e_gold.label].false_negatives += 1 
                 continue
             
             # overlapping < 0.5 (no match!)
             if (e_doc.start_char < e_gold.start_char):
                 false_positives += 1
                 doc_index += 1
+                # by label
+                if not e_gold.label in by_label:
+                    by_label[e_gold.label] = TrueFalseCounter() 
+                by_label[e_gold.label].false_positives += 1 
                 continue
+
             if (e_gold.start_char < e_doc.start_char):
                 false_negatives += 1
                 gold_index += 1
+                # by label
+                if not e_gold.label in by_label:
+                    by_label[e_gold.label] = TrueFalseCounter() 
+                by_label[e_gold.label].false_negatives += 1 
                 continue
 
         precision = true_positives / (true_positives + false_positives)
         recall = true_positives / (true_positives + false_negatives) 
         f1score = 2 * (precision * recall) / (precision + recall)
+        
         scoring = Scoring(precision, recall, f1score)
+
+        scoring.by_label = {}
+        for label in by_label:
+            c = by_label[label] # label_true_false_counter
+            s = Scoring()
+
+            if (0 == c.true_positives + c.false_positives):
+                s.precision = 0.0
+            else:
+                s.precision = c.true_positives / (c.true_positives + c.false_positives)
+
+            if (0 == c.true_positives + c.false_negatives):
+                s.recall = 0.0
+            else:
+                s.recall = c.true_positives / (c.true_positives + c.false_negatives)
+
+            if (0 == s.precision + s.recall):
+                s.f1score = 0.0
+            else:
+                s.f1score = 2 * (s.precision * s.recall) / (s.precision + s.recall)
+
+            scoring.by_label[label] = s
+
         return scoring
     
     def test_overlapping(self, e_doc, e_gold):
