@@ -12,6 +12,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from nlp import Document, Entity
 from types import SimpleNamespace as Namespace
 
+def is_hidden(f):
+    # linux
+    return len(f) > 1 and f[0] == '.' and f[1] != '/'
+
 class Scoring(object):
     def __init__(self, precision = 0, recall = 0, f1score = 0):
         self.precision = precision
@@ -29,8 +33,7 @@ class Gold(Document):
         '''
         produces a scoring (precision, recall & f1score) for the given doc entities.
         '''
-        # lilo:TODO
-        # calculate per class, then overall
+        # lilo:TODO - calculate per class, then overall
         true_positives = 0
         false_positives = 0
         false_negatives = 0
@@ -130,6 +133,8 @@ class GoldTest(object):
         output for a directory - scoring for all files (recursively).
         '''
 
+        self.debug = debug
+
         # read command-line args
         args = self.parser.parse_args()
         file = args.file
@@ -160,7 +165,7 @@ class GoldTest(object):
 
         # skip hidden directories
         dir = dir.strip()
-        if (dir[0] == '.'):
+        if (is_hidden(dir)):
             return True
 
         # process all files & sub-directories recursively
@@ -183,7 +188,7 @@ class GoldTest(object):
 
         # skip hidden files
         file = file.strip()
-        if (file[0] == '.'):
+        if (is_hidden(file)):
             return 0
 
         # read text file
@@ -214,6 +219,15 @@ class GoldTest(object):
                 gold = Gold(file)
                 s = gold.scoring(doc)
                 scoring.append((doc, s))
+
+                #lilo
+                if (True == self.debug):
+                    print(json_doc.text)
+                    print('')
+                    print('precision: {}'.format(s.precision))
+                    print('recall: {}'.format(s.recall))
+                    print('f1score: {}'.format(s.f1score))
+
                 return True
 
 gold_test = GoldTest()

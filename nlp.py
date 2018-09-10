@@ -72,7 +72,7 @@ class Entity(object):
 
 class Nlp(object):
     """Nlp class"""
-    def __init__(self, language = 'en_core_web_sm'):
+    def __init__(self, language = 'en_core_web_lg'):
         # Load English tokenizer, tagger, parser, NER and word vectors
         self.nlp = spacy.load(language)
         self.nlp.add_pipe(remove_whitespace_entities, after='ner')
