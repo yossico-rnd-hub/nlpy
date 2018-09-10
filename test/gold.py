@@ -1,5 +1,6 @@
 #!nlp/bin/python
 
+import sys
 import argparse
 import os
 import os.path
@@ -7,6 +8,8 @@ import requests
 import logging
 import json
 import jsonpickle
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from nlp import Document, Entity
 from types import SimpleNamespace as Namespace
 

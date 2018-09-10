@@ -5,5 +5,5 @@ nlp processor based on spacy
 - gold
 - tagger
 - similarity (spacy)
-- categorization (spacy)
+- categorization (spacy: TextCategorizer - https://spacy.io/api/textcategorizer)
 - relations
