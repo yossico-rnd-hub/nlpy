@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 nlp = Nlp(model = 'en_core_web_sm')
+# nlp = Nlp(model = 'es')
 
 @app.route('/')
 def home():
