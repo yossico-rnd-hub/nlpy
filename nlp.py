@@ -1,11 +1,15 @@
 import spacy
+import re
 
 import jsonpickle
 import jsonpickle.tags as tags
 import jsonpickle.unpickler as unpickler
 import jsonpickle.util as util
 
-import re
+
+import logging
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # NER tags pure whitespace as entities #1717
 # https://github.com/explosion/spaCy/issues/1717
@@ -72,9 +76,10 @@ class Entity(object):
 
 class Nlp(object):
     """Nlp class"""
-    def __init__(self, language = 'en_core_web_lg'):
+    def __init__(self, model = 'en_core_web_sm'):
         # Load English tokenizer, tagger, parser, NER and word vectors
-        self.nlp = spacy.load(language)
+        self.nlp = spacy.load(model)
+        logger.info("Loaded model '%s'" % model)
         self.nlp.add_pipe(remove_whitespace_entities, after='ner')
 
     def process(self, doc):

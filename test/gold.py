@@ -12,6 +12,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from nlp import Document, Entity
 from types import SimpleNamespace as Namespace
 
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def is_hidden(f):
     # linux
     return len(f) > 1 and f[0] == '.' and f[1] != '/'
@@ -30,10 +33,15 @@ class TrueFalseCounter(object):
 
 class Gold(Document):
     def __init__(self, file):
+        self.text = ''
+        self.entities = []
+
         # try loading the corresponding gold file
         file = os.path.basename(file)
         file = os.path.join(os.path.dirname(__file__), 'gold', file + '.gold')
-        self.from_json_file(file)
+        if (os.path.isfile(file)):
+            self.from_json_file(file)
+        # else: no gold solution for tested file (OK -> zero scoring)
 
     def scoring(self, doc):
         '''
@@ -131,9 +139,9 @@ class Gold(Document):
                 by_label[e_gold.label].false_negatives += 1 
                 continue
 
-        precision = true_positives / (true_positives + false_positives)
-        recall = true_positives / (true_positives + false_negatives) 
-        f1score = 2 * (precision * recall) / (precision + recall)
+        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives > 0) else 0.0
+        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives > 0) else 0.0
+        f1score = 2 * (precision * recall) / (precision + recall) if (precision + recall > 0) else 0.0
         
         scoring = Scoring(precision, recall, f1score)
 
@@ -142,20 +150,9 @@ class Gold(Document):
             c = by_label[label] # label_true_false_counter
             s = Scoring()
 
-            if (0 == c.true_positives + c.false_positives):
-                s.precision = 0.0
-            else:
-                s.precision = c.true_positives / (c.true_positives + c.false_positives)
-
-            if (0 == c.true_positives + c.false_negatives):
-                s.recall = 0.0
-            else:
-                s.recall = c.true_positives / (c.true_positives + c.false_negatives)
-
-            if (0 == s.precision + s.recall):
-                s.f1score = 0.0
-            else:
-                s.f1score = 2 * (s.precision * s.recall) / (s.precision + s.recall)
+            s.precision = c.true_positives / (c.true_positives + c.false_positives) if (c.true_positives + c.false_positives > 0) else 0.0
+            s.recall = c.true_positives / (c.true_positives + c.false_negatives) if (c.true_positives + c.false_negatives > 0) else 0.0
+            s.f1score = 2 * (s.precision * s.recall) / (s.precision + s.recall) if (s.precision + s.recall > 0) else 0.0
 
             scoring.by_label[label] = s
 
@@ -256,8 +253,8 @@ class GoldTest(object):
             with open(file, 'r') as myfile:
                 text = myfile.read()
         except Exception as e:
-            logging.exception(e)
-            logging.error('failed to read file: ' + file)
+            logger.exception(e)
+            logger.error('failed to read file: ' + file)
             return False
         else:
             # process file (nlp-service)
@@ -271,8 +268,8 @@ class GoldTest(object):
                 doc.text = text
                 doc.entities = doc.entities_from_json(json_doc.text)
             except Exception as e:
-                logging.exception(e)
-                logging.error('http failed!\n' + url)
+                logger.exception(e)
+                logger.error('http failed!\n' + url)
                 return False
             else:
                 gold = Gold(file)

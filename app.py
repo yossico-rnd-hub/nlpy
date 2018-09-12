@@ -4,9 +4,13 @@ from datetime import datetime
 from nlp import Nlp, Document
 import json
 
+import logging
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 
-nlp = Nlp('en_core_web_sm')
+nlp = Nlp(model = 'en_core_web_sm')
 
 @app.route('/')
 def home():
