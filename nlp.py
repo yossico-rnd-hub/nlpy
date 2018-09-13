@@ -83,6 +83,9 @@ class Nlp(object):
         if (not model in self.models):
             try:
                 # load tokenizer, tagger, parser, NER and word vectors
+                print ('----------------------------------')
+                print ('------ loading  model: ', model)
+                print ('----------------------------------')
                 nlp = self.models[model] = spacy.load(model)
                 nlp.add_pipe(remove_whitespace_entities, after='ner')
                 logger.info("Loaded model '%s'" % model)

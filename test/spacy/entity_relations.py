@@ -1,4 +1,4 @@
-#!nlp/bin/python
+#!env/bin/python
 
 # https://github.com/explosion/spaCy/blob/master/examples/information_extraction/entity_relations.py
 

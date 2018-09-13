@@ -1,4 +1,4 @@
-#!nlp/bin/python
+#!env/bin/python
 from flask import Flask, request, jsonify, abort
 from datetime import datetime
 from nlp import Nlp, Document

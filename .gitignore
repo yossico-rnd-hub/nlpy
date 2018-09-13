@@ -1,5 +1,5 @@
-tmp/
-training/
-nlp/
-__pycache__/
+env
+__pycache__
+tmp
+training
 

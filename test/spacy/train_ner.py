@@ -1,4 +1,4 @@
-#!nlp/bin/python
+#!env/bin/python
 
 # https://github.com/explosion/spacy/blob/master/examples/training/train_ner.py
 
