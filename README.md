@@ -27,3 +27,4 @@ nlp/bin/python -m spacy download es_core_news_md
 - nlp/bin/pip install --upgrade gensim
 - training (git): spaCy/examples/training
 - displayCy
+- https://github.com/conllul/UL_Hebrew-HTB

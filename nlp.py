@@ -76,16 +76,27 @@ class Entity(object):
 
 class Nlp(object):
     """Nlp class"""
-    def __init__(self, model = 'en_core_web_sm'):
-        # Load English tokenizer, tagger, parser, NER and word vectors
-        self.nlp = spacy.load(model)
-        logger.info("Loaded model '%s'" % model)
-        self.nlp.add_pipe(remove_whitespace_entities, after='ner')
+    def __init__(self):
+        self.models = {}
 
-    def process(self, doc):
-        # Process whole documents
+    def process(self, doc, model):
+        if (not model in self.models):
+            try:
+                # load tokenizer, tagger, parser, NER and word vectors
+                nlp = self.models[model] = spacy.load(model)
+                nlp.add_pipe(remove_whitespace_entities, after='ner')
+                logger.info("Loaded model '%s'" % model)
+            except Exception as ex:
+                error = "Failed to load model: '{}'".format(model)
+                logger.error(error)
+                logger.exception(ex)
+                raise Exception(error)
+        else:
+            nlp = self.models[model]
+
+        # process document
         doc.text = pre_process_text(doc.text)
-        spacy_doc = self.nlp(doc.text)
+        spacy_doc = nlp(doc.text)
 
         for ent in spacy_doc.ents:
             e = Entity(ent.text, ent.start_char, ent.end_char, ent.label_)
