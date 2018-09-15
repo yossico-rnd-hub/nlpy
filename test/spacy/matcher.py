@@ -15,3 +15,4 @@ matches = matcher(doc)
 for match_id, start, end in matches:
     span = doc[start:end]
     print(span.text)
+
