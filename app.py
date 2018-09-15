@@ -1,4 +1,4 @@
-#!nlp/bin/python
+#!env/bin/python
 from flask import Flask, request, jsonify, abort
 from datetime import datetime
 from nlp import Nlp, Document
@@ -9,9 +9,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-
-nlp = Nlp(model = 'en_core_web_sm')
-# nlp = Nlp(model = 'es')
+nlp = Nlp()
 
 @app.route('/')
 def home():
@@ -23,7 +21,7 @@ def home():
 def process_doc():
     '''
     Extract entities\n
-    Usage: curl -i -H "Content-Type: application/json" -X POST -d '{"text": "foo"}' http://localhost:5000/api/v1.0/docs
+    Usage: curl -i -H "Content-Type: application/json" -X POST -d '{"text": "foo", "model": "en"}' http://localhost:5000/api/v1.0/docs
     '''
     # text is a required field
     if not request.json or not 'text' in request.json:
@@ -33,7 +31,15 @@ def process_doc():
     doc = Document()
     doc.text = request.json['text']
     
-    res = nlp.process(doc)
+    default_model = 'en_core_web_sm' # default model
+    model = request.json['model'] if ('model' in request.json) else default_model
+
+    try:
+        res = nlp.process(doc, model)
+    except Exception as ex:
+        logger.exception(ex)
+        return json.dumps({ "error": ex.args }), 500
+
     return json.dumps(res.entities, indent=4, default=lambda x: x.__dict__), 200
 
 if __name__ == '__main__':

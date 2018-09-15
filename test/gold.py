@@ -1,4 +1,4 @@
-#!nlp/bin/python
+#!env/bin/python
 
 import sys
 import argparse
