@@ -59,13 +59,24 @@ doc = nlp(
     u"IBM meetup November this year.\n"
 )
 
+# ---------------------------------------------------------
+print(doc.text)
+print()
+
+# ---------------------------------------------------------
 # print('tokens:')
 # for token in doc:
 #     print(token.text, '\tPOS: ', token.pos_, '\tlabel: ', token.ent_type_, '\ttag: ', token.tag_)
 # print()
 
-matches = matcher(doc)
+# ---------------------------------------------------------
+# print('sentences:')
+# for s in doc.sents:
+#     print(s)
+# print()
 
-print()
+# ---------------------------------------------------------
+# print('entities:')
+matches = matcher(doc)
 for e in doc.ents:
     print(e.start, e.end, '\t', e.label_, '\t', e.text)
