@@ -10,6 +10,7 @@ env/bin/pip install flask
 env/bin/pip install jsonpickle
 
 ### en
+env/bin/python -m spacy download en
 env/bin/python -m spacy download en_core_web_sm
 env/bin/python -m spacy download en_core_web_md
 env/bin/python -m spacy download en_core_web_lg
