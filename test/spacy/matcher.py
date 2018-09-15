@@ -4,7 +4,15 @@ import spacy
 from spacy.matcher import Matcher
 from spacy.tokens import Doc
 
+# NER tags pure whitespace as entities #1717
+# https://github.com/explosion/spaCy/issues/1717
+def remove_whitespace_entities(doc):
+    doc.ents = [e for e in doc.ents if not e.text.isspace()]
+    return doc
+
 nlp = spacy.load('en')
+nlp.add_pipe(remove_whitespace_entities, after='ner')
+
 matcher = Matcher(nlp.vocab)
 
 # Get the ID of the 'EVENT' entity type. This is required to set an entity.
@@ -27,17 +35,29 @@ def add_event_ent(matcher, doc, i, matches):
 
     entity = (EVENT, start, end)
     doc.ents += (entity,)
-    print(doc[start:end].text, entity)
+
+    # print(doc[start:end].text, entity)
 
 patterns = [
-    [{'ENT_TYPE': 'ORG', 'OP': '+'}, 
-     {'LIKE_NUM': False, 'OP': '+'}, 
-     {'LIKE_NUM': True}]
+    [
+        {'ENT_TYPE': 'ORG', 'OP': '+'}, 
+        {'LIKE_NUM': False, 'OP': '+'}, 
+        {'LIKE_NUM': True}
+    ], 
+    [
+        {'ENT_TYPE': 'ORG', 'OP': '+'}, 
+        {'IS_ASCII': True, 'OP': '+'},
+        {'ENT_TYPE': 'DATE', 'OP': '+'}
+    ]
 ]
 
 matcher.add('GoogleIO', add_event_ent, *patterns)
 
-doc = nlp(u"This is a text about Google I/O 2015. text about Microsoft Xbox 2019")
+doc = nlp(
+    u"This is a text about Google I/O 2015.\n"
+    u"Another one is about Microsoft Xbox 2019.\n"
+    u"IBM meetup November this year.\n"
+)
 
 # print('tokens:')
 # for token in doc:
@@ -45,3 +65,7 @@ doc = nlp(u"This is a text about Google I/O 2015. text about Microsoft Xbox 2019
 # print()
 
 matches = matcher(doc)
+
+print()
+for e in doc.ents:
+    print(e.start, e.end, '\t', e.label_, '\t', e.text)
