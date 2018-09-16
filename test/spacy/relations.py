@@ -74,17 +74,18 @@ def extract_relations(doc):
 
 def is_neg(r):
     _, p, _ = r
-    if (type(p) == spacy.tokens.Span):
-        rt = p.root
-    else:
-        rt = root(p)
+    rt = root(p)
     for w in rt.children:
         if (w.dep_ == 'neg'):
             return True
     return False
 
 def root(w):
-    head = w.head
+    if (type(w) == spacy.tokens.Span):
+        head = w[0].head
+    else:
+        head = w.head
+
     while not is_root(head):
         head = head.head
     return head
