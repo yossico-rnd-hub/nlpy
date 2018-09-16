@@ -20,6 +20,9 @@ env/bin/python -m spacy download es
 env/bin/python -m spacy download es_core_news_sm
 env/bin/python -m spacy download es_core_news_md
 
+## misc
+spacy.explain('pobj')
+
 ## TODO
 - similarity (spacy)
 - categorization (spacy: TextCategorizer - https://spacy.io/api/textcategorizer)
