@@ -53,34 +53,57 @@ import spacy
 def main(patterns_loc, text_loc, n=10000, lang='en'):
     nlp = spacy.blank('en')
     nlp.vocab.lex_attr_getters = {}
+
+    # -----------------------------------------------------------------------
+    #lilo: example
+    # color_patterns = [nlp(text) for text in ('red', 'green', 'yellow')]
+    # product_patterns = [nlp(text) for text in ('boots', 'coats', 'bag')]
+    # material_patterns = [nlp(text) for text in ('silk', 'yellow fabric')]
+
+    # matcher = PhraseMatcher(nlp.vocab)
+    # matcher.add('COLOR', None, *color_patterns)
+    # matcher.add('PRODUCT', None, *product_patterns)
+    # matcher.add('MATERIAL', None, *material_patterns)
+
+    # doc = nlp("yellow fabric")
+    # matches = matcher(doc)
+    # for match_id, start, end in matches:
+    #     rule_id = nlp.vocab.strings[match_id]  # get the unicode ID, i.e. 'COLOR'
+    #     span = doc[start : end]  # get the matched slice of the doc
+    #     print(rule_id, span.text)
+
+    # -----------------------------------------------------------------------
+
     phrases = read_gazetteer(nlp.tokenizer, patterns_loc)
     count = 0
     t1 = time.time()
-    for ent_id, text in get_matches(nlp.tokenizer, phrases,
-                                    read_text(text_loc, n=n)):
+
+    for ent_id, start, end, text in get_matches(nlp.tokenizer, phrases, read_text(text_loc, max_docs=n)):
         count += 1
+        print(ent_id, '\t', start, end, '\t', text)
+    
     t2 = time.time()
     print("%d docs in %.3f s. %d matches" % (n, (t2 - t1), count))
 
-
-def read_gazetteer(tokenizer, loc, n=-1):
-    for i, line in enumerate(open(loc)):
+def read_gazetteer(tokenizer, loc):
+    for _, line in enumerate(open(loc)):
         data = ujson.loads(line.strip())
         phrase = tokenizer(data['text'])
         for w in phrase:
             _ = tokenizer.vocab[w.text]
-        if len(phrase) >= 2:
-            yield phrase
+        
+        #lilo
+        yield phrase
+        # if len(phrase) >= 2:
+        #     yield phrase
 
-
-def read_text(bz2_loc, n=10000):
+def read_text(bz2_loc, max_docs=10000):
     with BZ2File(bz2_loc) as file_:
         for i, line in enumerate(file_):
             data = ujson.loads(line)
             yield data['body']
-            if i >= n:
+            if i >= max_docs:
                 break
-
 
 def get_matches(tokenizer, phrases, texts, max_length=6):
     matcher = PhraseMatcher(tokenizer.vocab, max_length=max_length)
@@ -91,7 +114,7 @@ def get_matches(tokenizer, phrases, texts, max_length=6):
             _ = doc.vocab[w.text]
         matches = matcher(doc)
         for ent_id, start, end in matches:
-            yield (ent_id, doc[start:end].text)
+            yield (ent_id, start, end, doc[start:end].text)
 
 
 if __name__ == '__main__':

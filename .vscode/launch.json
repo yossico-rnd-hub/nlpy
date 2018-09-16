@@ -11,9 +11,9 @@
             "program": "${file}",
             "console": "integratedTerminal", 
             "args": [
-                "text2"
-                // "test/spacy/patterns",
-                // "test/spacy/RC_2005-12.bz2"
+                // "text2"
+                "test/spacy/patterns",
+                "test/spacy/RC_2005-12.bz2"
             ]
         },
         {
