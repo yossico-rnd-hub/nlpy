@@ -20,7 +20,6 @@ TEXTS = [
     'Revenue exceeded twelve billion dollars, with a loss of $1b.',
 ]
 
-
 @plac.annotations(
     model=("Model to load (needs parser and NER)", "positional", None, str))
 def main(model='en_core_web_sm'):
@@ -51,7 +50,6 @@ def extract_currency_relations(doc):
         elif money.dep_ == 'pobj' and money.head.dep_ == 'prep':
             relations.append((money.head.head, money))
     return relations
-
 
 if __name__ == '__main__':
     plac.call(main)
