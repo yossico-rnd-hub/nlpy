@@ -3,12 +3,15 @@
 from __future__ import unicode_literals, print_function
 
 import spacy
+import re
 
 TEXTS = [
     'Hillary Clinton met secretly with Barak Obama last week.',
     'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
     'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
     'Mark Zuckerberg, CEO of Facebook, gave testimony in U.S. senate Sunday morning.',
+    'Hillery killed David',
+    'David killed by Hillery',
 ]
 
 def main(model='en_core_web_sm'):
@@ -46,6 +49,15 @@ def extract_entity_relations(doc):
     
     return relations
 
+def is_subj(w):
+    return None != re.match(r'[a-z]subj', w.dep_)
+
+def is_compound(w):
+    return w.dep_  == 'compound'
+
+def is_root(w):
+    return w.dep_ == 'ROOT'
+
 def extract_spo_relations(doc, relations):
     ''' extract (s,p,o) relations '''
 
@@ -53,9 +65,18 @@ def extract_spo_relations(doc, relations):
     obj_e_types = ['PERSON', 'ORG']
     
     for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
-        if e.dep_ in ('nsubj', 'compound') and e.head.dep_ == 'ROOT':
+        if is_subj(e) or is_compound(e) and is_root(e.head):
+            pred = e.head
+
+            # Hillery killed David vs. David killed by Hillery
+            pred_rights = list(pred.rights)
+            if (pred.pos_ == 'VERB'):
+                for w in pred_rights:
+                    if (w.dep_ in ('agent')):
+                        pred = doc[pred.i : w.i+1]
+
             for e2 in extract_spo_objects(e, obj_e_types):
-                relations.append((e, e.head, e2)) # matched
+                relations.append((e, pred, e2)) # matched
 
 def extract_spo_objects(subj, obj_e_types):
     ''' extract (s,p,o) objects '''
@@ -81,7 +102,7 @@ def extract_spo_objects(subj, obj_e_types):
 def extract_preposition_relations(doc, relations):
     ''' 
     extract (e1, preposition, e2) relations
-    e.g: mother_of, employee_of
+    e.g: (s, mother_of, o), (s, employee_of, o)
     '''
 
     subj_types = ['PERSON', 'ORG']
