@@ -5,10 +5,10 @@ from __future__ import unicode_literals, print_function
 import spacy
 
 TEXTS = [
-    'Hillary Clinton met with Barak Obama last week.',
-    'Last week Hillary and Bill Clinton, parents of Chelsea, met secretly with Barak Obama at the White House.',
-    'Mark Zuckerberg, CEO of Facebook, gave testimony in U.S. senate Sunday morning.',
+    'Hillary Clinton met secretly with Barak Obama last week.',
     'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
+    'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
+    'Mark Zuckerberg, CEO of Facebook, gave testimony in U.S. senate Sunday morning.',
 ]
 
 def main(model='en_core_web_sm'):
@@ -17,10 +17,14 @@ def main(model='en_core_web_sm'):
     print("Processing %d texts" % len(TEXTS))
     print()
 
+    print('text:')
+    print('-----')
     for text in TEXTS:
         print(text)
     print()
 
+    print('relations:')
+    print('----------')
     for text in TEXTS:
         doc = nlp(text)
         relations = extract_entity_relations(doc)
@@ -64,7 +68,7 @@ def extract_spo_objects(subj, obj_e_types):
         while (None != head2):
             if (head2 == subj):
                 head2 = head2.head
-                continue # does not match (s,p,o) - missing (,p,) in between
+                break # does not match (s,p,o) - missing (,p,) in between
 
             if (head2 == subj.head):
                 # match
@@ -85,8 +89,8 @@ def extract_preposition_relations(doc, relations):
 
     for pobj in filter(lambda w: w.ent_type_ in obj_types and w.dep_ in ('pobj'), doc):
         # 'mother of', 'employee of', etc.
-        if (pobj.head.dep_ == 'prep' and pobj.head.head.dep_ == 'appos'):
-            pred_span = doc[pobj.head.head.left_edge.i : pobj.head.right_edge.i]
+        if (pobj.head.dep_ == 'prep' and pobj.head.head.dep_ in ('appos', 'conj')):
+            pred_span = doc[pobj.head.head.i : pobj.head.right_edge.i]
             first_subject = pobj.head.head.head
             subjects = [w for w in first_subject.subtree if w != pobj and w.ent_type_ in subj_types]
             for s in subjects:
