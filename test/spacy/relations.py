@@ -9,7 +9,7 @@ from __future__ import unicode_literals, print_function
 import spacy
 import re
 
-__model='en' # 'en'/'es'
+__model = 'en'  # 'en'/'es'
 
 __do_extract_is_relations = True
 __do_extract_spo_relations = True
@@ -54,14 +54,18 @@ if (__model.startswith('es')):
 else:
     TEXTS = TEXTS_EN
 
+
 def is_subj(w):
     return None != re.match(r'[a-z]subj', w.dep_)
 
+
 def is_compound(w):
-    return w.dep_  == 'compound'
+    return w.dep_ == 'compound'
+
 
 def is_root(w):
     return w.dep_ == 'ROOT'
+
 
 def main(model='en'):
     nlp = spacy.load(model)
@@ -83,6 +87,7 @@ def main(model='en'):
         for s, p, o in relations:
             print('({}, {}, {})'.format(s.text, p.text, o.text))
 
+
 def extract_relations(doc):
     ''' extract relations between entities '''
 
@@ -99,9 +104,10 @@ def extract_relations(doc):
         extract_spo_relations(doc, relations)
     if (__do_extract_preposition_relations):
         extract_preposition_relations(doc, relations)
-    
+
     relations = filter(lambda r: not is_neg(r), relations)
     return relations
+
 
 def is_neg(r):
     _, p, _ = r
@@ -110,6 +116,7 @@ def is_neg(r):
         if (w.dep_ == 'neg'):
             return True
     return False
+
 
 def root(w):
     if (type(w) == spacy.tokens.Span):
@@ -121,17 +128,19 @@ def root(w):
         head = head.head
     return head
 
+
 def is_or_do_root(w):
     rt = root(w)
     if (rt.lemma_ == 'be' or rt.lemma_ == 'do'):
         return True
     return False
 
+
 def extract_is_relations(doc, relations):
     ''' extract is/is_not relations '''
     subj_e_types = ['PERSON', 'PER', 'ORG']
     obj_e_types = ['PERSON', 'PER', 'ORG']
-    
+
     for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
         if is_subj(e):
             if (is_or_do_root(e)):
@@ -140,62 +149,66 @@ def extract_is_relations(doc, relations):
                 for obj in extract_spo_objects(e, obj_e_types):
                     relations.append((e, pred_span, obj))
 
+
 def is_relation_pred_span_from_children(children):
     pred = None
     filtered = filter(lambda w: w.dep_ == 'attr', children)
     list_ = list(filtered)
     if (len(list_) <= 0):
         return None
-    pred = list_[-1] # last one
+    pred = list_[-1]  # last one
     i = pred.i
     for x in filter(lambda w: w.dep_ == 'compound', pred.lefts):
         i = min(x.i, i)
-    pred_span =  pred.doc[i:pred.i+1]
+    pred_span = pred.doc[i:pred.i+1]
     return pred_span
+
 
 def extract_spo_relations(doc, relations):
     ''' extract (s,p,o) relations '''
 
     subj_e_types = ['PERSON', 'PER', 'ORG']
     obj_e_types = ['PERSON', 'PER', 'ORG']
-    
+
     for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
         if is_subj(e) or is_compound(e) and is_root(e.head):
             pred = e.head
 
             if (is_or_do_root(pred)):
-                continue # but not 'is mother of', 'is employee of', etc.
+                continue  # but not 'is mother of', 'is employee of', etc.
 
             # Hillery killed David vs. David killed by Hillery
             pred_rights = list(pred.rights)
             if (pred.pos_ == 'VERB'):
                 for w in pred_rights:
                     if (w.dep_ in ('agent')):
-                        pred = doc[pred.i : w.i+1]
+                        pred = doc[pred.i: w.i+1]
 
             for e2 in extract_spo_objects(e, obj_e_types):
-                relations.append((e, pred, e2)) # matched
+                relations.append((e, pred, e2))  # matched
+
 
 def extract_spo_objects(subj, obj_e_types):
     ''' extract (s,p,o) objects '''
     obj_list = []
     for e2 in filter(lambda w: w.ent_type_ in obj_e_types, subj.sent):
         if (e2 == subj):
-            continue # skip subj
-        
+            continue  # skip subj
+
         head2 = e2.head
         while (None != head2):
             if (head2 == subj):
                 head2 = head2.head
-                break # does not match (s,p,o) - missing (,p,) in between
+                break  # does not match (s,p,o) - missing (,p,) in between
 
             if (head2 == subj.head):
                 # match
                 obj_list.append(e2)
                 break
             head2 = head2.head
-    
+
     return obj_list
+
 
 def extract_preposition_relations(doc, relations):
     ''' 
@@ -209,14 +222,16 @@ def extract_preposition_relations(doc, relations):
     for pobj in filter(lambda w: w.ent_type_ in obj_types and w.dep_ in ('pobj'), doc):
         # 'mother of', 'employee of', etc.
         if (is_or_do_root(pobj)):
-            continue # but not 'is mother of', 'is employee of', etc.
+            continue  # but not 'is mother of', 'is employee of', etc.
 
         if (pobj.head.dep_ == 'prep' and pobj.head.head.dep_ in ('appos', 'conj')):
-            pred_span = doc[pobj.head.head.i : pobj.head.right_edge.i]
+            pred_span = doc[pobj.head.head.i: pobj.head.right_edge.i]
             first_subject = pobj.head.head.head
-            subjects = [w for w in first_subject.subtree if w != pobj and w.ent_type_ in subj_types]
+            subjects = [w for w in first_subject.subtree if w !=
+                        pobj and w.ent_type_ in subj_types]
             for s in subjects:
-                relations.append((s, pred_span, pobj)) # matched
+                relations.append((s, pred_span, pobj))  # matched
+
 
 if __name__ == '__main__':
     main(model=__model)
