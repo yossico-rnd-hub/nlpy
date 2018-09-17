@@ -9,11 +9,31 @@ from __future__ import unicode_literals, print_function
 import spacy
 import re
 
-__model = 'en'  # 'en'/'es'
+__model = 'es'  # 'en'/'es'
 
-__do_extract_is_relations = True
-__do_extract_spo_relations = True
-__do_extract_preposition_relations = True
+
+def is_spanish():
+    return __model.startswith('es')
+
+
+def is_english():
+    return __model.startswith('en')
+
+
+if is_spanish():
+    __do_extract_is_relations = False
+    __do_extract_spo_relations = True
+    __do_extract_preposition_relations = False
+
+    _subj_e_types = ['PER', 'ORG', 'MISC']
+    _obj_e_types = ['PER', 'ORG', 'MISC']
+else:
+    __do_extract_is_relations = True
+    __do_extract_spo_relations = True
+    __do_extract_preposition_relations = True
+
+    _subj_e_types = ['PERSON', 'ORG']
+    _obj_e_types = ['PERSON', 'ORG']
 
 TEXTS_EN = [
     'Hillary Clinton met secretly with Barak Obama last week.',
@@ -33,23 +53,33 @@ TEXTS_EN = [
 ]
 
 TEXTS_ES = [
-    'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
-    'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
+    # OK
+    # 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
+    # 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
 
+    # FIX
     'Bill Clinton es el presidente de los EE. UU.',
-    'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
-    'Mark Zuckerberg, CEO de Facebook, dio su testimonio en el Senado de Estados Unidos el domingo por la mañana.',
+    # FIX
+    # 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+    # FIX(*)
+    # 'Mark Zuckerberg, CEO de Facebook, dio su testimonio en el Senado de Estados Unidos el domingo por la mañana.',
+    # OK
+    # 'Bill Gates, CEO de Microsoft.'
+    # 'Mark Zuckerberg es el CEO de Facebook.'
 
-    'Hillery Clinton mató a David',
-    'David asesinado por Hillery Clinton',
+    # FIX(Hillery Clinton -> Hillery)
+    # 'Hillery Clinton mató a David',
+    # FIX(*)
+    # 'David asesinado por Hillery Clinton',
 
-    'Hillery Clinton no se encontró con Bill Clinton',
-    'Hillery Clinton es la madre biológica de Chelsea Clinton',
-    'Hillery Clinton es la madrastra de Chelsea Clinton',
-    'Hillery Clinton no es la madre de Bill Clinton',
+    # FIX
+    # 'Hillery Clinton no se encontró con Bill Clinton',
+    # 'Hillery Clinton es la madre biológica de Chelsea Clinton',
+    # 'Hillery Clinton es la madrastra de Chelsea Clinton',
+    # 'Hillery Clinton no es la madre de Bill Clinton',
 ]
 
-if (__model.startswith('es')):
+if (is_spanish()):
     TEXTS = TEXTS_ES
 else:
     TEXTS = TEXTS_EN
@@ -84,8 +114,12 @@ def main(model='en'):
     for text in TEXTS:
         doc = nlp(text)
         relations = extract_relations(doc)
+        num_found = 0
         for s, p, o in relations:
+            num_found += 1
             print('({}, {}, {})'.format(s.text, p.text, o.text))
+        if (0 == num_found):
+            print('None!')
 
 
 def extract_relations(doc):
@@ -101,7 +135,10 @@ def extract_relations(doc):
     if (__do_extract_is_relations):
         extract_is_relations(doc, relations)
     if (__do_extract_spo_relations):
-        extract_spo_relations(doc, relations)
+        if (is_english()):
+            extract_spo_relations(doc, relations)
+        elif (is_spanish()):
+            es_extract_spo_relations(doc, relations)
     if (__do_extract_preposition_relations):
         extract_preposition_relations(doc, relations)
 
@@ -138,15 +175,13 @@ def is_or_do_root(w):
 
 def extract_is_relations(doc, relations):
     ''' extract is/is_not relations '''
-    subj_e_types = ['PERSON', 'PER', 'ORG']
-    obj_e_types = ['PERSON', 'PER', 'ORG']
 
-    for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
+    for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
         if is_subj(e):
             if (is_or_do_root(e)):
                 rt = root(e)
                 pred_span = is_relation_pred_span_from_children(rt.children)
-                for obj in extract_spo_objects(e, obj_e_types):
+                for obj in extract_spo_objects(e, _obj_e_types):
                     relations.append((e, pred_span, obj))
 
 
@@ -167,11 +202,8 @@ def is_relation_pred_span_from_children(children):
 def extract_spo_relations(doc, relations):
     ''' extract (s,p,o) relations '''
 
-    subj_e_types = ['PERSON', 'PER', 'ORG']
-    obj_e_types = ['PERSON', 'PER', 'ORG']
-
-    for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
-        if is_subj(e) or is_compound(e) and is_root(e.head):
+    for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
+        if ((is_subj(e) or is_compound(e)) and is_root(e.head)):
             pred = e.head
 
             if (is_or_do_root(pred)):
@@ -184,14 +216,34 @@ def extract_spo_relations(doc, relations):
                     if (w.dep_ in ('agent')):
                         pred = doc[pred.i: w.i+1]
 
-            for e2 in extract_spo_objects(e, obj_e_types):
+            for e2 in extract_spo_objects(e, _obj_e_types):
                 relations.append((e, pred, e2))  # matched
 
 
-def extract_spo_objects(subj, obj_e_types):
+def es_extract_spo_relations(doc, relations):
+    ''' extract (s,p,o) relations '''
+
+    for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
+        if (is_subj(e)):
+            pred = e.head
+            obj = next(filter(
+                lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
+            if (None != obj):
+                relations.append((e, pred, obj))  # matched
+        elif (is_root(e)):
+            pred = next(filter(
+                lambda w: w != e and w.pos_ in ('VERB', 'NOUN', 'PROPN'), e.children), None)
+            if (None != pred):
+                obj = next(filter(
+                    lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
+                if (None != obj):
+                    relations.append((e, pred, obj))  # matched
+
+
+def extract_spo_objects(subj, _obj_e_types):
     ''' extract (s,p,o) objects '''
     obj_list = []
-    for e2 in filter(lambda w: w.ent_type_ in obj_e_types, subj.sent):
+    for e2 in filter(lambda w: w.ent_type_ in _obj_e_types, subj.sent):
         if (e2 == subj):
             continue  # skip subj
 
