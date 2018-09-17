@@ -9,7 +9,13 @@ from __future__ import unicode_literals, print_function
 import spacy
 import re
 
-TEXTS = [
+__model='en' # 'en'/'es'
+
+__do_extract_is_relations = True
+__do_extract_spo_relations = True
+__do_extract_preposition_relations = True
+
+TEXTS_EN = [
     'Hillary Clinton met secretly with Barak Obama last week.',
     'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
 
@@ -17,14 +23,36 @@ TEXTS = [
     'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
     'Mark Zuckerberg, CEO of Facebook, gave testimony in U.S. senate Sunday morning.',
 
-    'Hillery killed David',
-    'David killed by Hillery',
+    'Hillery killed David.',
+    'David killed by Hillery.',
 
-    'Hillery did not met with Bill',
-    'Hillery is the biologic mother of Chelsea',
-    'Hillery is the step mother of Chelsea',
-    'Hillery is not the mother of Bill',
+    'Hillery did not meet with Bill.',
+    'Hillery is the biologic mother of Chelsea.',
+    'Hillery is the step mother of Chelsea.',
+    'Hillery is not the mother of Bill.',
 ]
+
+TEXTS_ES = [
+    'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
+    'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
+
+    'Bill Clinton es el presidente de los EE. UU.',
+    'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+    'Mark Zuckerberg, CEO de Facebook, dio su testimonio en el Senado de Estados Unidos el domingo por la mañana.',
+
+    'Hillery Clinton mató a David',
+    'David asesinado por Hillery Clinton',
+
+    'Hillery Clinton no se encontró con Bill Clinton',
+    'Hillery Clinton es la madre biológica de Chelsea Clinton',
+    'Hillery Clinton es la madrastra de Chelsea Clinton',
+    'Hillery Clinton no es la madre de Bill Clinton',
+]
+
+if (__model.startswith('es')):
+    TEXTS = TEXTS_ES
+else:
+    TEXTS = TEXTS_EN
 
 def is_subj(w):
     return None != re.match(r'[a-z]subj', w.dep_)
@@ -35,7 +63,7 @@ def is_compound(w):
 def is_root(w):
     return w.dep_ == 'ROOT'
 
-def main(model='en_core_web_sm'):
+def main(model='en'):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
     print("Processing %d texts" % len(TEXTS))
@@ -65,9 +93,12 @@ def extract_relations(doc):
 
     relations = []
 
-    extract_is_relations(doc, relations)
-    extract_spo_relations(doc, relations)
-    extract_preposition_relations(doc, relations)
+    if (__do_extract_is_relations):
+        extract_is_relations(doc, relations)
+    if (__do_extract_spo_relations):
+        extract_spo_relations(doc, relations)
+    if (__do_extract_preposition_relations):
+        extract_preposition_relations(doc, relations)
     
     relations = filter(lambda r: not is_neg(r), relations)
     return relations
@@ -98,26 +129,35 @@ def is_or_do_root(w):
 
 def extract_is_relations(doc, relations):
     ''' extract is/is_not relations '''
-    subj_e_types = ['PERSON', 'ORG']
-    obj_e_types = ['PERSON', 'ORG']
+    subj_e_types = ['PERSON', 'PER', 'ORG']
+    obj_e_types = ['PERSON', 'PER', 'ORG']
     
     for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
         if is_subj(e):
             if (is_or_do_root(e)):
                 rt = root(e)
-                pred = list(rt.children)[-1]
-                i = pred.i
-                for x in filter(lambda w: w.dep_ == 'compound', pred.lefts):
-                    i = min(x.i, i)
-                pred_span =  doc[i:pred.i+1]
+                pred_span = is_relation_pred_span_from_children(rt.children)
                 for obj in extract_spo_objects(e, obj_e_types):
                     relations.append((e, pred_span, obj))
+
+def is_relation_pred_span_from_children(children):
+    pred = None
+    filtered = filter(lambda w: w.dep_ == 'attr', children)
+    list_ = list(filtered)
+    if (len(list_) <= 0):
+        return None
+    pred = list_[-1] # last one
+    i = pred.i
+    for x in filter(lambda w: w.dep_ == 'compound', pred.lefts):
+        i = min(x.i, i)
+    pred_span =  pred.doc[i:pred.i+1]
+    return pred_span
 
 def extract_spo_relations(doc, relations):
     ''' extract (s,p,o) relations '''
 
-    subj_e_types = ['PERSON', 'ORG']
-    obj_e_types = ['PERSON', 'ORG']
+    subj_e_types = ['PERSON', 'PER', 'ORG']
+    obj_e_types = ['PERSON', 'PER', 'ORG']
     
     for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
         if is_subj(e) or is_compound(e) and is_root(e.head):
@@ -163,8 +203,8 @@ def extract_preposition_relations(doc, relations):
     e.g: (s, mother_of, o), (s, employee_of, o)
     '''
 
-    subj_types = ['PERSON', 'ORG']
-    obj_types = ['PERSON', 'ORG']
+    subj_types = ['PERSON', 'PER', 'ORG']
+    obj_types = ['PERSON', 'PER', 'ORG']
 
     for pobj in filter(lambda w: w.ent_type_ in obj_types and w.dep_ in ('pobj'), doc):
         # 'mother of', 'employee of', etc.
@@ -179,7 +219,7 @@ def extract_preposition_relations(doc, relations):
                 relations.append((s, pred_span, pobj)) # matched
 
 if __name__ == '__main__':
-    main()
+    main(model=__model)
 
     # Expected output:
     # Net income      MONEY   $9.4 million

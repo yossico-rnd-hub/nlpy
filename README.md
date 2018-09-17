@@ -32,3 +32,5 @@ spacy.explain('pobj')
 - training (git): spaCy/examples/training
 - displayCy
 - https://github.com/conllul/UL_Hebrew-HTB
+
+- annotate PERSON when coms before person-VERBS (e.g: 'Hillery killed...')
