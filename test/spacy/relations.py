@@ -9,7 +9,7 @@ from __future__ import unicode_literals, print_function
 import spacy
 import re
 
-__model = 'es'  # 'en'/'es'
+__model = 'en'  # 'en'/'es'
 
 
 def is_spanish():
@@ -32,8 +32,8 @@ else:
     __do_extract_spo_relations = True
     __do_extract_preposition_relations = True
 
-    _subj_e_types = ['PERSON', 'ORG']
-    _obj_e_types = ['PERSON', 'ORG']
+    _subj_e_types = ['PERSON', 'ORG', 'GPE']
+    _obj_e_types = ['PERSON', 'ORG', 'GPE']
 
 TEXTS_EN = [
     'Hillary Clinton met secretly with Barak Obama last week.',
@@ -41,7 +41,7 @@ TEXTS_EN = [
 
     'Bill is the president of the U.S.',
     'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
-    'Mark Zuckerberg, CEO of Facebook, gave testimony in U.S. senate Sunday morning.',
+    'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
 
     'Hillery killed David.',
     'David killed by Hillery.',
@@ -56,13 +56,12 @@ TEXTS_ES = [
     # OK
     # 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
     # 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
+    # 'Bill Clinton es el presidente de los U.S.A',
 
-    # FIX
-    'Bill Clinton es el presidente de los EE. UU.',
     # FIX
     # 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
     # FIX(*)
-    # 'Mark Zuckerberg, CEO de Facebook, dio su testimonio en el Senado de Estados Unidos el domingo por la mañana.',
+    'Mark Zuckerberg, CEO de Facebook, dio su testimonio al Senado de los Estados Unidos el domingo por la mañana.',
     # OK
     # 'Bill Gates, CEO de Microsoft.'
     # 'Mark Zuckerberg es el CEO de Facebook.'
@@ -103,23 +102,24 @@ def main(model='en'):
     print("Processing %d texts" % len(TEXTS))
     print()
 
-    print('text:')
-    print('-----')
     for text in TEXTS:
         print(text)
-    print()
-
-    print('relations:')
-    print('----------')
-    for text in TEXTS:
         doc = nlp(text)
+
+        # try to extract relations from all entity types available in the document
+        types = list(set(e.label_ for e in doc.ents))
+        _subj_e_types = types
+        _obj_e_types = types
+
         relations = extract_relations(doc)
         num_found = 0
         for s, p, o in relations:
             num_found += 1
-            print('({}, {}, {})'.format(s.text, p.text, o.text))
+            print('( {}/{}, {}, {}/{} )'.format(s.text,
+                                                s.ent_type_, p.text, o.text, o.ent_type_))
         if (0 == num_found):
-            print('None!')
+            print('No relations!')
+        print()
 
 
 def extract_relations(doc):
@@ -133,14 +133,14 @@ def extract_relations(doc):
     relations = []
 
     if (__do_extract_is_relations):
-        extract_is_relations(doc, relations)
+        en_extract_is_relations(doc, relations)
     if (__do_extract_spo_relations):
         if (is_english()):
-            extract_spo_relations(doc, relations)
+            en_extract_spo_relations(doc, relations)
         elif (is_spanish()):
             es_extract_spo_relations(doc, relations)
     if (__do_extract_preposition_relations):
-        extract_preposition_relations(doc, relations)
+        en_extract_preposition_relations(doc, relations)
 
     relations = filter(lambda r: not is_neg(r), relations)
     return relations
@@ -173,19 +173,19 @@ def is_or_do_root(w):
     return False
 
 
-def extract_is_relations(doc, relations):
+def en_extract_is_relations(doc, relations):
     ''' extract is/is_not relations '''
 
     for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
         if is_subj(e):
             if (is_or_do_root(e)):
                 rt = root(e)
-                pred_span = is_relation_pred_span_from_children(rt.children)
-                for obj in extract_spo_objects(e, _obj_e_types):
+                pred_span = en_is_relation_pred_span_from_children(rt.children)
+                for obj in en_extract_spo_objects(e, _obj_e_types):
                     relations.append((e, pred_span, obj))
 
 
-def is_relation_pred_span_from_children(children):
+def en_is_relation_pred_span_from_children(children):
     pred = None
     filtered = filter(lambda w: w.dep_ == 'attr', children)
     list_ = list(filtered)
@@ -199,11 +199,13 @@ def is_relation_pred_span_from_children(children):
     return pred_span
 
 
-def extract_spo_relations(doc, relations):
+def en_extract_spo_relations(doc, relations):
     ''' extract (s,p,o) relations '''
 
     for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
-        if ((is_subj(e) or is_compound(e)) and is_root(e.head)):
+        if ((is_subj(e) or
+             is_compound(e))  # {PERSON/compound} debate/noun with {PERSON/}
+                and is_root(e.head)):
             pred = e.head
 
             if (is_or_do_root(pred)):
@@ -213,34 +215,14 @@ def extract_spo_relations(doc, relations):
             pred_rights = list(pred.rights)
             if (pred.pos_ == 'VERB'):
                 for w in pred_rights:
-                    if (w.dep_ in ('agent')):
+                    if (w.dep_ in ('agent', 'dobj')):
                         pred = doc[pred.i: w.i+1]
 
-            for e2 in extract_spo_objects(e, _obj_e_types):
+            for e2 in en_extract_spo_objects(e, _obj_e_types):
                 relations.append((e, pred, e2))  # matched
 
 
-def es_extract_spo_relations(doc, relations):
-    ''' extract (s,p,o) relations '''
-
-    for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
-        if (is_subj(e)):
-            pred = e.head
-            obj = next(filter(
-                lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
-            if (None != obj):
-                relations.append((e, pred, obj))  # matched
-        elif (is_root(e)):
-            pred = next(filter(
-                lambda w: w != e and w.pos_ in ('VERB', 'NOUN', 'PROPN'), e.children), None)
-            if (None != pred):
-                obj = next(filter(
-                    lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
-                if (None != obj):
-                    relations.append((e, pred, obj))  # matched
-
-
-def extract_spo_objects(subj, _obj_e_types):
+def en_extract_spo_objects(subj, _obj_e_types):
     ''' extract (s,p,o) objects '''
     obj_list = []
     for e2 in filter(lambda w: w.ent_type_ in _obj_e_types, subj.sent):
@@ -262,7 +244,7 @@ def extract_spo_objects(subj, _obj_e_types):
     return obj_list
 
 
-def extract_preposition_relations(doc, relations):
+def en_extract_preposition_relations(doc, relations):
     ''' 
     extract (e1, preposition, e2) relations
     e.g: (s, mother_of, o), (s, employee_of, o)
@@ -283,6 +265,26 @@ def extract_preposition_relations(doc, relations):
                         pobj and w.ent_type_ in subj_types]
             for s in subjects:
                 relations.append((s, pred_span, pobj))  # matched
+
+
+def es_extract_spo_relations(doc, relations):
+    ''' extract (s,p,o) relations '''
+
+    for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
+        if (is_subj(e)):
+            pred = e.head
+            obj = next(filter(
+                lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
+            if (None != obj):
+                relations.append((e, pred, obj))  # matched
+        elif (is_root(e)):
+            pred = next(filter(
+                lambda w: w != e and w.pos_ in ('VERB', 'NOUN', 'PROPN'), e.children), None)
+            if (None != pred):
+                obj = next(filter(
+                    lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
+                if (None != obj):
+                    relations.append((e, pred, obj))  # matched
 
 
 if __name__ == '__main__':
