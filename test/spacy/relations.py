@@ -114,7 +114,7 @@ def main(model='en'):
         _subj_e_types = types
         _obj_e_types = types
 
-        #lilo:TODO - gold (put relations into document as extension attribute)
+        # lilo:TODO - gold (put relations into document as extension attribute)
         extract_relations(doc)
         num_found = 0
         for s, p, o in doc._.relations:
@@ -124,6 +124,10 @@ def main(model='en'):
         if (0 == num_found):
             print('No relations!')
         print()
+
+        print('lilo:begin -------------------------------')
+        print(doc._.relations)
+        print('lilo:end -------------------------------')
 
 
 def extract_relations(doc):
@@ -146,7 +150,7 @@ def extract_relations(doc):
     if (__do_extract_preposition_relations):
         en_extract_preposition_relations(doc, relations)
 
-    doc._.relations = filter(lambda r: not is_neg(r), relations)
+    doc._.relations = list(filter(lambda r: not is_neg(r), relations))
 
 
 def is_neg(r):
@@ -225,7 +229,7 @@ def en_extract_spo_relations(doc, relations):
                 relations.append((e, pred, e2))  # matched
 
 
-#lilo:TODO - conj -> multiple objects (also multiple subjects)
+# lilo:TODO - conj -> multiple objects (also multiple subjects)
 #   '{Donald/compound} {Trump/compound} {debate/ROOT} {with/prep} {Barak/compound} {Obama/pobj} and {Hillary/compound} {Clinton/conj} last Tuesday.'
 def en_extract_spo_objects(subj, _obj_e_types):
     ''' extract (s,p,o) objects '''
