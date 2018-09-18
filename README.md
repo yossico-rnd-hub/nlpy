@@ -33,4 +33,14 @@ spacy.explain('pobj')
 - displayCy
 - https://github.com/conllul/UL_Hebrew-HTB
 
-- annotate PERSON when coms before person-VERBS (e.g: 'Hillery killed...')
+### relations
+- relations extensions 
+  - (like spacy tokens: https://spacy.io/usage/linguistic-features#section-tokenization)
+  - relations.add_rule(function(doc))
+- review en_extract_preposition_relations (should we start from subject?)
+- label=PERSON when comes before PERSON-PRED
+  e.g: 
+  - Hillery killed David.
+    ( Hillery/ORG, killed, David/PERSON )
+  - Hillery is the step mother of Chelsea.
+    ( Hillery/ORG, step mother, Chelsea/ORG )

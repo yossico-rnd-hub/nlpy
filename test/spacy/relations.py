@@ -24,14 +24,12 @@ def is_english():
 if is_spanish():
     __do_extract_is_relations = False
     __do_extract_spo_relations = True
-    __do_extract_preposition_relations = False
 
     _subj_e_types = ['PER', 'ORG', 'MISC']
     _obj_e_types = ['PER', 'ORG', 'MISC']
 else:
     __do_extract_is_relations = True
     __do_extract_spo_relations = True
-    __do_extract_preposition_relations = True
 
     _subj_e_types = ['PERSON', 'ORG', 'GPE']
     _obj_e_types = ['PERSON', 'ORG', 'GPE']
@@ -45,9 +43,10 @@ CORPUS_EN = [
 
     {'text': 'Bill is the president of the U.S.',
         'relations': [('Bill', 'president', 'U.S.', None)]},
-    {'text': 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
+    {'text': 'Last week Hillary, mother of Chelsea and Dan, met with congressman Mike Pence in the White House.',
         'relations': [('Hillary', 'met', 'Mike Pence', 'Last week'),
-                      ('Hillary', 'mother of', 'Chelsea', None)]},
+                      ('Hillary', 'mother of', 'Chelsea', None),
+                      ('Hillary', 'mother of', 'Dan', None)]},
     {'text': 'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
         'relations': [('Mark Zuckerberg', 'gave testimony', 'the U.S. Senate', 'Sunday morning'),
                       ('Mark Zuckerberg', 'CEO of', 'Facebook', None)]},
@@ -247,8 +246,6 @@ def extract_relations(doc):
             en_extract_spo_relations(doc, relations)
         elif (is_spanish()):
             es_extract_spo_relations(doc, relations)
-    if (__do_extract_preposition_relations):
-        en_extract_preposition_relations(doc, relations)
 
     doc._.relations = list(filter(lambda r: not is_neg(r), relations))
 
@@ -316,6 +313,8 @@ def en_extract_spo_relations(doc, relations):
 
             pred = e.head
 
+            en_extract_preposition_relations(e, doc, relations)  # lilo
+
             if (is_or_do_root(pred)):
                 continue  # but not 'is mother of', 'is employee of', etc.
 
@@ -328,9 +327,9 @@ def en_extract_spo_relations(doc, relations):
                     if (w.dep_ in ('agent', 'dobj')):
                         pred = doc[pred.i: w.i+1]  # merge with pred
 
-            for e2 in en_extract_spo_objects(e, _obj_e_types):
+            for obj in en_extract_spo_objects(e, _obj_e_types):
                 # matched
-                relations.append((e, pred, e2, en_extract_when(pred)))
+                relations.append((e, pred, obj, en_extract_when(pred)))
 
 
 def en_extract_when(pred):
@@ -366,25 +365,21 @@ def en_extract_spo_objects(subj, _obj_e_types):
     return obj_list
 
 
-# lilo:TODO - review (should we start from subject?)
-def en_extract_preposition_relations(doc, relations):
+# e.g: '... Hillery, mother of Chelsea, ...'
+def en_extract_preposition_relations(e, doc, relations):
     '''
     extract (e1, preposition, e2) relations
-    e.g: (s, mother_of, o), (s, employee_of, o)
+    e.g: (... <nsubj>, mother of <pobj>, ...) or (... <nsubj>, employee of <pobj>, ...)
     '''
-
-    for pobj in filter(lambda w: w.ent_type_ in _obj_e_types and w.dep_ in ('pobj'), doc):
-        # 'mother of', 'employee of', etc.
-        if (is_or_do_root(pobj)):
-            continue  # but not 'is mother of', 'is employee of', etc.
-
-        if (pobj.head.dep_ == 'prep' and pobj.head.head.dep_ in ('appos', 'conj')):
-            pred_span = doc[pobj.head.head.i: pobj.head.right_edge.i]
-            first_subject = pobj.head.head.head
-            subjects = [w for w in first_subject.subtree
-                        if w != pobj and w.ent_type_ in _subj_e_types]
-            for s in subjects:
-                relations.append((s, pred_span, pobj, None))  # matched
+    pred = next(filter(lambda w: w.dep_ == 'appos', e.children), None)
+    if (pred):
+        prep = next(filter(lambda w: w.dep_ == 'prep', pred.rights), None)
+        if (None != prep):
+            pred_span = doc[pred.i: prep.i + 1]
+        objects = [w for w in pred.subtree if w .dep_ in ('pobj', 'conj')]
+        for obj in objects:
+            r = (e, pred_span if pred_span else pred, obj, None)
+            relations.append(r)
 
 
 def es_extract_spo_relations(doc, relations):
