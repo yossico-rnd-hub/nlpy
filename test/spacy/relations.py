@@ -69,14 +69,22 @@ CORPUS_EN = [
 
 CORPUS_ES = [
     # OK
-    # 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
-    # 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
-    # 'Bill Clinton es el presidente de los U.S.A',
+    {'text': 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
+        'relations': [('Hillary Clinton', 'reunió', 'Barack Obama')]},
+    {'text': 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
+        'relations': [('Donald Trump', 'debate', 'Barack Obama')]},
+
+    {'text': 'Bill Clinton es el presidente de los U.S.A',
+        'relations': [('Bill Clinton', 'presidente', 'U.S.A')]},
 
     # FIX
-    # 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+    # 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.'
+    # {'text': 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+    #     'relations': [('Hillary Clinton', 'conoció', 'Mike Pence'),
+    #                   ('Hillary Clinton', 'madre de', 'Chelsea Clinton')]},
+    
     # FIX(*)
-    'Mark Zuckerberg, CEO de Facebook, dio su testimonio al Senado de los Estados Unidos el domingo por la mañana.',
+    # 'Mark Zuckerberg, CEO de Facebook, dio su testimonio al Senado de los Estados Unidos el domingo por la mañana.',
     # OK
     # 'Bill Gates, CEO de Microsoft.'
     # 'Mark Zuckerberg es el CEO de Facebook.'
@@ -317,7 +325,7 @@ def en_extract_spo_relations(doc, relations):
 
     for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
         if ((is_subj(e)
-             or is_compound(e)) # {PERSON/compound} debate/noun with {PERSON/x}
+             or is_compound(e))  # {PERSON/compound} debate/noun with {PERSON/x}
                 and is_root(e.head)):
             pred = e.head
 
@@ -329,9 +337,9 @@ def en_extract_spo_relations(doc, relations):
             if (pred.pos_ == 'VERB'):
                 for w in pred_rights:
                     if (w.ent_type > 0):
-                        continue # do NOT merge with pred
+                        continue  # do NOT merge with pred
                     if (w.dep_ in ('agent', 'dobj')):
-                        pred = doc[pred.i: w.i+1] # merge with pred
+                        pred = doc[pred.i: w.i+1]  # merge with pred
 
             for e2 in en_extract_spo_objects(e, _obj_e_types):
                 relations.append((e, pred, e2))  # matched
