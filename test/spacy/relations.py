@@ -38,31 +38,31 @@ else:
 
 CORPUS_EN = [
     {'text': 'Hillary Clinton met secretly with Barak Obama last week.',
-        'relations': [('Hillary Clinton', 'met', 'Barak Obama')]},
+        'relations': [('Hillary Clinton', 'met', 'Barak Obama', 'last week')]},
     {'text': 'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
-        'relations': [('Donald Trump', 'debate', 'Barak Obama'),
-                      ('Donald Trump', 'debate', 'Hillary Clinton')]},
+        'relations': [('Donald Trump', 'debate', 'Barak Obama', 'last Tuesday'),
+                      ('Donald Trump', 'debate', 'Hillary Clinton', 'last Tuesday')]},
 
     {'text': 'Bill is the president of the U.S.',
-        'relations': [('Bill', 'president', 'U.S.')]},
+        'relations': [('Bill', 'president', 'U.S.', None)]},
     {'text': 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
-        'relations': [('Hillary', 'met', 'Mike Pence'),
-                      ('Hillary', 'mother of', 'Chelsea')]},
+        'relations': [('Hillary', 'met', 'Mike Pence', 'Last week'),
+                      ('Hillary', 'mother of', 'Chelsea', None)]},
     {'text': 'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
-        'relations': [('Mark Zuckerberg', 'gave testimony', 'the U.S. Senate'),
-                      ('Mark Zuckerberg', 'CEO of', 'Facebook')]},
+        'relations': [('Mark Zuckerberg', 'gave testimony', 'the U.S. Senate', 'Sunday morning'),
+                      ('Mark Zuckerberg', 'CEO of', 'Facebook', None)]},
 
     {'text': 'Hillery killed David.',
-        'relations': [('Hillery', 'killed', 'David')]},
+        'relations': [('Hillery', 'killed', 'David', None)]},
     {'text': 'David killed by Hillery.',
-        'relations': [('David', 'killed by', 'Hillery')]},
+        'relations': [('David', 'killed by', 'Hillery', None)]},
 
     {'text': 'Hillery did not meet with Bill.',
         'relations': []},
     {'text': 'Hillery is the biologic mother of Chelsea.',
-        'relations': [('Hillery', 'mother', 'Chelsea')]},
+        'relations': [('Hillery', 'mother', 'Chelsea', None)]},
     {'text': 'Hillery is the step mother of Chelsea.',
-        'relations': [('Hillery', 'step mother', 'Chelsea')]},
+        'relations': [('Hillery', 'step mother', 'Chelsea', None)]},
     {'text': 'Hillery is not the mother of Bill.',
         'relations': []},
 ]
@@ -82,7 +82,7 @@ CORPUS_ES = [
     # {'text': 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
     #     'relations': [('Hillary Clinton', 'conoció', 'Mike Pence'),
     #                   ('Hillary Clinton', 'madre de', 'Chelsea Clinton')]},
-    
+
     # FIX(*)
     # 'Mark Zuckerberg, CEO de Facebook, dio su testimonio al Senado de los Estados Unidos el domingo por la mañana.',
     # OK
@@ -157,26 +157,8 @@ class Gold(object):
         self.f1score = f1score
 
     def relation_to_string_tuple(self, r):
-        s, p, o = r
-        return (s.text, p.text, o.text)
-
-    def match_rel(self, r, gold_r):
-        if (None == r and None != gold_r):
-            return False
-        if (None != r and None == gold_r):
-            return False
-
-        s, p, o = r
-        gs, gp, go = gold_r
-
-        if (s != gs):
-            return False
-        if (p != gp):
-            return False
-        if (o != go):
-            return False
-
-        return True
+        s, p, o, w = r
+        return (s.text, p.text, o.text, w.text if w else None)
 
 
 class bcolors:
@@ -214,10 +196,14 @@ def main(model='en'):
 
         extract_relations(doc)
         num_found = 0
-        for s, p, o in doc._.relations:
+        for s, p, o, w in doc._.relations:
             num_found += 1
-            print('( {}/{}, {}, {}/{} )'
-                  .format(s.text, s.ent_type_, p.text, o.text, o.ent_type_))
+            if (None != w):
+                print('( {}/{}, {}, {}/{}, {} )'
+                      .format(s.text, s.ent_type_, p.text, o.text, o.ent_type_, w.text))
+            else:
+                print('( {}/{}, {}, {}/{} )'
+                      .format(s.text, s.ent_type_, p.text, o.text, o.ent_type_))
 
         if (0 == num_found):
             print('No relations!')
@@ -268,7 +254,7 @@ def extract_relations(doc):
 
 
 def is_neg(r):
-    _, p, _ = r
+    _, p, _, _ = r
     rt = root(p)
     for w in rt.children:
         if (w.dep_ == 'neg'):
@@ -303,7 +289,7 @@ def en_extract_is_relations(doc, relations):
                 rt = root(e)
                 pred_span = en_is_relation_pred_span_from_children(rt.children)
                 for obj in en_extract_spo_objects(e, _obj_e_types):
-                    relations.append((e, pred_span, obj))
+                    relations.append((e, pred_span, obj, None))
 
 
 def en_is_relation_pred_span_from_children(children):
@@ -327,6 +313,7 @@ def en_extract_spo_relations(doc, relations):
         if ((is_subj(e)
              or is_compound(e))  # {PERSON/compound} debate/noun with {PERSON/x}
                 and is_root(e.head)):
+
             pred = e.head
 
             if (is_or_do_root(pred)):
@@ -342,11 +329,21 @@ def en_extract_spo_relations(doc, relations):
                         pred = doc[pred.i: w.i+1]  # merge with pred
 
             for e2 in en_extract_spo_objects(e, _obj_e_types):
-                relations.append((e, pred, e2))  # matched
+                # matched
+                relations.append((e, pred, e2, en_extract_when(pred)))
 
+
+def en_extract_when(pred):
+    date_list = [w for w in pred.subtree if w.ent_type_ == 'DATE']
+    when = date_list[0] if date_list else None
+    if (None != when and when.dep_ == 'compound'):
+        when = when.doc[min(when.i, when.head.i): max(when.i, when.head.i)+1]
+    return when
 
 # lilo:TODO - conj -> multiple objects (also multiple subjects)
 #   '{Donald/compound} {Trump/compound} {debate/ROOT} {with/prep} {Barak/compound} {Obama/pobj} and {Hillary/compound} {Clinton/conj} last Tuesday.'
+
+
 def en_extract_spo_objects(subj, _obj_e_types):
     ''' extract (s,p,o) objects '''
     obj_list = []
@@ -369,16 +366,14 @@ def en_extract_spo_objects(subj, _obj_e_types):
     return obj_list
 
 
+# lilo:TODO - review (should we start from subject?)
 def en_extract_preposition_relations(doc, relations):
     '''
     extract (e1, preposition, e2) relations
     e.g: (s, mother_of, o), (s, employee_of, o)
     '''
 
-    subj_types = ['PERSON', 'PER', 'ORG']
-    obj_types = ['PERSON', 'PER', 'ORG']
-
-    for pobj in filter(lambda w: w.ent_type_ in obj_types and w.dep_ in ('pobj'), doc):
+    for pobj in filter(lambda w: w.ent_type_ in _obj_e_types and w.dep_ in ('pobj'), doc):
         # 'mother of', 'employee of', etc.
         if (is_or_do_root(pobj)):
             continue  # but not 'is mother of', 'is employee of', etc.
@@ -386,10 +381,10 @@ def en_extract_preposition_relations(doc, relations):
         if (pobj.head.dep_ == 'prep' and pobj.head.head.dep_ in ('appos', 'conj')):
             pred_span = doc[pobj.head.head.i: pobj.head.right_edge.i]
             first_subject = pobj.head.head.head
-            subjects = [w for w in first_subject.subtree if w !=
-                        pobj and w.ent_type_ in subj_types]
+            subjects = [w for w in first_subject.subtree
+                        if w != pobj and w.ent_type_ in _subj_e_types]
             for s in subjects:
-                relations.append((s, pred_span, pobj))  # matched
+                relations.append((s, pred_span, pobj, None))  # matched
 
 
 def es_extract_spo_relations(doc, relations):
@@ -401,7 +396,7 @@ def es_extract_spo_relations(doc, relations):
             obj = next(filter(
                 lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
             if (None != obj):
-                relations.append((e, pred, obj))  # matched
+                relations.append((e, pred, obj, None))  # matched
         elif (is_root(e)):
             pred = next(filter(
                 lambda w: w != e and w.pos_ in ('VERB', 'NOUN', 'PROPN'), e.children), None)
@@ -409,7 +404,7 @@ def es_extract_spo_relations(doc, relations):
                 obj = next(filter(
                     lambda w: w != e and w.pos_ in ('NOUN', 'PROPN'), pred.children), None)
                 if (None != obj):
-                    relations.append((e, pred, obj))  # matched
+                    relations.append((e, pred, obj, None))  # matched
 
 
 if __name__ == '__main__':
