@@ -7,6 +7,7 @@ extract relations between entities
 from __future__ import unicode_literals, print_function
 
 import spacy
+from spacy.tokens import Doc
 import re
 
 __model = 'en'  # 'en'/'es'
@@ -102,6 +103,8 @@ def main(model='en'):
     print("Processing %d texts" % len(TEXTS))
     print()
 
+    Doc.set_extension('relations', default=[])
+
     for text in TEXTS:
         print(text)
         doc = nlp(text)
@@ -111,9 +114,10 @@ def main(model='en'):
         _subj_e_types = types
         _obj_e_types = types
 
-        relations = extract_relations(doc)
+        #lilo:TODO - gold (put relations into document as extension attribute)
+        extract_relations(doc)
         num_found = 0
-        for s, p, o in relations:
+        for s, p, o in doc._.relations:
             num_found += 1
             print('( {}/{}, {}, {}/{} )'.format(s.text,
                                                 s.ent_type_, p.text, o.text, o.ent_type_))
@@ -142,8 +146,7 @@ def extract_relations(doc):
     if (__do_extract_preposition_relations):
         en_extract_preposition_relations(doc, relations)
 
-    relations = filter(lambda r: not is_neg(r), relations)
-    return relations
+    doc._.relations = filter(lambda r: not is_neg(r), relations)
 
 
 def is_neg(r):
@@ -222,6 +225,8 @@ def en_extract_spo_relations(doc, relations):
                 relations.append((e, pred, e2))  # matched
 
 
+#lilo:TODO - conj -> multiple objects (also multiple subjects)
+#   '{Donald/compound} {Trump/compound} {debate/ROOT} {with/prep} {Barak/compound} {Obama/pobj} and {Hillary/compound} {Clinton/conj} last Tuesday.'
 def en_extract_spo_objects(subj, _obj_e_types):
     ''' extract (s,p,o) objects '''
     obj_list = []
