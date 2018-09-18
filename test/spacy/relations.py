@@ -36,24 +36,35 @@ else:
     _subj_e_types = ['PERSON', 'ORG', 'GPE']
     _obj_e_types = ['PERSON', 'ORG', 'GPE']
 
-TEXTS_EN = [
-    'Hillary Clinton met secretly with Barak Obama last week.',
-    'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
+CORPUS_EN = [
+    {'text': 'Hillary Clinton met secretly with Barak Obama last week.',
+        'relations': [('Hillary Clinton', 'met', 'Barak Obama')]},
+    {'text': 'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
+        'relations': [('Donald Trump', 'debate', 'Barak Obama'), ('Donald Trump', 'debate', 'Hillary Clinton')]},
 
-    'Bill is the president of the U.S.',
-    'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
-    'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
+    {'text': 'Bill is the president of the U.S.',
+        'relations': [('Bill', 'president', 'U.S.')]},
+    {'text': 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
+        'relations': [('Hillary', 'met', 'Mike Pence'), ('Hillary', 'mother of', 'Chelsea')]},
+    {'text': 'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
+        'relations': [('Mark Zuckerberg', 'gave testimony', 'the U.S. Senate'), ('Mark Zuckerberg', 'CEO of', 'Facebook')]},
 
-    'Hillery killed David.',
-    'David killed by Hillery.',
+    {'text': 'Hillery killed David.',
+        'relations': [('Hillery', 'killed David', 'David')]},
+    {'text': 'David killed by Hillery.',
+        'relations': [('David', 'killed by', 'Hillery')]},
 
-    'Hillery did not meet with Bill.',
-    'Hillery is the biologic mother of Chelsea.',
-    'Hillery is the step mother of Chelsea.',
-    'Hillery is not the mother of Bill.',
+    {'text': 'Hillery did not meet with Bill.',
+        'relations': []},
+    {'text': 'Hillery is the biologic mother of Chelsea.',
+        'relations': [('Hillery', 'mother', 'Chelsea')]},
+    {'text': 'Hillery is the step mother of Chelsea.',
+        'relations': [('Hillery', 'step mother', 'Chelsea')]},
+    {'text': 'Hillery is not the mother of Bill.',
+        'relations': []},
 ]
 
-TEXTS_ES = [
+CORPUS_ES = [
     # OK
     # 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
     # 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
@@ -80,9 +91,9 @@ TEXTS_ES = [
 ]
 
 if (is_spanish()):
-    TEXTS = TEXTS_ES
+    CORPUS = CORPUS_ES
 else:
-    TEXTS = TEXTS_EN
+    CORPUS = CORPUS_EN
 
 
 def is_subj(w):
@@ -97,15 +108,90 @@ def is_root(w):
     return w.dep_ == 'ROOT'
 
 
+class Gold(object):
+    def __init__(self, doc, gold_relations):
+        doc_relations = list(
+            map(lambda r: self.relation_to_string_tuple(r), doc._.relations))
+
+        if (len(doc_relations) == 0 and len(gold_relations) == 0):
+            # empty match
+            self.precision = 1.0
+            self.recall = 1.0
+            self.f1score = 1.0
+            return
+
+        true_positives = 0
+        false_positives = 0
+        false_negatives = 0
+
+        for r in doc_relations:
+            if (r in gold_relations):
+                true_positives += 1
+            else:
+                false_positives += 1
+
+        for r in gold_relations:
+            if (r not in doc_relations):
+                false_negatives += 1
+
+        precision = true_positives / (true_positives + false_positives) \
+            if (true_positives + false_positives > 0) else 0.0
+        recall = true_positives / (true_positives + false_negatives) \
+            if (true_positives + false_negatives > 0) else 0.0
+        f1score = 2 * (precision * recall) / (precision + recall) \
+            if (precision + recall > 0) else 0.0
+
+        self.precision = precision
+        self.recall = recall
+        self.f1score = f1score
+
+    def relation_to_string_tuple(self, r):
+        s, p, o = r
+        return (s.text, p.text, o.text)
+
+    def match_rel(self, r, gold_r):
+        if (None == r and None != gold_r):
+            return False
+        if (None != r and None == gold_r):
+            return False
+
+        s, p, o = r
+        gs, gp, go = gold_r
+
+        if (s != gs):
+            return False
+        if (p != gp):
+            return False
+        if (o != go):
+            return False
+
+        return True
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def main(model='en'):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
-    print("Processing %d texts" % len(TEXTS))
+    print("Processing %d texts" % len(CORPUS))
     print()
 
     Doc.set_extension('relations', default=[])
 
-    for text in TEXTS:
+    show_warning = False
+    for sample in CORPUS:
+        text = sample['text']
+        gold_relations = sample['relations']
+
         print(text)
         doc = nlp(text)
 
@@ -114,20 +200,29 @@ def main(model='en'):
         _subj_e_types = types
         _obj_e_types = types
 
-        # lilo:TODO - gold (put relations into document as extension attribute)
         extract_relations(doc)
         num_found = 0
         for s, p, o in doc._.relations:
             num_found += 1
-            print('( {}/{}, {}, {}/{} )'.format(s.text,
-                                                s.ent_type_, p.text, o.text, o.ent_type_))
+            print('( {}/{}, {}, {}/{} )'
+                  .format(s.text, s.ent_type_, p.text, o.text, o.ent_type_))
+
         if (0 == num_found):
             print('No relations!')
+
+        gold = Gold(doc, gold_relations)
+        print('f1score: {} (precision: {}, recall: {})'.format(
+            gold.f1score, gold.precision, gold.recall))
         print()
 
-        print('lilo:begin -------------------------------')
-        print(doc._.relations)
-        print('lilo:end -------------------------------')
+        if (gold.f1score < 1.0 and not show_warning):
+            show_warning = True
+
+    if (len(CORPUS) >= 2):
+        if (show_warning):
+            print(bcolors.WARNING + "some didn't pass!")
+        else:
+            print(bcolors.OKGREEN + 'all OK.')
 
 
 def extract_relations(doc):
@@ -254,7 +349,7 @@ def en_extract_spo_objects(subj, _obj_e_types):
 
 
 def en_extract_preposition_relations(doc, relations):
-    ''' 
+    '''
     extract (e1, preposition, e2) relations
     e.g: (s, mother_of, o), (s, employee_of, o)
     '''
