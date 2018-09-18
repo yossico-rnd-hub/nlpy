@@ -316,20 +316,22 @@ def en_extract_spo_relations(doc, relations):
     ''' extract (s,p,o) relations '''
 
     for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
-        if ((is_subj(e) or
-             is_compound(e))  # {PERSON/compound} debate/noun with {PERSON/}
+        if ((is_subj(e)
+             or is_compound(e)) # {PERSON/compound} debate/noun with {PERSON/x}
                 and is_root(e.head)):
             pred = e.head
 
             if (is_or_do_root(pred)):
                 continue  # but not 'is mother of', 'is employee of', etc.
 
-            # Hillery killed David vs. David killed by Hillery
+            # e.g: 'killed by', 'gave testimony', etc. (but not 'killed Bill')
             pred_rights = list(pred.rights)
             if (pred.pos_ == 'VERB'):
                 for w in pred_rights:
+                    if (w.ent_type > 0):
+                        continue # do NOT merge with pred
                     if (w.dep_ in ('agent', 'dobj')):
-                        pred = doc[pred.i: w.i+1]
+                        pred = doc[pred.i: w.i+1] # merge with pred
 
             for e2 in en_extract_spo_objects(e, _obj_e_types):
                 relations.append((e, pred, e2))  # matched
