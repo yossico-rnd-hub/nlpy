@@ -40,17 +40,20 @@ CORPUS_EN = [
     {'text': 'Hillary Clinton met secretly with Barak Obama last week.',
         'relations': [('Hillary Clinton', 'met', 'Barak Obama')]},
     {'text': 'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
-        'relations': [('Donald Trump', 'debate', 'Barak Obama'), ('Donald Trump', 'debate', 'Hillary Clinton')]},
+        'relations': [('Donald Trump', 'debate', 'Barak Obama'),
+                      ('Donald Trump', 'debate', 'Hillary Clinton')]},
 
     {'text': 'Bill is the president of the U.S.',
         'relations': [('Bill', 'president', 'U.S.')]},
     {'text': 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.',
-        'relations': [('Hillary', 'met', 'Mike Pence'), ('Hillary', 'mother of', 'Chelsea')]},
+        'relations': [('Hillary', 'met', 'Mike Pence'),
+                      ('Hillary', 'mother of', 'Chelsea')]},
     {'text': 'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
-        'relations': [('Mark Zuckerberg', 'gave testimony', 'the U.S. Senate'), ('Mark Zuckerberg', 'CEO of', 'Facebook')]},
+        'relations': [('Mark Zuckerberg', 'gave testimony', 'the U.S. Senate'),
+                      ('Mark Zuckerberg', 'CEO of', 'Facebook')]},
 
     {'text': 'Hillery killed David.',
-        'relations': [('Hillery', 'killed David', 'David')]},
+        'relations': [('Hillery', 'killed', 'David')]},
     {'text': 'David killed by Hillery.',
         'relations': [('David', 'killed by', 'Hillery')]},
 
@@ -169,6 +172,7 @@ class Gold(object):
 
 
 class bcolors:
+    DEFAULT = '\033[0m'
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -210,13 +214,20 @@ def main(model='en'):
         if (0 == num_found):
             print('No relations!')
 
+        # gold scoring for this document
         gold = Gold(doc, gold_relations)
-        print('f1score: {} (precision: {}, recall: {})'.format(
-            gold.f1score, gold.precision, gold.recall))
-        print()
 
-        if (gold.f1score < 1.0 and not show_warning):
+        if (gold.f1score < 1.0):
             show_warning = True
+            COLOR = bcolors.WARNING
+        else:
+            COLOR = bcolors.DEFAULT
+
+        print(COLOR + 'f1score: {} (precision: {}, recall: {})'.format(
+            gold.f1score, gold.precision, gold.recall))
+
+        COLOR = bcolors.DEFAULT
+        print(COLOR)
 
     if (len(CORPUS) >= 2):
         if (show_warning):
