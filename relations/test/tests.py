@@ -14,6 +14,10 @@ from gold import Gold
 from corpus_en import CORPUS_EN
 from corpus_es import CORPUS_ES
 
+from entities import EntitiesPipeline
+from entities.lang.en import EN_EntityMatcher
+from entities.lang.en import EN_EntityRules
+
 from relations import RelationPipeline
 from relations.lang.en import EN_SPO_RelationExtractor
 from relations.lang.en import EN_IS_A_RelationExtractor
@@ -47,16 +51,26 @@ def main(model='en'):
     print("Loaded model '%s'" % model)
 
     # add relations extraction to nlp.pipeline
+    ent_pipeline = EntitiesPipeline()
     rel_pipeline = RelationPipeline()
 
     if is_spanish():
         CORPUS = CORPUS_ES
+
+        # es relations
         rel_pipeline.add_pipe(ES_SPO_RelationExtractor())
     else:
         CORPUS = CORPUS_EN
+
+        # en entities
+        ent_pipeline.add_pipe(EN_EntityMatcher(nlp))
+        ent_pipeline.add_pipe(EN_EntityRules())
+
+        # en relations
         rel_pipeline.add_pipe(EN_IS_A_RelationExtractor())
         rel_pipeline.add_pipe(EN_SPO_RelationExtractor())
 
+    nlp.add_pipe(ent_pipeline, after='ner')
     nlp.add_pipe(rel_pipeline, after='ner')
 
     print("Processing %d texts" % len(CORPUS))

@@ -4,8 +4,6 @@
 extract IS_A/is_not relations between entities
 '''
 
-from __future__ import unicode_literals, print_function
-
 
 import spacy
 from spacy.tokens import Doc

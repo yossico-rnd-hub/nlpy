@@ -8,7 +8,7 @@ import spacy
 from spacy.tokens import Doc
 
 from relations.parse_util import root, is_root, is_xsubj
-from .en_util import en_extract_when
+from .en_rel_util import en_extract_when
 
 
 class EN_SPO_RelationExtractor(object):

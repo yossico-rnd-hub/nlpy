@@ -1,7 +1,15 @@
 #!env/bin/python
 
 '''
-extract relations between entities
+a pipeline for extracting entity relations.
+
+you can add relations extraction to nlp.pipeline using:
+    rel_pipeline = RelationPipeline()
+    nlp.add_pipe(rel_pipeline, after='ner')
+
+you can add your relation extrators (one or more) using:
+    rel_pipeline.add_pipe(YOUR_RelationExtractor())
+
 '''
 
 import spacy
@@ -10,7 +18,7 @@ from .parse_util import root
 
 
 class RelationPipeline(object):
-    name = 'relations'
+    name = 'ws_relations'
     pipe_ = []
 
     def __init__(self):
