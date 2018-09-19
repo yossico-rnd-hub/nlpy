@@ -19,11 +19,9 @@ class ES_SPO_RelationExtractor(object):
 
     def __call__(self, doc, relations):
         # try to extract relations from all entity types available in the document
-        types = list(set(e.label_ for e in doc.ents))
-        _subj_e_types = types
-        _obj_e_types = types
+        subj_e_types = list(set(e.label_ for e in doc.ents))
 
-        for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
+        for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
             if (is_xsubj(e)):
                 pred = e.head
                 obj = next(filter(

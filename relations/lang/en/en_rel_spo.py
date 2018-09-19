@@ -20,12 +20,10 @@ class EN_SPO_RelationExtractor(object):
         pass
 
     def __call__(self, doc, relations):
-        # try to extract relations from all entity types available in the document
-        types = list(set(e.label_ for e in doc.ents))
-        _subj_e_types = types
-        _obj_e_types = types
+        # try to extract relation subjects from all entity types available in the document
+        subj_e_types = list(set(e.label_ for e in doc.ents))
 
-        for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
+        for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
             if ((is_xsubj(e)
                  # {PERSON/compound} debate/noun with {PERSON/x}
                  or (e.dep_ == 'compound'))
@@ -95,9 +93,8 @@ class EN_SPO_RelationExtractor(object):
         if (None != prep):
             obj = next(filter(
                 lambda w: w.dep_ == 'pobj' and w.ent_type > 0, prep.children), None)
-            while (None != obj):
+            while (None != obj):  # handle multiple objects ?
                 obj_list.append(obj)
-                # multiple objects?
                 obj = next(filter(
                     lambda w: w.dep_ == 'conj', obj.rights), None)
 

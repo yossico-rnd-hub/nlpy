@@ -21,52 +21,42 @@ class EN_IS_A_RelationExtractor(object):
 
     def __call__(self, doc, relations):
         # try to extract relations from all entity types available in the document
-        types = list(set(e.label_ for e in doc.ents))
-        _subj_e_types = types
-        _obj_e_types = types
+        subj_e_types = list(set(e.label_ for e in doc.ents))
 
-        for e in filter(lambda w: w.ent_type_ in _subj_e_types, doc):
+        for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
             if is_xsubj(e):
                 if (is_or_do_root(e)):
-                    rt = root(e)
-                    pred_span = self.en_is_relation_pred_span_from_children(
-                        rt.children)
-                    for obj in self.en_extract_spo_objects(e, _obj_e_types):
-                        relations.append((e, pred_span, obj, None))
+                    pred_span = self.extract_is_a_pred_span(e)
+                    if (None != pred_span):
+                        for obj in self.extract_is_a_object(e):
+                            relations.append((e, pred_span, obj, None))
             return doc
 
-    def en_is_relation_pred_span_from_children(self, children):
+    def extract_is_a_pred_span(self, subj):
         pred = None
-        filtered = filter(lambda w: w.dep_ == 'attr', children)
-        list_ = list(filtered)
-        if (len(list_) <= 0):
+        rt = root(subj)
+        pred = next(filter(lambda w: w.dep_ == 'attr', rt.rights), None)
+        if (None == pred):
             return None
-        pred = list_[-1]  # last one
         i = pred.i
-        for x in filter(lambda w: w.dep_ == 'compound', pred.lefts):
+        for x in filter(lambda w: w.dep_ in ('compound', 'amod'), pred.lefts):
             i = min(x.i, i)
         pred_span = pred.doc[i:pred.i+1]
         return pred_span
 
-    # lilo: conj -> multiple objects (also multiple subjects)
-    #   '{Donald/compound} {Trump/compound} {debate/ROOT} {with/prep} {Barak/compound} {Obama/pobj} and {Hillary/compound} {Clinton/conj} last Tuesday.'
-    def en_extract_spo_objects(self, subj, _obj_e_types):
+    def extract_is_a_object(self, subj):
         ''' extract (s,p,o) objects '''
         obj_list = []
-        for e2 in filter(lambda w: w.ent_type_ in _obj_e_types, subj.sent):
-            if (e2 == subj):
-                continue  # skip subj
-
-            head2 = e2.head
-            while (None != head2):
-                if (head2 == subj):
-                    head2 = head2.head
-                    break  # does not match (s,p,o) - missing (,p,) in between
-
-                if (head2 == subj.head):
-                    # match
-                    obj_list.append(e2)
-                    break
-                head2 = head2.head
+        rt = root(subj)
+        attr = next(filter(lambda w: w.dep_ == 'attr', rt.rights), None)
+        if (None != attr):
+            prep = next(filter(lambda w: w.dep_ == 'prep', attr.rights), None)
+            if (None != prep):
+                pobj = next(filter(
+                    lambda w: w.dep_ == 'pobj', prep.rights), None)
+                while (None != pobj):  # handle multiple objects ?
+                    obj_list.append(pobj)
+                    pobj = next(filter(
+                        lambda w: w.dep_ == 'conj', pobj.rights), None)
 
         return obj_list

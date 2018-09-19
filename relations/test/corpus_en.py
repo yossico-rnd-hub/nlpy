@@ -5,8 +5,6 @@ CORPUS_EN = [
         'relations': [('Donald Trump', 'debate', 'Barak Obama', 'last Tuesday'),
                       ('Donald Trump', 'debate', 'Hillary Clinton', 'last Tuesday')]},
 
-    {'text': 'Bill is the president of the U.S.',
-        'relations': [('Bill', 'president', 'U.S.', None)]},
     {'text': 'Last week Hillary, mother of Chelsea and Dan, met with congressman Mike Pence in the White House.',
         'relations': [('Hillary', 'met', 'Mike Pence', 'Last week'),
                       ('Hillary', 'mother of', 'Chelsea', None),
@@ -20,13 +18,18 @@ CORPUS_EN = [
 
     {'text': 'David killed by Hillery.',
         'relations': [('David', 'killed by', 'Hillery', None)]},
-
-    {'text': 'Hillery did not meet with Bill.',
-        'relations': []},
+    
+    # is_a / is_the / is_not / did_not
+    {'text': 'Bill is the president of the U.S.',
+        'relations': [('Bill', 'president', 'U.S.', None)]},
+    {'text': 'George Washington was the first president of the U.S.',
+        'relations': [('George Washington', 'first president', 'U.S.', None)]},
     {'text': 'Hillery is the biologic mother of Chelsea.',
-        'relations': [('Hillery', 'mother', 'Chelsea', None)]},
+        'relations': [('Hillery', 'biologic mother', 'Chelsea', None)]},
     {'text': 'Hillery is the step mother of Chelsea.',
         'relations': [('Hillery', 'step mother', 'Chelsea', None)]},
     {'text': 'Hillery is not the mother of Bill.',
+        'relations': []},
+    {'text': 'Hillery did not meet with Bill.',
         'relations': []},
 ]
