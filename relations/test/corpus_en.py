@@ -17,6 +17,7 @@ CORPUS_EN = [
 
     {'text': 'Hillery killed David.',
         'relations': [('Hillery', 'killed', 'David', None)]},
+
     {'text': 'David killed by Hillery.',
         'relations': [('David', 'killed by', 'Hillery', None)]},
 
