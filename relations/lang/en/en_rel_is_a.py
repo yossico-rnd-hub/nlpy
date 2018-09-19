@@ -10,7 +10,6 @@ from __future__ import unicode_literals, print_function
 import spacy
 from spacy.tokens import Doc
 from relations.parse_util import root, is_xsubj
-from .en_util import is_or_do_root
 
 
 class EN_IS_A_RelationExtractor(object):
@@ -25,7 +24,8 @@ class EN_IS_A_RelationExtractor(object):
 
         for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
             if is_xsubj(e):
-                if (is_or_do_root(e)):
+                rt = root(e)
+                if (rt.lemma_ == 'be' or rt.lemma_ == 'do'):  # is/did
                     pred_span = self.extract_is_a_pred_span(e)
                     if (None != pred_span):
                         for obj in self.extract_is_a_object(e):

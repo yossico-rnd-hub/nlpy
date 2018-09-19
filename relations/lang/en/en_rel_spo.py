@@ -4,13 +4,11 @@
 extract SPO relations between entities
 '''
 
-from __future__ import unicode_literals, print_function
-
 import spacy
 from spacy.tokens import Doc
 
 from relations.parse_util import root, is_root, is_xsubj
-from .en_util import is_or_do_root, en_extract_when
+from .en_util import en_extract_when
 
 
 class EN_SPO_RelationExtractor(object):
@@ -32,9 +30,6 @@ class EN_SPO_RelationExtractor(object):
                 pred = e.head
 
                 self.extract_preposition_relations(e, doc, relations)
-
-                if (is_or_do_root(pred)):
-                    continue  # but not 'is mother of', 'is employee of', etc.
 
                 pred_span = self.try_to_extend_pred(pred)
 

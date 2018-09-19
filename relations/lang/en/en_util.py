@@ -10,10 +10,3 @@ def en_extract_when(pred):
     if (None != when and when.dep_ == 'compound'):
         when = when.doc[min(when.i, when.head.i): max(when.i, when.head.i)+1]
     return when
-
-
-def is_or_do_root(w):
-    rt = root(w)
-    if (rt.lemma_ == 'be' or rt.lemma_ == 'do'):
-        return True
-    return False
