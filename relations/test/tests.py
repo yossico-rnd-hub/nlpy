@@ -71,7 +71,7 @@ def main(model='en'):
         rel_pipeline.add_pipe(EN_SPO_RelationExtractor())
 
     nlp.add_pipe(ent_pipeline, after='ner')
-    nlp.add_pipe(rel_pipeline, after='ner')
+    nlp.add_pipe(rel_pipeline, last=True)
 
     print("Processing %d texts" % len(CORPUS))
     print()

@@ -39,3 +39,4 @@ env/bin/python -m spacy download es_core_news_md
 
 ### relations
 - spanish
+- basis

@@ -7,4 +7,12 @@ EN_TERM_LIST = [
         'label': 'PERSON',
         'terms': (u'Hillery', u'Chelsea')
     },
+    {
+        'label': 'ORG',
+        'terms': (u'Udacity',)
+    },
+    {
+        'label': 'DATE',
+        'terms': (u'now',)
+    },
 ]

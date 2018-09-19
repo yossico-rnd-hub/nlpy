@@ -7,7 +7,7 @@ extract SPO relations between entities
 import spacy
 from spacy.tokens import Doc
 
-from relations.parse_util import root, is_root, is_xsubj
+from relations.parse_util import root, is_xsubj
 from .en_rel_util import en_extract_when
 
 
@@ -22,12 +22,16 @@ class EN_SPO_RelationExtractor(object):
         subj_e_types = list(set(e.label_ for e in doc.ents))
 
         for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):
-            if ((is_xsubj(e)
-                 # {PERSON/compound} debate/noun with {PERSON/x}
-                 or (e.dep_ == 'compound'))
-                    and is_root(e.head)):
+            # {PERSON/compound} debate/noun with {PERSON/x}
+            if (is_xsubj(e) or (e.dep_ == 'compound')):
 
                 pred = e.head
+
+                if (pred.dep_ == 'advcl'):
+                    xcomp = next(filter(
+                        lambda w: w.dep_ == 'xcomp', pred.rights), None)
+                    if (None != xcomp):
+                        pred = xcomp
 
                 self.extract_preposition_relations(e, doc, relations)
 
@@ -47,10 +51,15 @@ class EN_SPO_RelationExtractor(object):
 
         pred_rights = list(pred.rights)
         if (pred.pos_ == 'VERB'):
+
+            if (pred.dep_ == 'xcomp'):
+                # '... <started working> at Google...'
+                return pred.doc[pred.head.i: pred.i+1]
+
             for w in pred_rights:
                 if (w.ent_type > 0):
                     continue  # do NOT merge entities with pred
-                if (w.dep_ in ('agent', 'dobj')):
+                if (w.dep_ in ('agent', 'dobj', 'xcomp')):
                     pred = pred.doc[pred.i: w.i+1]  # merge with pred
         return pred
 
@@ -64,10 +73,10 @@ class EN_SPO_RelationExtractor(object):
         if (pred):
             prep = next(filter(lambda w: w.dep_ == 'prep', pred.rights), None)
             if (None != prep):
-                pred_span = doc[pred.i: prep.i + 1]
+                pred = doc[pred.i: prep.i + 1]
             objects = [w for w in pred.subtree if w .dep_ in ('pobj', 'conj')]
             for obj in objects:
-                r = (e, pred_span if pred_span else pred, obj, None)
+                r = (e, pred, obj, en_extract_when(pred))
                 relations.append(r)
 
     def extract_spo_objects(self, subj, pred):
@@ -83,14 +92,14 @@ class EN_SPO_RelationExtractor(object):
         # rule 2: pred -> prep/dative/agent -> pobj
         # (e.g: <PERSON/subj> <met/pred> <with/prep> <PERSON/pobj>)
         obj_list = []
-        prep = next(filter(
-            lambda w: w.dep_ in ('prep', 'dative', 'agent'), pred.children), None)
-        if (None != prep):
-            obj = next(filter(
-                lambda w: w.dep_ == 'pobj' and w.ent_type > 0, prep.children), None)
-            while (None != obj):  # handle multiple objects ?
-                obj_list.append(obj)
+        for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), pred.children):
+            if (None != prep):
                 obj = next(filter(
-                    lambda w: w.dep_ == 'conj', obj.rights), None)
+                    lambda w: w.dep_ == 'pobj' and w.ent_type > 0, prep.children), None)
+                while (None != obj):  # handle multiple objects ?
+                    if (obj.ent_type_ != 'DATE'):  # skip date as we add it as when
+                        obj_list.append(obj)
+                    obj = next(filter(lambda w: w.dep_ ==
+                                      'conj', obj.rights), None)
 
         return obj_list
