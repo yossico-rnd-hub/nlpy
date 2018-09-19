@@ -38,5 +38,6 @@ env/bin/python -m spacy download es_core_news_md
     ( Hillery/ORG, step mother, Chelsea/ORG )
 
 ### relations
+- multiple predicates: '... co-founder and CEO of Udacity'
 - spanish
 - basis
