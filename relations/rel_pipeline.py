@@ -34,8 +34,8 @@ class RelationPipeline(object):
         for c in self.pipe_:
             doc = c(doc, relations)
 
-        doc._.relations = list(filter(lambda r: not self.is_neg(r), relations))
-
+        relations = list(filter(lambda r: not self.is_neg(r), relations))
+        doc._.relations = relations
         return doc
 
     def add_pipe(self, component):
