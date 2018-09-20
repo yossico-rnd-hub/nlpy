@@ -19,6 +19,9 @@ class EN_SPO_RelationExtractor(object):
 
     def __call__(self, doc, relations):
         # try to extract relation subjects from all entity types available in the document
+        if (len(doc.ents) == 0):
+            return doc
+
         subj_e_types = list(set(e.label_ for e in doc.ents))
 
         for e in filter(lambda w: w.ent_type_ in subj_e_types, doc):

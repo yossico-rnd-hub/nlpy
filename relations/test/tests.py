@@ -7,6 +7,8 @@ extract relations between entities
 import sys
 sys.path.append('.')
 
+import argparse
+
 import spacy
 from spacy.tokens import Doc
 
@@ -46,7 +48,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def main(model='en'):
+def main(model, text):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 
@@ -54,13 +56,17 @@ def main(model='en'):
     ent_pipeline = EntitiesPipeline()
     rel_pipeline = RelationPipeline()
 
+    CORPUS = [{'text': text, 'relations': []}] if text else None
+
     if is_spanish():
-        CORPUS = CORPUS_ES
+        if (None == CORPUS):
+            CORPUS = CORPUS_ES
 
         # es relations
         rel_pipeline.add_pipe(ES_SPO_RelationExtractor())
     else:
-        CORPUS = CORPUS_EN
+        if (None == CORPUS):
+            CORPUS = CORPUS_EN
 
         # en entities
         ent_pipeline.add_pipe(EN_EntityMatcher(nlp))
@@ -96,6 +102,14 @@ def main(model='en'):
         if (0 == num_found):
             print('No relations!')
 
+            if (len(doc.ents) == 0):
+                print('No entities!')
+            else:
+                print('entities:')
+                for e in doc.ents:
+                    print(' ', e.text, '/', e.label_)
+
+
         # gold scoring for this document
         gold_relations = sample['relations']
         gold = Gold(doc, gold_relations)
@@ -120,4 +134,13 @@ def main(model='en'):
 
 
 if __name__ == '__main__':
-    main(model=__model)
+    _argparser = argparse.ArgumentParser(
+        description='test nlp-service entity extraction.')
+    _argparser.add_argument('-t', '--text', help='text to process')
+    _argparser.add_argument('-m', '--model', help='model to use')
+
+    args = _argparser.parse_args()
+    text = args.text if args.text else None
+    model = args.model if args.model else __model
+
+    main(model=model, text=text)
