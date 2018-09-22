@@ -1,18 +1,30 @@
 CORPUS_ES = [
     # OK
-    {'text': 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
-        'relations': [('Hillary Clinton', 'reunió', 'Barack Obama')]},
-    {'text': 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
-        'relations': [('Donald Trump', 'debate', 'Barack Obama')]},
+    {
+        'id': 2,
+        'text': 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
+        'relations': [('Hillary Clinton', 'reunió', 'Barack Obama')]
+    },
+    {
+        'id': 3,
+        'text': 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
+        'relations': [('Donald Trump', 'debate', 'Barack Obama')]
+    },
 
-    {'text': 'Bill Clinton es el presidente de los U.S.A',
-        'relations': [('Bill Clinton', 'presidente', 'U.S.A')]},
+    {
+        'id': 8,
+        'text': 'Bill Clinton es el presidente de los U.S.A',
+        'relations': [('Bill Clinton', 'presidente', 'U.S.A')]
+    },
 
     # FIX
     # 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.'
-    # {'text': 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+    # {
+    #     'id': 4,
+    #     'text': 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
     #     'relations': [('Hillary Clinton', 'conoció', 'Mike Pence'),
-    #                   ('Hillary Clinton', 'madre de', 'Chelsea Clinton')]},
+    #                   ('Hillary Clinton', 'madre de', 'Chelsea Clinton')]
+    # },
 
     # FIX(*)
     # 'Mark Zuckerberg, CEO de Facebook, dio su testimonio al Senado de los Estados Unidos el domingo por la mañana.',
