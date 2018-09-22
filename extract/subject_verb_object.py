@@ -1,8 +1,8 @@
 
 
-def subject_verb_object_triples(doc,
-                                exclude_negation=True,
-                                entities_only=True):
+def subject_verb_object(doc,
+                        exclude_negation=True,
+                        entities_only=True):
     ''' extract (subject, verb, object) triples '''
     for s in filter(lambda t: t.dep_ in ('nsubj'), doc):
         if (entities_only and 0 == s.ent_type):
@@ -55,7 +55,7 @@ def _extract_subj_verb(s, entities_only=True):
         # if (None != dative):
         #     return verb.doc[verb.i:dobj.i + 1]
 
-    return verb
+    return verb.doc[verb.i:verb.i+1]
 
 
 def _extract_verb_objects(verb, entities_only=True):
@@ -83,7 +83,7 @@ def _extract_verb_objects(verb, entities_only=True):
                 continue  # skip none-entity
             return _right_conj(_extend_lefts(pobj))
 
-    return [] # None
+    return []  # None
 
 
 def _extend_lefts(w):
@@ -99,11 +99,13 @@ def _extend_rights(w):
         end = right.i
     return w.doc[start:end + 1]
 
+
 def _left_conj(span):
     ''' yield span and any left conjunctions'''
     yield span
     for conj in filter(lambda w: w.dep_ == 'conj', span.lefts):
         yield _extend_lefts(conj)
+
 
 def _right_conj(span):
     ''' yield span and any right conjunctions'''

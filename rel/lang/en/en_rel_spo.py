@@ -6,7 +6,7 @@ import spacy
 from spacy.tokens import Doc
 
 from rel.parse_util import root, is_xsubj
-from .en_rel_util import en_extract_when
+from .en_rel_util import extract_when
 
 
 class EN_SPO_RelationExtractor(object):
@@ -40,7 +40,7 @@ class EN_SPO_RelationExtractor(object):
 
                 for obj in self.extract_spo_objects(e, pred):
                     relations.append(
-                        (e, pred_span, obj, en_extract_when(pred)))
+                        (e, pred_span, obj, extract_when(pred)))
         return doc
 
     def try_to_extend_pred(self, pred):
@@ -77,7 +77,7 @@ class EN_SPO_RelationExtractor(object):
                 pred = doc[pred.i: prep.i + 1]
             objects = [w for w in pred.subtree if w .dep_ in ('pobj', 'conj')]
             for obj in objects:
-                r = (e, pred, obj, en_extract_when(pred))
+                r = (e, pred, obj, extract_when(pred))
                 relations.append(r)
 
     def extract_spo_objects(self, subj, pred):

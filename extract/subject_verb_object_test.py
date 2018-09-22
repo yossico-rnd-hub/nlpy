@@ -6,7 +6,7 @@ sys.path.append('.')
 import spacy
 
 # import extract
-from extract.subject_verb_object_triples import subject_verb_object_triples
+from extract import subject_verb_object, extract_when
 
 nlp = spacy.load('en')
 
@@ -37,10 +37,12 @@ for text in TEXTS:
     doc = nlp(text)
     print(text)
     num_res = 0
-    for t in subject_verb_object_triples(doc,
-                                         exclude_negation=True,
-                                         entities_only=True):
-        print(t)
+    for t in subject_verb_object(doc,
+                                 exclude_negation=True,
+                                 entities_only=True):
+        s, v, o = t
+        when = extract_when(v)
+        print((s, v, o, when) if when else t)
         num_res += 1
     if (0 == num_res):
         print('no triples!')

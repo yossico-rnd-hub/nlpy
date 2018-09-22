@@ -1,8 +1,4 @@
-import spacy
-from rel.parse_util import root
-
-
-def en_extract_when(pred):
+def extract_when(pred):
     date_list = [w for w in pred.subtree if w.ent_type_ == 'DATE']
     when = date_list[0] if date_list else None
     if (None != when and when.dep_ == 'compound'):
