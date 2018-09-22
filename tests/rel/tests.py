@@ -16,14 +16,14 @@ from gold import Gold
 from corpus_en import CORPUS_EN
 from corpus_es import CORPUS_ES
 
-from entities import EntitiesPipeline
-from entities.lang.en import EN_EntityMatcher
-from entities.lang.en import EN_EntityRules
+from ent import EntitiesPipeline
+from ent.lang.en import EN_EntityMatcher
+from ent.lang.en import EN_EntityRules
 
-from relations import RelationPipeline
-from relations.lang.en import EN_SPO_RelationExtractor
-from relations.lang.en import EN_IS_A_RelationExtractor
-from relations.lang.es import ES_SPO_RelationExtractor
+from rel import RelationPipeline
+from rel.lang.en import EN_SPO_RelationExtractor
+from rel.lang.en import EN_IS_A_RelationExtractor
+from rel.lang.es import ES_SPO_RelationExtractor
 
 __model = 'en'  # 'en'/'es'
 

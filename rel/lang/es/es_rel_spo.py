@@ -8,7 +8,7 @@ from __future__ import unicode_literals, print_function
 
 import spacy
 from spacy.tokens import Doc
-from relations.parse_util import root, is_root, is_xsubj
+from rel.parse_util import root, is_root, is_xsubj
 
 
 class ES_SPO_RelationExtractor(object):

@@ -1,7 +1,7 @@
 #!env/bin/python
 
 import spacy
-from relations.parse_util import root
+from rel.parse_util import root
 
 
 def en_extract_when(pred):

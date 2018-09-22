@@ -7,7 +7,7 @@ extract IS_A/is_not relations between entities
 
 import spacy
 from spacy.tokens import Doc
-from relations.parse_util import root, is_xsubj
+from rel.parse_util import root, is_xsubj
 
 
 class EN_IS_A_RelationExtractor(object):

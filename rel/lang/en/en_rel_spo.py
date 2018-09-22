@@ -7,7 +7,7 @@ extract SPO relations between entities
 import spacy
 from spacy.tokens import Doc
 
-from relations.parse_util import root, is_xsubj
+from rel.parse_util import root, is_xsubj
 from .en_rel_util import en_extract_when
 
 
