@@ -1,5 +1,3 @@
-#!env/bin/python
-
 '''
 extract SPO relations between entities
 '''

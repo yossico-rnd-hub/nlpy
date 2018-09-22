@@ -1,4 +1,3 @@
-#!env/bin/python
 
 '''
 various utilities to help with relation extraction

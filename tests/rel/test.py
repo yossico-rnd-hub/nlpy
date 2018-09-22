@@ -28,14 +28,6 @@ from rel.lang.es import ES_SPO_RelationExtractor
 __model = 'en'  # 'en'/'es'
 
 
-def is_spanish():
-    return __model.startswith('es')
-
-
-def is_english():
-    return __model.startswith('en')
-
-
 class bcolors:
     DEFAULT = '\033[0m'
     HEADER = '\033[95m'
@@ -48,36 +40,38 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
+def is_spanish(model):
+    return model.startswith('es')
+
+
 def main(model, text, id):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 
-    # add relations extraction to nlp.pipeline
+    # entities pipeline
     ent_pipeline = EntitiesPipeline()
+    nlp.add_pipe(ent_pipeline, after='ner')
+
+    # relations pipeline
     rel_pipeline = RelationPipeline()
+    nlp.add_pipe(rel_pipeline, last=True)
 
-    CORPUS = [{'text': text, 'relations': []}] if text else None
-
-    if is_spanish():
-        if (None == CORPUS):
-            CORPUS = CORPUS_ES
-
+    if (text):
+        CORPUS = [{'text': text, 'relations': []}]
+    elif is_spanish(model):
+        CORPUS = CORPUS_ES
         # es relations
         rel_pipeline.add_pipe(ES_SPO_RelationExtractor())
     else:
-        if (None == CORPUS):
-            CORPUS = CORPUS_EN
+        CORPUS = CORPUS_EN
 
         # en entities
-        ent_pipeline.add_pipe(EN_EntityMatcher(nlp))
         ent_pipeline.add_pipe(EN_EntityRules())
+        ent_pipeline.add_pipe(EN_EntityMatcher(nlp))
 
         # en relations
-        rel_pipeline.add_pipe(EN_IS_A_RelationExtractor())
         rel_pipeline.add_pipe(EN_SPO_RelationExtractor())
-
-    nlp.add_pipe(ent_pipeline, after='ner')
-    nlp.add_pipe(rel_pipeline, last=True)
+        rel_pipeline.add_pipe(EN_IS_A_RelationExtractor())
 
     print("Processing %d texts" % len(CORPUS))
     print()
@@ -138,7 +132,8 @@ def main(model, text, id):
 if __name__ == '__main__':
     _argparser = argparse.ArgumentParser(
         description='test nlp-service entity extraction.')
-    _argparser.add_argument('-i', '--id', type=int, help='document id to process')
+    _argparser.add_argument('-i', '--id', type=int,
+                            help='document id to process')
     _argparser.add_argument('-t', '--text', help='text to process')
     _argparser.add_argument('-m', '--model', help='model to use')
 

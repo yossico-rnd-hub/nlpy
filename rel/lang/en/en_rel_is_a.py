@@ -1,5 +1,3 @@
-#!env/bin/python
-
 '''
 extract IS_A/is_not relations between entities
 '''

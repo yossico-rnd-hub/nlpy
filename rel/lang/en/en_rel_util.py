@@ -1,5 +1,3 @@
-#!env/bin/python
-
 import spacy
 from rel.parse_util import root
 

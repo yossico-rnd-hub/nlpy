@@ -1,5 +1,3 @@
-#!env/bin/python
-
 '''
 match entities based on terminology list and an entity labels.
 '''

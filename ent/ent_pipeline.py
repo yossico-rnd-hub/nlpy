@@ -1,5 +1,3 @@
-#!env/bin/python
-
 '''
 a pipeline for extracting entities.
 
