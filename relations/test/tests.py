@@ -48,7 +48,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def main(model, text):
+def main(model, text, id):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 
@@ -85,6 +85,9 @@ def main(model, text):
     show_warning = False
     for sample in CORPUS:
 
+        if (id > 0 and id != sample['id']):
+            continue  # skip
+
         text = sample['text']
         print(text)
         doc = nlp(text)
@@ -107,8 +110,7 @@ def main(model, text):
             else:
                 print('entities:')
                 for e in doc.ents:
-                    print(' ', e.text, '/', e.label_)
-
+                    print('  {}/{}'.format(e.text, e.label_))
 
         # gold scoring for this document
         gold_relations = sample['relations']
@@ -136,11 +138,13 @@ def main(model, text):
 if __name__ == '__main__':
     _argparser = argparse.ArgumentParser(
         description='test nlp-service entity extraction.')
+    _argparser.add_argument('-i', '--id', type=int, help='document id to process')
     _argparser.add_argument('-t', '--text', help='text to process')
     _argparser.add_argument('-m', '--model', help='model to use')
 
     args = _argparser.parse_args()
     text = args.text if args.text else None
     model = args.model if args.model else __model
+    id = args.id if args.id else -1
 
-    main(model=model, text=text)
+    main(model=model, text=text, id=id)

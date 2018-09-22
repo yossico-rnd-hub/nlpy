@@ -20,6 +20,14 @@ env/bin/python -m spacy download es
 env/bin/python -m spacy download es_core_news_sm
 env/bin/python -m spacy download es_core_news_md
 
+### jupiter notebook virtual env
+env/bin/pip install ipykernel
+env/bin/ipython kernel install --user --name=env
+
+### textacy
+env/bin/pip install textacy
+env/bin/pip install textacy[lang] (for language detection)
+
 ## TODO
 - similarity (spacy)
 - categorization (spacy: TextCategorizer - https://spacy.io/api/textcategorizer)
