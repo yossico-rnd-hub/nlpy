@@ -11,13 +11,13 @@ from extract.subject_verb_object_triples import subject_verb_object_triples
 nlp = spacy.load('en')
 
 TEXTS = [
-    # u'When Sebastian Thrun started working on self-driving cars at '
-    # u'Google in 2007, few people outside of the company took him '
-    # u'seriously. “I can tell you very senior CEOs of major American '
-    # u'car companies would shake my hand and turn away because I wasn’t '
-    # u'worth talking to,” said Thrun, now the co-founder and CEO of '
-    # u'online higher education startup Udacity, in an interview with '
-    # u'Recode earlier this week.',
+    u'When Sebastian Thrun started working on self-driving cars at '
+    u'Google in 2007, few people outside of the company took him '
+    u'seriously. “I can tell you very senior CEOs of major American '
+    u'car companies would shake my hand and turn away because I wasn’t '
+    u'worth talking to,” said Thrun, now the co-founder and CEO of '
+    u'online higher education startup Udacity, in an interview with '
+    u'Recode earlier this week.',
 
     u'Donald Trump had a debate with Barak Obama and Hillary Clinton last Tuesday.',
     u'Last week Hillary, mother of Chelsea and Dan, met with congressman Mike Pence in the White House.',
@@ -39,7 +39,7 @@ for text in TEXTS:
     num_res = 0
     for t in subject_verb_object_triples(doc,
                                          exclude_negation=True,
-                                         entities_only=False):
+                                         entities_only=True):
         print(t)
         num_res += 1
     if (0 == num_res):

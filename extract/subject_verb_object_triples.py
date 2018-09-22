@@ -83,7 +83,7 @@ def _extract_verb_objects(verb, entities_only=True):
                 continue  # skip none-entity
             return _right_conj(_extend_lefts(pobj))
 
-    return None
+    return [] # None
 
 
 def _extend_lefts(w):
