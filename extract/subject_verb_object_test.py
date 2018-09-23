@@ -8,8 +8,13 @@ import spacy
 # import extract
 from extract import subject_verb_object, extract_when
 
-nlp = spacy.load('en')
+# nlp = spacy.load('es')
+# TEXTS = [
+#     u'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
+#     u'Donald Trump tuvo un debate con Barack Obama y Hillary Clinton el martes pasado.',
+# ]
 
+nlp = spacy.load('en')
 TEXTS = [
     u'When Sebastian Thrun started working on self-driving cars at '
     u'Google in 2007, few people outside of the company took him '

@@ -2,18 +2,18 @@ CORPUS_ES = [
     # OK
     {
         'id': 2,
-        'text': 'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
+        'text': u'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
         'relations': [('Hillary Clinton', 'reunió', 'Barack Obama', 'la semana pasada')]
     },
     # {
     #     'id': 3,
-    #     'text': 'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
+    #     'text': u'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
     #     'relations': [('Donald Trump', 'debate', 'Barack Obama', 'el martes pasado')]
     # },
 
     # {
     #     'id': 8,
-    #     'text': 'Bill Clinton es el presidente de los U.S.A',
+    #     'text': u'Bill Clinton es el presidente de los U.S.A',
     #     'relations': [('Bill Clinton', 'presidente', 'U.S.A', None)]
     # },
 
@@ -21,7 +21,7 @@ CORPUS_ES = [
     # 'Last week Hillary, mother of Chelsea, met with congressman Mike Pence in the White House.'
     # {
     #     'id': 4,
-    #     'text': 'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+    #     'text': u'La semana pasada, Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
     #     'relations': [('Hillary Clinton', 'conoció', 'Mike Pence'),
     #                   ('Hillary Clinton', 'madre de', 'Chelsea Clinton')]
     # },
