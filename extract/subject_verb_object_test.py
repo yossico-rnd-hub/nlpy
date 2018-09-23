@@ -11,7 +11,7 @@ from extract import subject_verb_object, extract_when
 # nlp = spacy.load('es')
 # TEXTS = [
 #     u'Hillary Clinton se reunió en secreto con Barack Obama la semana pasada.',
-#     u'Donald Trump tuvo un debate con Barack Obama y Hillary Clinton el martes pasado.',
+#     u'Donald Trump tuvo un debate con Barack Hussein Obama y Hillary Clinton el martes pasado.',
 # ]
 
 nlp = spacy.load('en')
@@ -24,7 +24,7 @@ TEXTS = [
     u'online higher education startup Udacity, in an interview with '
     u'Recode earlier this week.',
 
-    u'Donald Trump had a debate with Barak Obama and Hillary Clinton last Tuesday.',
+    u'Donald Trump had a debate with Barak Hussein Obama and Hillary Clinton last Tuesday.',
     u'Last week Hillary, mother of Chelsea and Dan, met with congressman Mike Pence in the White House.',
     u'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
 

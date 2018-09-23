@@ -8,7 +8,7 @@ def subject_verb_object(doc,
     for s in filter(lambda t: t.dep_ in ('nsubj'), doc):
         if (entities_only and 0 == s.ent_type):
             continue  # skip none-entity
-        subj = _extend_lefts(s)
+        subj = _extend_entity_name(s)
         # print('lilo - subj:', subj)
         verb = _extract_verb(s, entities_only)
         # print('lilo - verb:', verb)
@@ -68,14 +68,14 @@ def _extract_objects(verb, entities_only=True):
     for dobj in filter(lambda w: w.dep_ in ('dobj', 'obj'), verb.rights):
         if (entities_only and 0 == dobj.ent_type):
             continue  # skip none-entity
-        return _right_conj(dobj)
+        return _right_conj(_extend_entity_name(dobj))
 
     # rule 2: verb-span (including: prep/dative/agent) -> pobj
     # (e.g: <PERSON/nsubj> <killed by/verb-span> <PERSON/pobj>)
     for pobj in filter(lambda w: w.dep_ == 'pobj', verb.rights):
         if (entities_only and 0 == pobj.ent_type):
             continue  # skip none-entity
-        return _right_conj(_extend_lefts(pobj))
+        return _right_conj(_extend_entity_name(pobj))
 
     # rule 3: verb -> prep/dative/agent -> pobj
     # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
@@ -83,13 +83,28 @@ def _extract_objects(verb, entities_only=True):
         for pobj in filter(lambda w: w.dep_ in ('pobj'), prep.children):
             if (entities_only and 0 == pobj.ent_type):
                 continue  # skip none-entity
-            return _right_conj(_extend_lefts(pobj))
+            return _right_conj(_extend_entity_name(pobj))
 
     for obj in filter(lambda w: w.dep_ in ('nmod'), verb.rights):
         if (entities_only and 0 == obj.ent_type):
             continue  # skip none-entity
-        return _right_conj(obj)
+        return _right_conj(_extend_entity_name(obj))
     return []  # None
+
+
+def _extend_entity_name(w):
+    start = end = w.i
+
+    # en:
+    for left in filter(lambda t: t.dep_ in ('compound', 'amod'), w.lefts):
+        start = min(start, left.i)
+
+    # es:
+    if (start == end):
+        for right in filter(lambda t: t.dep_ in ('flat') and t.head == w, w.rights):
+            end = max(end, right.i)
+
+    return w.doc[start:end + 1]
 
 
 def _extend_lefts(w):
@@ -103,14 +118,14 @@ def _left_conj(span):
     ''' yield span and any left conjunctions'''
     yield span
     for conj in filter(lambda w: w.dep_ == 'conj', span.lefts):
-        yield _extend_lefts(conj)
+        yield _extend_entity_name(conj)
 
 
 def _right_conj(span):
     ''' yield span and any right conjunctions'''
     yield span
     for conj in filter(lambda w: w.dep_ == 'conj', span.rights):
-        yield _extend_lefts(conj)
+        yield _extend_entity_name(conj)
 
 
 def is_neg(v):
