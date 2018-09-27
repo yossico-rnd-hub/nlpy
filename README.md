@@ -46,7 +46,7 @@ env/bin/pip install textacy[lang] (for language detection)
     ( Hillery/ORG, step mother, Chelsea/ORG )
 
 ### relations
-- multiple subjects: 'Bill and Hillery Clinton, parents of Chelsea ...'
+- docs: 14,15
 - multiple predicates: '... co-founder and CEO of Udacity'
 - spanish
 - basis

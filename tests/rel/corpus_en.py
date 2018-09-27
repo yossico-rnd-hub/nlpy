@@ -9,7 +9,7 @@ CORPUS_EN = [
                 u'online higher education startup Udacity, in an interview with '
                 u'Recode earlier this week.',
         'relations': [('Sebastian Thrun', 'started working', 'Google', '2007'),
-                      ('Thrun', 'CEO of', 'Udacity', None)]
+                      ('Thrun', 'CEO of', 'Udacity', 'now')]
     },
 
     {
@@ -84,11 +84,19 @@ CORPUS_EN = [
     {
         'id': 14,
         'text': u'Bill and Hillery Clinton, parents of Chelsea married on October 11, 1975.',
-        'relations': []
+        'relations': [('Bill', 'married', None, 'October 11, 1975'),
+                      ('Hillery Clinton', 'married', None, 'October 11, 1975')]
     },
     {
         'id': 15,
         'text': u'Bill and Hillery Clinton, Chelsea parents, married on October 11, 1975.',
-        'relations': []
+        'relations': [('Bill', 'married', None, 'October 11, 1975'),
+                      ('Hillery Clinton', 'married', None, 'October 11, 1975')]
+    },
+    {
+        'id': 16,
+        'text': u'Bill and Hillery Clinton married on October 11, 1975.',
+        'relations': [('Bill', 'married', None, 'October 11, 1975'),
+                      ('Hillery Clinton', 'married', None, 'October 11, 1975')]
     },
 ]

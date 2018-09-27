@@ -1,8 +1,7 @@
 import spacy
 from spacy.tokens import Doc
 
-from rel.when import extract_when
-from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj
+from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
 
 
 class SVO_RelationExtractor(object):
@@ -18,28 +17,32 @@ class SVO_RelationExtractor(object):
     def __call__(self, doc, relations):
         ''' extracts (subject, verb, object, when, self.name) '''
         for t in self.subject_verb_object(doc):
-            s, v, o = t
-            when = extract_when(v)
-            relations.append((s, v, o, when))
+            relations.append(create_relation(*t))
         return doc
 
     def subject_verb_object(self, doc):
         ''' extract (subject, verb, object) triples '''
-        for subj in self._extract_subjects(doc):
+        for subj in filter(lambda t: is_xsubj(t), doc):
+            if (0 == subj.ent_type):
+                continue  # skip none-entity
+
             verb = self._extract_verb(subj)
+            if (None == verb):
+                continue
+
             for obj in self._extract_objects(verb):
                 yield (subj, verb, obj)
 
-    def _extract_subjects(self, doc):
-        for s in filter(lambda t: is_xsubj(t), doc):
-            if (0 == s.ent_type):
-                continue  # skip none-entity
-            subj = _extend_entity_name(s)
-            yield subj
+            # subj.conj
+            for conj in _right_conj(subj):
+                if (0 == conj.ent_type):
+                    continue  # skip none-entity
+                for obj in self._extract_objects(verb):
+                    yield (conj, verb, obj)
 
     def _extract_verb(self, s):
         ''' try to extract the VERB related to the given subject '''
-        verb = s[-1].head
+        verb = s.head
 
         if (verb.pos_ != 'VERB'):
             return None
@@ -86,14 +89,14 @@ class SVO_RelationExtractor(object):
         for dobj in filter(lambda w: w.dep_ in ('dobj', 'obj'), verb.rights):
             if (0 == dobj.ent_type):
                 continue  # skip none-entity
-            return _right_conj(_extend_entity_name(dobj))
+            return [dobj] + _right_conj(dobj)
 
         # rule 2: verb-span (including: prep/dative/agent) -> pobj
         # (e.g: <PERSON/nsubj> <killed by/verb-span> <PERSON/pobj>)
         for pobj in filter(lambda w: w.dep_ == 'pobj', verb.rights):
             if (0 == pobj.ent_type):
                 continue  # skip none-entity
-            return _right_conj(_extend_entity_name(pobj))
+            return [pobj] + _right_conj(pobj)
 
         # rule 3: verb -> prep/dative/agent -> pobj
         # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
@@ -101,10 +104,11 @@ class SVO_RelationExtractor(object):
             for pobj in filter(lambda w: w.dep_ in ('pobj'), prep.children):
                 if (0 == pobj.ent_type):
                     continue  # skip none-entity
-                return _right_conj(_extend_entity_name(pobj))
+                return [pobj] + _right_conj(pobj)
 
         for obj in filter(lambda w: w.dep_ in ('nmod'), verb.rights):
             if (0 == obj.ent_type):
                 continue  # skip none-entity
-            return _right_conj(_extend_entity_name(obj))
+            return [obj] + _right_conj(obj)
+
         return []  # None

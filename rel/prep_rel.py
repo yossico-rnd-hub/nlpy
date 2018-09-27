@@ -1,8 +1,7 @@
 import spacy
 from spacy.tokens import Doc
 
-from rel.when import extract_when
-from rel.util import is_xsubj, _extend_entity_name, _right_conj
+from rel.util import is_xsubj, _extend_entity_name, _right_conj, create_relation
 
 
 class PREP_RelationExtractor(object):
@@ -26,26 +25,28 @@ class PREP_RelationExtractor(object):
         e.g: '<Mark Zukerberg/subj> is the <co-founder/pred> and <CEO/pred> <of/prep> <Facebook/obj>'
         '''
         for t in self.extract_preposition_relations(doc):
-            s, p, o = t
-            when = extract_when(p)
-            relations.append((s, p, o, when))
+            relations.append(create_relation(*t))
         return doc
 
     def extract_preposition_relations(self, doc):
         ''' extract (subject, verb, object) triples '''
-        for subj in self._extract_subjects(doc):
+        for subj in filter(lambda t: is_xsubj(t), doc):
+            if (0 == subj.ent_type):
+                continue  # skip none-entity
+
             pred = self._extract_pred(subj)
             if (None == pred):
                 continue
+
             for obj in self._extract_prep_objects(pred):
                 yield (subj, pred, obj)
 
-    def _extract_subjects(self, doc):
-        for s in filter(lambda t: is_xsubj(t), doc):
-            if (0 == s.ent_type):
-                continue  # skip none-entity
-            subj = _extend_entity_name(s)
-            yield subj
+            # subj.conj
+            for conj in _right_conj(subj):
+                if (0 == conj.ent_type):
+                    continue  # skip none-entity
+                for obj in self._extract_prep_objects(pred):
+                    yield (conj, pred, obj)
 
     def _extract_pred(self, subj_span):
         '''
@@ -66,7 +67,8 @@ class PREP_RelationExtractor(object):
         return None
 
     def _extract_prep_objects(self, pred_span):
-        pobj = next(filter(lambda w: w.dep_ in ('pobj', 'conj'), pred_span.rights), None)
+        pobj = next(filter(lambda w: w.dep_ in (
+            'pobj', 'conj'), pred_span.rights), None)
         if (None == pobj):
-            return None 
-        return _right_conj(_extend_entity_name(pobj))
+            return None
+        return [pobj] + _right_conj(pobj)

@@ -9,6 +9,10 @@ get scoring for a single doc or scoring of all docs
 from tests.scoring import Scoring
 
 
+def txt(x):
+    return x.text if x else None
+
+
 class Gold(object):
     def __init__(self):
         self._dict = {}
@@ -57,4 +61,4 @@ class Gold(object):
 
     def _relation_to_string_tuple(self, r):
         s, p, o, w = r
-        return (s.text, p.text, o.text, w.text if w else None)
+        return (txt(s), txt(p), txt(o), txt(w) if w else None)

@@ -7,8 +7,6 @@ extract relations between entities
 import sys
 sys.path.append('.')
 
-# import logging
-
 import argparse
 
 import spacy
@@ -21,6 +19,7 @@ from ent.lang.en import EN_EntityRules
 from rel import RelationPipeline
 from rel import SVO_RelationExtractor
 from rel import PREP_RelationExtractor
+from rel import RELCL_V_O_RelationExtractor
 
 from gold import Gold
 from tests.scoring import Scoring
@@ -52,6 +51,9 @@ def is_english(model):
 
 
 def ent_types(span):
+    if (None == span):
+        return None
+
     res = []
     for w in span:
         if (w.ent_type > 0):
@@ -59,7 +61,11 @@ def ent_types(span):
     return res
 
 
-def main(model, text, id):
+def txt(x):
+    return x.text if x else None
+
+
+def main(model, text, id, tokens=False, debug=False):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 
@@ -76,6 +82,7 @@ def main(model, text, id):
     pipeline = RelationPipeline()
     pipeline.add_pipe(SVO_RelationExtractor())
     pipeline.add_pipe(PREP_RelationExtractor())
+    # lilo: pipeline.add_pipe(RELCL_V_O_RelationExtractor())
     nlp.add_pipe(pipeline, last=True)
 
     if (text):
@@ -103,15 +110,21 @@ def main(model, text, id):
         print(text)
         doc = nlp(text)
 
+        if (True == tokens):
+            print()
+            for t in doc:
+                print('lemma: {}    pos: {}, dep: {}, ent_type: {}'
+                      .format(t.lemma_, t.pos_, t.dep_, t.ent_type_))
+
         num_found = 0
         for s, p, o, w in doc._.relations:
             num_found += 1
             if (None != w):
                 print('( {}/{}, {}, {}/{}, {} )'
-                      .format(s.text, ent_types(s), p.text, o.text, ent_types(o), w.text))
+                      .format(txt(s), ent_types(s), txt(p), txt(o), ent_types(o), txt(w)))
             else:
                 print('( {}/{}, {}, {}/{} )'
-                      .format(s.text, ent_types(s), p.text, o.text, ent_types(o)))
+                      .format(txt(s), ent_types(s), txt(p), txt(o), ent_types(o)))
 
         if (0 == num_found):
             print('No relations!')
@@ -162,15 +175,16 @@ if __name__ == '__main__':
                             help='document id to process')
     _argparser.add_argument('-t', '--text', help='text to process')
     _argparser.add_argument('-m', '--model', help='model to use')
-    # _argparser.add_argument('-d', '--debug', type=bool,
-    #                         help='turn on debug mode')
+    _argparser.add_argument('--tokens', type=bool, nargs='?',
+                            const=True, help='print token information')
+    _argparser.add_argument('--debug', type=bool, nargs='?',
+                            const=True, help='turn on debug mode')
 
     args = _argparser.parse_args()
     text = args.text if args.text else None
     model = args.model if args.model else __model
     id = args.id if args.id else -1
+    tokens = True if args.tokens else False
+    debug = True if args.debug else False
 
-    # if args.debug:
-    #     logging.getLogger(__name__).setLevel(logging.DEBUG)
-
-    main(model=model, text=text, id=id)
+    main(model=model, text=text, id=id, tokens=tokens, debug=debug)

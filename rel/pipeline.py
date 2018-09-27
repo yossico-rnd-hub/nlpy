@@ -26,13 +26,33 @@ class RelationPipeline(object):
         relations = []
         for c in self.pipe_:
             doc = c(doc, relations)
-
-        relations = list(filter(lambda r: not self.is_neg(r), relations))
-        doc._.relations = relations
+        doc._.relations = self.filter_relations(relations)
         return doc
 
     def add_pipe(self, component):
         self.pipe_.append(component)
+
+    def filter_relations(self, relations):
+        filtered = []
+        for r in relations:
+            # filter negative relations
+            if self.is_neg(r):
+                continue
+
+            # filter relations where object id DATE/TIME
+            # if self.is_obj_date_time(r):
+            #     continue
+
+            # add relation
+            filtered.append(r)
+
+        return filtered
+
+    def is_obj_date_time(self, r):
+        _, _, o, _ = r
+        if (o[0].ent_type_ in ('DATE', 'TIME')):
+            return True
+        return False
 
     def is_neg(self, r):
         _, p, _, _ = r

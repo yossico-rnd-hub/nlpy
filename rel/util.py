@@ -36,33 +36,20 @@ def _extend_lefts(w):
 
 
 def _left_conj(span):
-    ''' yield span and any left conjunctions'''
-    res = [span]
-    for conj in filter(lambda w: w.dep_ == 'conj', span.lefts):
-        res.append(_extend_entity_name(conj))
-    return res
+    ''' return left conjunctions'''
+    return list(filter(lambda w: w.dep_ == 'conj', span.lefts))
 
 
-def _right_conj(span):
-    ''' yield span and any right conjunctions'''
-    res = [span]
-    for conj in filter(lambda w: w.dep_ == 'conj', span.rights):
-        res.append(_extend_entity_name(conj))
-    return res
-
-
-def is_neg(v):
-    for w in v.lefts:
-        if (w.dep_ == 'neg'):
-            return True
-    return False
+def _right_conj(w):
+    ''' return right conjunctions'''
+    return list(filter(lambda w: w.dep_ == 'conj', w.rights))
 
 
 def _extend_entity_name(w):
     start = end = w.i
 
     # en:
-    # walk in reverse order on w.lefts 
+    # walk in reverse order on w.lefts
     # (congressman/NOUN/compound <- Mike/PROPN/compound <- Pence/PROPN)
     for left in filter(lambda t: t.dep_ in ('compound', 'amod'), reversed(list(w.lefts))):
         if (not left.pos_ == w.pos_):
@@ -75,3 +62,25 @@ def _extend_entity_name(w):
             end = max(end, right.i)
 
     return w.doc[start:end + 1]
+
+
+def extract_when(pred_span):
+    pred_head = pred_span[0].head
+    when = next(filter(lambda w: w.ent_type_ in (
+        'DATE', 'TIME'), pred_head.subtree), None)
+    if (None != when):
+        if (when.dep_ in ('amod', 'compound')):
+            return when.doc[when.i: when.head.i+1]  # extend right
+        return when.doc[when.i:when.i+1]
+    return None
+
+
+def create_relation(s, p, o):
+    s = _extend_entity_name(s)
+    o = _extend_entity_name(o)
+
+    if (o[0].ent_type_ in ('DATE', 'TIME')):
+        return (s, p, None, o)
+
+    w = extract_when(p)
+    return (s, p, o, w)
