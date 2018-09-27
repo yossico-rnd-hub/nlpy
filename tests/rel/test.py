@@ -82,7 +82,7 @@ def main(model, text, id, tokens=False, debug=False):
     pipeline = RelationPipeline()
     pipeline.add_pipe(SVO_RelationExtractor())
     pipeline.add_pipe(PREP_RelationExtractor())
-    # lilo: pipeline.add_pipe(RELCL_V_O_RelationExtractor())
+    pipeline.add_pipe(RELCL_V_O_RelationExtractor())
     nlp.add_pipe(pipeline, last=True)
 
     if (text):
