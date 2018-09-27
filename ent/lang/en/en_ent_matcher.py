@@ -1,7 +1,3 @@
-'''
-match entities based on terminology list and an entity labels.
-'''
-
 import spacy
 from spacy.tokens import Doc
 from spacy.tokens import Span
@@ -10,8 +6,12 @@ from spacy.matcher import PhraseMatcher
 from .term_list import EN_TERM_LIST
 
 
-class EN_EntityMatcher(object):
-    name = 'en_ent_matcher'
+class EN_TerminologyList_EntityMatcher(object):
+    '''
+    match entities based on terminology list and an entity labels.
+    '''
+    
+    name = 'en_term_list_ent_matcher'
 
     def __init__(self, nlp):
         self.matcher = PhraseMatcher(nlp.vocab)

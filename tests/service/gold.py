@@ -276,7 +276,6 @@ class GoldTest(object):
                 s = gold.scoring(doc)
                 scoring.append((doc, s))
 
-                #lilo
                 if (True == self.debug):
                     print(json_doc.text)
                     print('')

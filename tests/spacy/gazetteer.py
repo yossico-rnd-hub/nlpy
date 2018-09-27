@@ -55,7 +55,7 @@ def main(patterns_loc, text_loc, n=10000, lang='en'):
     nlp.vocab.lex_attr_getters = {}
 
     # -----------------------------------------------------------------------
-    #lilo: example
+    # example
     # color_patterns = [nlp(text) for text in ('red', 'green', 'yellow')]
     # product_patterns = [nlp(text) for text in ('boots', 'coats', 'bag')]
     # material_patterns = [nlp(text) for text in ('silk', 'yellow fabric')]

@@ -1,10 +1,10 @@
 import spacy
 
 
-def extract_when(span):
-    verb_head = span[0].head
+def extract_when(pred_span):
+    pred_head = pred_span[0].head
     when = next(filter(lambda w: w.ent_type_ in (
-        'DATE', 'TIME'), verb_head.subtree), None)
+        'DATE', 'TIME'), pred_head.subtree), None)
     if (None != when):
         if (when.dep_ in ('amod', 'compound')):
             return when.doc[when.i: when.head.i+1]  # extend right

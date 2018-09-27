@@ -1,4 +1,5 @@
-from .rel_pipeline import RelationPipeline
-from .lang import en
-from .lang import es
-__all__ = ['RelationPipeline', 'en', 'es']
+from .pipeline import RelationPipeline
+from .svo import SVO_RelationExtractor
+from .prep_rel import PREP_RelationExtractor
+
+__all__ = ['RelationPipeline', 'SVO_RelationExtractor', 'PREP_RelationExtractor']

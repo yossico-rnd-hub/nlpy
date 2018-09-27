@@ -1,21 +1,21 @@
-'''
-a pipeline for extracting entity relations.
-
-you can add relations extraction to nlp.pipeline using:
-    rel_pipeline = RelationPipeline()
-    nlp.add_pipe(rel_pipeline, after='ner')
-
-you can add your relation extrators (one or more) using:
-    rel_pipeline.add_pipe(YOUR_RelationExtractor())
-
-'''
-
 import spacy
 from spacy.tokens import Doc
-from .parse_util import root
+from rel.util import root
 
 
 class RelationPipeline(object):
+    '''
+    a pipeline for extracting entity relations.
+
+    you can add relations extraction to nlp.pipeline using:
+        pipeline = RelationPipeline()
+        nlp.add_pipe(pipeline, after='ner')
+
+    you can add your relation extrators (one or more) using:
+        pipeline.add_pipe(YOUR_RelationExtractor())
+
+    '''
+
     name = 'ws_relations'
     pipe_ = []
 
@@ -23,11 +23,6 @@ class RelationPipeline(object):
         Doc.set_extension('relations', default=[])
 
     def __call__(self, doc):
-        # merge entities into one token
-        spans = list(doc.ents)
-        for span in spans:
-            span.merge()
-
         relations = []
         for c in self.pipe_:
             doc = c(doc, relations)

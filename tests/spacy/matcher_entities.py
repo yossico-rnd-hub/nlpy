@@ -30,7 +30,7 @@ def add_event_ent(matcher, doc, i, matches):
     # Append entity to the doc's entity. (Don't overwrite doc.ents!)
     _, start, end = matches[i]
 
-    # lilo:TODO - ommit overlapping matches
+    # ommit overlapping matches
     if (i > 0):
         if (start >= doc._.prev_start and start <= doc._.prev_end):
             return None  # discard overlapping

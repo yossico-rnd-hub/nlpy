@@ -9,7 +9,7 @@ CORPUS_EN = [
                 u'online higher education startup Udacity, in an interview with '
                 u'Recode earlier this week.',
         'relations': [('Sebastian Thrun', 'started working', 'Google', '2007'),
-                      ('Thrun', 'CEO of', 'Udacity', 'now')]
+                      ('Thrun', 'CEO of', 'Udacity', None)]
     },
 
     {
@@ -19,8 +19,8 @@ CORPUS_EN = [
     },
     {
         'id': 3,
-        'text': u'Donald Trump debate with Barak Obama and Hillary Clinton last Tuesday.',
-        'relations': [('Donald Trump', 'debate', 'Barak Obama', 'last Tuesday'),
+        'text': u'Donald Trump had a debate with Barak Hussein Obama and Hillary Clinton last Tuesday.',
+        'relations': [('Donald Trump', 'debate', 'Barak Hussein Obama', 'last Tuesday'),
                       ('Donald Trump', 'debate', 'Hillary Clinton', 'last Tuesday')]
     },
 
@@ -79,6 +79,16 @@ CORPUS_EN = [
     {
         'id': 13,
         'text': u'Hillery did not meet with Bill.',
+        'relations': []
+    },
+    {
+        'id': 14,
+        'text': u'Bill and Hillery Clinton, parents of Chelsea married on October 11, 1975.',
+        'relations': []
+    },
+    {
+        'id': 15,
+        'text': u'Bill and Hillery Clinton, Chelsea parents, married on October 11, 1975.',
         'relations': []
     },
 ]

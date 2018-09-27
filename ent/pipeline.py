@@ -2,11 +2,11 @@
 a pipeline for extracting entities.
 
 you can add entity extraction to nlp.pipeline using:
-    ent_pipeline = EntitiesPipeline()
-    nlp.add_pipe(ent_pipeline, after='ner')
+    pipeline = EntitiesPipeline()
+    nlp.add_pipe(pipeline, after='ner')
 
 you can add your relation extrators (one or more) using:
-    ent_pipeline.add_pipe(YOUR_EntityExtractor())
+    pipeline.add_pipe(YOUR_EntityExtractor())
 
 '''
 
@@ -31,6 +31,10 @@ class EntitiesPipeline(object):
             start, end, label = e
             span = Span(doc, start, end, label=label)
             doc.ents = list(doc.ents) + [span]
+
+        # merge entities into one token
+        for span in doc.ents:
+            span.merge()
 
         return doc
 
