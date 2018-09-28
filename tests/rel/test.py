@@ -20,21 +20,15 @@ from tests.scoring import Scoring
 from corpus_en import CORPUS_EN
 from corpus_es import CORPUS_ES
 
-__model = 'en'  # 'en'/'es'
-
 
 def is_spanish(model):
     return model.startswith('es')
 
 
-def is_english(model):
-    return model.startswith('en')
-
-
 def ent_types(span):
+    ''' returns an array of entity-types for each token in the span'''
     if (None == span):
         return None
-
     res = []
     for w in span:
         if (w.ent_type > 0):
@@ -54,7 +48,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def main(model, text, id, tokens=False, debug=False):
+def main(model, id, text, tokens=False, debug=False):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 
@@ -64,7 +58,7 @@ def main(model, text, id, tokens=False, debug=False):
     # relations pipeline
     nlp.add_pipe(RelationPipeline(nlp), last=True)
 
-    if (text):
+    if (None != text):
         CORPUS = [{'text': text, 'relations': []}]
     elif is_spanish(model):
         CORPUS = CORPUS_ES
@@ -135,12 +129,12 @@ def main(model, text, id, tokens=False, debug=False):
         COLOR = bcolors.DEFAULT
         print(COLOR)
 
+    # print summary if processing more than 1 document
     if (num_docs_processed >= 2):
         if (show_warning):
             print(bcolors.WARNING + "some documents didn't pass!")
         else:
             print(bcolors.OKGREEN + 'all OK.')
-
         # print overall scoring
         overall_scoring = gold.scoring()
         print(bcolors.DEFAULT + '{} documents, overall scoring: f1-score: {} (precision: {}, recall: {})'.format(
@@ -148,22 +142,23 @@ def main(model, text, id, tokens=False, debug=False):
 
 
 if __name__ == '__main__':
+    # process command-line args
     _argparser = argparse.ArgumentParser(
-        description='test nlp-service entity extraction.')
+        description='test entity relation extraction.')
+
+    _argparser.add_argument('-m', '--model', type=str,
+                            default='en', help='model to use [en/es]')
     _argparser.add_argument('-i', '--id', type=int,
-                            help='document id to process')
-    _argparser.add_argument('-t', '--text', help='text to process')
-    _argparser.add_argument('-m', '--model', help='model to use')
-    _argparser.add_argument('--tokens', type=bool, nargs='?',
-                            const=True, help='print token information')
-    _argparser.add_argument('--debug', type=bool, nargs='?',
-                            const=True, help='turn on debug mode')
+                            default=-1, help='document id to process')
+    _argparser.add_argument('-t', '--text', type=str,
+                            default=None, help='text to process')
+    _argparser.add_argument('--tokens', type=bool, default=False,
+                            nargs='?', const=True, help='print token information')
+    _argparser.add_argument('--debug', type=bool, default=False,
+                            nargs='?', const=True, help='turn on debug mode')
 
     args = _argparser.parse_args()
-    text = args.text if args.text else None
-    model = args.model if args.model else __model
-    id = args.id if args.id else -1
-    tokens = True if args.tokens else False
-    debug = True if args.debug else False
 
-    main(model=model, text=text, id=id, tokens=tokens, debug=debug)
+    # call main
+    main(model=args.model, id=args.id, text=args.text,
+         tokens=args.tokens, debug=args.debug)

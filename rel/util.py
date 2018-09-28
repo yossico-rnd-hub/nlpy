@@ -86,6 +86,8 @@ def create_relation(s, p, o):
     s = _extend_entity_name(s)
     o = _extend_entity_name(o)
 
+    # if obj is DATE/TIME -> put in when component
+    # e.g: Bill born 1977
     if (o[0].ent_type_ in ('DATE', 'TIME')):
         return (s, p, None, o)
 
