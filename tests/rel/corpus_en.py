@@ -81,11 +81,16 @@ CORPUS_EN = [
         'text': u'Hillery did not meet with Bill.',
         'relations': []
     },
+
+    # prep_rel
     {
         'id': 14,
         'text': u'Bill and Hillery Clinton, parents of Chelsea married on October 11, 1975.',
         'relations': [('Bill', 'married', None, 'October 11, 1975'),
-                      ('Hillery Clinton', 'married', None, 'October 11, 1975')]
+                      ('Hillery Clinton', 'married', None, 'October 11, 1975'),
+                    #   ('Bill', 'married', 'Hillery Clinton', 'October 11, 1975'),
+                      ('Bill', 'parents of', 'Chelsea', None),
+                      ('Hillery Clinton', 'parents of', 'Chelsea', None)]
     },
     {
         'id': 15,

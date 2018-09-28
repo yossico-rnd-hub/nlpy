@@ -39,10 +39,6 @@ class RelationPipeline(object):
             if self.is_neg(r):
                 continue
 
-            # filter relations where object id DATE/TIME
-            # if self.is_obj_date_time(r):
-            #     continue
-
             # add relation
             filtered.append(r)
 

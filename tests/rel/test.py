@@ -150,7 +150,7 @@ def main(model, text, id, tokens=False, debug=False):
         else:
             COLOR = bcolors.DEFAULT
 
-        print(COLOR + 'doc-id: {} f1score: {} (precision: {}, recall: {})'.format(
+        print(COLOR + 'doc-id: {} f1-score: {} (precision: {}, recall: {})'.format(
             doc_id, doc_scoring.f1score(), doc_scoring.precision(), doc_scoring.recall()))
 
         COLOR = bcolors.DEFAULT
@@ -164,8 +164,8 @@ def main(model, text, id, tokens=False, debug=False):
 
         # print overall scoring
         overall_scoring = gold.scoring()
-        print(bcolors.DEFAULT + 'overall scoring: f1score: {} (precision: {}, recall: {})'.format(
-            overall_scoring.f1score(), overall_scoring.precision(), overall_scoring.recall()))
+        print(bcolors.DEFAULT + '{} documents, overall scoring: f1-score: {} (precision: {}, recall: {})'.format(
+            num_docs_processed, overall_scoring.f1score(), overall_scoring.precision(), overall_scoring.recall()))
 
 
 if __name__ == '__main__':
