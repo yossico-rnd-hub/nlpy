@@ -35,7 +35,7 @@ class RelationPipeline(object):
     def filter_relations(self, relations):
         filtered = []
         for r in relations:
-            # filter negative relations
+            # filter out negative relations
             if self.is_neg(r):
                 continue
 
@@ -43,12 +43,6 @@ class RelationPipeline(object):
             filtered.append(r)
 
         return filtered
-
-    def is_obj_date_time(self, r):
-        _, _, o, _ = r
-        if (o[0].ent_type_ in ('DATE', 'TIME')):
-            return True
-        return False
 
     def is_neg(self, r):
         _, p, _, _ = r
