@@ -1,10 +1,10 @@
 import spacy
 from spacy.tokens import Doc
 from rel.util import root
-from rel.svo import SVO_RelationExtractor
-from rel.prep_rel import PREP_RelationExtractor
-from rel.relcl_v_o import RELCL_V_O_RelationExtractor
 from rel.relation import Relation, Relations
+from rel.x_svo import SVO_RelationExtractor
+from rel.x_prep_rel import PREP_RelationExtractor
+from rel.x_relcl_v_o import RELCL_V_O_RelationExtractor
 
 
 class RelationPipeline(object):

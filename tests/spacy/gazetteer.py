@@ -1,5 +1,5 @@
 #!env/bin/python
-#https://github.com/explosion/spacy/blob/master/examples/information_extraction/phrase_matcher.py
+# https://github.com/explosion/spacy/blob/master/examples/information_extraction/phrase_matcher.py
 
 # coding: utf8
 """Match a large set of multi-word expressions in O(1) time.
@@ -81,9 +81,10 @@ def main(patterns_loc, text_loc, n=10000, lang='en'):
     for ent_id, start, end, text in get_matches(nlp.tokenizer, phrases, read_text(text_loc, max_docs=n)):
         count += 1
         print(ent_id, '\t', start, end, '\t', text)
-    
+
     t2 = time.time()
     print("%d docs in %.3f s. %d matches" % (n, (t2 - t1), count))
+
 
 def read_gazetteer(tokenizer, loc):
     for _, line in enumerate(open(loc)):
@@ -91,11 +92,8 @@ def read_gazetteer(tokenizer, loc):
         phrase = tokenizer(data['text'])
         for w in phrase:
             _ = tokenizer.vocab[w.text]
-        
-        #lilo
         yield phrase
-        # if len(phrase) >= 2:
-        #     yield phrase
+
 
 def read_text(bz2_loc, max_docs=10000):
     with BZ2File(bz2_loc) as file_:
@@ -104,6 +102,7 @@ def read_text(bz2_loc, max_docs=10000):
             yield data['body']
             if i >= max_docs:
                 break
+
 
 def get_matches(tokenizer, phrases, texts, max_length=6):
     matcher = PhraseMatcher(tokenizer.vocab, max_length=max_length)

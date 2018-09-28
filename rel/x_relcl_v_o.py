@@ -39,7 +39,7 @@ class RELCL_V_O_RelationExtractor(object):
                 for obj in self._extract_objects(verb):
                     yield (conj, verb, obj)
 
-    # lilo: copied from svo
+    # lilo:TODO - change (copied from svo)
     def _extract_objects(self, verb):
         ''' return objects in (s,v,o) related to given VERB '''
 

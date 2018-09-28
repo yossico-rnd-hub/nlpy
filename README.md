@@ -46,8 +46,7 @@ env/bin/pip install textacy[lang] (for language detection)
     ( Hillery/ORG, step mother, Chelsea/ORG )
 
 ### relations
-- relation tuples: add relation-extractor
 - multiple predicates: '... co-founder and CEO of Udacity' (noun_chunks?)
+- textacy
 - spanish
 - basis
-- is/has/did
