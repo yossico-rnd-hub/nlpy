@@ -1,7 +1,7 @@
 #!env/bin/python
 
 '''
-extract relations between entities
+test extracting entity relations
 '''
 
 import sys
@@ -10,24 +10,40 @@ sys.path.append('.')
 import argparse
 
 import spacy
-from spacy.tokens import Doc
 
 from ent import EntitiesPipeline
-from ent.lang.en import EN_TerminologyList_EntityMatcher
-from ent.lang.en import EN_EntityRules
-
 from rel import RelationPipeline
-from rel import SVO_RelationExtractor
-from rel import PREP_RelationExtractor
-from rel import RELCL_V_O_RelationExtractor
 
-from gold import Gold
+from tests.rel.gold import Gold
 from tests.scoring import Scoring
 
 from corpus_en import CORPUS_EN
 from corpus_es import CORPUS_ES
 
 __model = 'en'  # 'en'/'es'
+
+
+def is_spanish(model):
+    return model.startswith('es')
+
+
+def is_english(model):
+    return model.startswith('en')
+
+
+def txt(x):
+    return x.text if x else None
+
+
+def ent_types(span):
+    if (None == span):
+        return None
+
+    res = []
+    for w in span:
+        if (w.ent_type > 0):
+            res.append(w.ent_type_)
+    return res
 
 
 class bcolors:
@@ -42,48 +58,15 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def is_spanish(model):
-    return model.startswith('es')
-
-
-def is_english(model):
-    return model.startswith('en')
-
-
-def ent_types(span):
-    if (None == span):
-        return None
-
-    res = []
-    for w in span:
-        if (w.ent_type > 0):
-            res.append(w.ent_type_)
-    return res
-
-
-def txt(x):
-    return x.text if x else None
-
-
 def main(model, text, id, tokens=False, debug=False):
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 
     # entities pipeline
-    pipeline = EntitiesPipeline()
-    nlp.add_pipe(pipeline, after='ner')
-
-    if is_english(model):
-        # en entities only
-        pipeline.add_pipe(EN_EntityRules())
-        pipeline.add_pipe(EN_TerminologyList_EntityMatcher(nlp))
+    nlp.add_pipe(EntitiesPipeline(nlp), after='ner')
 
     # relations pipeline
-    pipeline = RelationPipeline()
-    pipeline.add_pipe(SVO_RelationExtractor())
-    pipeline.add_pipe(PREP_RelationExtractor())
-    pipeline.add_pipe(RELCL_V_O_RelationExtractor())
-    nlp.add_pipe(pipeline, last=True)
+    nlp.add_pipe(RelationPipeline(nlp), last=True)
 
     if (text):
         CORPUS = [{'text': text, 'relations': []}]

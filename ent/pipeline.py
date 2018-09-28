@@ -12,14 +12,18 @@ you can add your relation extrators (one or more) using:
 
 import spacy
 from spacy.tokens import Span
+from ent.lang.en import EN_TerminologyList_EntityMatcher
+from ent.lang.en import EN_EntityRules
 
 
 class EntitiesPipeline(object):
     name = 'ws_entities'
     pipe_ = []
 
-    def __init__(self):
-        pass
+    def __init__(self, nlp):
+        # en entities only
+        self.add_pipe(EN_EntityRules())
+        self.add_pipe(EN_TerminologyList_EntityMatcher(nlp))
 
     def __call__(self, doc):
 

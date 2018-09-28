@@ -1,6 +1,9 @@
 import spacy
 from spacy.tokens import Doc
 from rel.util import root
+from rel.svo import SVO_RelationExtractor
+from rel.prep_rel import PREP_RelationExtractor
+from rel.relcl_v_o import RELCL_V_O_RelationExtractor
 
 
 class RelationPipeline(object):
@@ -19,8 +22,11 @@ class RelationPipeline(object):
     name = 'ws_relations'
     pipe_ = []
 
-    def __init__(self):
+    def __init__(self, nlp):
         Doc.set_extension('relations', default=[])
+        self.add_pipe(SVO_RelationExtractor())
+        self.add_pipe(PREP_RelationExtractor())
+        self.add_pipe(RELCL_V_O_RelationExtractor())
 
     def __call__(self, doc):
         relations = []
