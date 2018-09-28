@@ -8,7 +8,7 @@ class PREP_RelationExtractor(object):
      e.g: '<Hillery/subj> is the <mother/pred> <of/prep> <Chelsea/obj>'
     '''
 
-    name = 'prep_rel'
+    name = 'prep-rel'
 
     def __init__(self):
         pass

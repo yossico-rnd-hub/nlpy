@@ -7,37 +7,35 @@ get scoring for a single doc or scoring of all docs
 '''
 
 from tests.scoring import Scoring
-
-
-def txt(x):
-    return x.text if x else None
+from rel.relation import Relation, Relations
 
 
 class Gold(object):
     def __init__(self):
         self._dict = {}
 
-    def add(self, doc, id, gold_relations):
+    def add(self, doc, id, gold_relation_tuples):
         if (id in self._dict):
             return None
 
         scoring = Scoring()
         self._dict[id] = (doc, scoring)
 
-        doc_relations = list(
-            map(lambda r: self._relation_to_string_tuple(r), doc._.relations))
+        gold_relations = self.tuples_to_relations(gold_relation_tuples)
+
+        doc_relations = doc._.relations
 
         if (len(doc_relations) == 0 and len(gold_relations) == 0):
             return scoring  # empty match
 
         for r in doc_relations:
-            if (r in gold_relations):
+            if (gold_relations.contains(r)):
                 scoring.true_positives += 1
             else:
                 scoring.false_positives += 1
 
         for r in gold_relations:
-            if (r not in doc_relations):
+            if (not doc_relations.contains(r)):
                 scoring.false_negatives += 1
 
         return scoring
@@ -59,6 +57,8 @@ class Gold(object):
             scoring.false_negatives += s.false_negatives
         return scoring
 
-    def _relation_to_string_tuple(self, r):
-        s, p, o, w = r
-        return (txt(s), txt(p), txt(o), txt(w) if w else None)
+    def tuples_to_relations(self, gold_relation_tuples):
+        relations = Relations()
+        for t in gold_relation_tuples:
+            relations.append(Relation(*t))
+        return relations

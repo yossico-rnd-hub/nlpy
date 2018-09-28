@@ -8,7 +8,7 @@ class RELCL_V_O_RelationExtractor(object):
     e.g: '<Bill/relcl> and Hillery Clinton, parents of Chelsea <married/verb> on October 11, 1975.'
     '''
 
-    name = 'relcl_v_o'
+    name = 'relcl-v-o'
 
     def __init__(self):
         pass

@@ -4,6 +4,7 @@ from rel.util import root
 from rel.svo import SVO_RelationExtractor
 from rel.prep_rel import PREP_RelationExtractor
 from rel.relcl_v_o import RELCL_V_O_RelationExtractor
+from rel.relation import Relation, Relations
 
 
 class RelationPipeline(object):
@@ -29,17 +30,21 @@ class RelationPipeline(object):
         self.add_pipe(RELCL_V_O_RelationExtractor())
 
     def __call__(self, doc):
-        relations = []
+        all_relations = Relations()
         for c in self.pipe_:
-            doc = c(doc, relations)
-        doc._.relations = self.filter_relations(relations)
+            c_relations = Relations()
+            doc = c(doc, c_relations)
+            for r in c_relations:  # update originating extractor
+                r.x = c.name
+            all_relations += c_relations
+        doc._.relations = self.filter_relations(all_relations)
         return doc
 
     def add_pipe(self, component):
         self.pipe_.append(component)
 
     def filter_relations(self, relations):
-        filtered = []
+        filtered = Relations()
         for r in relations:
             # filter out negative relations
             if self.is_neg(r):
@@ -51,8 +56,7 @@ class RelationPipeline(object):
         return filtered
 
     def is_neg(self, r):
-        _, p, _, _ = r
-        rt = root(p)
+        rt = root(r.p)
         for w in rt.children:
             if (w.dep_ == 'neg'):
                 return True

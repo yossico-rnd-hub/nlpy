@@ -10,8 +10,8 @@ class EN_TerminologyList_EntityMatcher(object):
     '''
     match entities based on terminology list and an entity labels.
     '''
-    
-    name = 'en_term_list_ent_matcher'
+
+    name = 'en-term-list-ent-matcher'
 
     def __init__(self, nlp):
         self.matcher = PhraseMatcher(nlp.vocab)

@@ -12,7 +12,7 @@ class EN_EntityRules(object):
         spacy: ( Hillery/ORG, step mother, Chelsea/ORG )
     '''
 
-    name = 'en_ent_rules'
+    name = 'en-ent-rules'
 
     def __init__(self):
         pass

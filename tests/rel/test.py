@@ -31,10 +31,6 @@ def is_english(model):
     return model.startswith('en')
 
 
-def txt(x):
-    return x.text if x else None
-
-
 def ent_types(span):
     if (None == span):
         return None
@@ -100,14 +96,14 @@ def main(model, text, id, tokens=False, debug=False):
                       .format(t.lemma_, t.pos_, t.dep_, t.ent_type_))
 
         num_found = 0
-        for s, p, o, w in doc._.relations:
+        for r in doc._.relations:
             num_found += 1
-            if (None != w):
-                print('( {}/{}, {}, {}/{}, {} )'
-                      .format(txt(s), ent_types(s), txt(p), txt(o), ent_types(o), txt(w)))
+            if (None != r.w):
+                print('( {}/{}, {}, {}/{}, {} ), [{}]'
+                      .format(r.s, ent_types(r.s), r.p, r.o, ent_types(r.o), r.w, r.x))
             else:
-                print('( {}/{}, {}, {}/{} )'
-                      .format(txt(s), ent_types(s), txt(p), txt(o), ent_types(o)))
+                print('( {}/{}, {}, {}/{} ), [{}]'
+                      .format(r.s, ent_types(r.s), r.p, r.o, ent_types(r.o), r.x))
 
         if (0 == num_found):
             print('No relations!')
