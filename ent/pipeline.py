@@ -26,7 +26,6 @@ class EntitiesPipeline(object):
             # en entities only
             self.add_pipe(EN_EntityRules())
             self.add_pipe(EN_TerminologyList_EntityMatcher(nlp))
-            # lilo: self.add_pipe(ES_EntitySplit())
         elif (nlp.lang == 'es'):
             self.add_pipe(ES_EntitySplit())
 
