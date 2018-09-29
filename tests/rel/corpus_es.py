@@ -57,31 +57,31 @@ CORPUS_ES = [
         'relations': [('Bill Clinton', 'presidente', 'U.S.A', None, 'x:es-nsubj-noun-nmod')],
     },
 
-    # FIX*
+    # OK
     {
         'id': 9,
         'en': u'George Washington was the first president of the U.S.',
         'text': u'George Washington fue el primer presidente de los Estados Unidos.',
-        'relations': [('George Washington', 'el primer presidente', 'los Estados Unidos', None, 'x:es-nsubj-noun-nmod')]
+        'relations': [('George Washington', 'primer presidente', 'los Estados Unidos', None, 'x:es-nsubj-noun-nmod')]
     },
 
-    # FIX*
+    # OK
     {
         'id': 10,
         'en': u'Hillery is the biologic mother of Chelsea.',
         'text': u'Hillary es la madre biológica de Chelsea.',
-        'relations': [('Hillery', 'madre biológica', 'Chelsea', None, 'x:es-nsubj-noun-nmod')]
+        'relations': [('Hillary', 'madre biológica', 'Chelsea', None, 'x:es-nsubj-noun-nmod')]
     },
 
-    # ?
+    # OK
     {
         'id': 11,
         'en': u'Hillery is the step mother of Chelsea.',
         'text': u'Hillery es la madrastra de Chelsea.',
-        'relations': [('Hillery', 'madrastra', 'Chelsea', None, 'x:???')]
+        'relations': [('Hillery', 'madrastra', 'Chelsea', None, 'x:es-nsubj-noun-nmod')]
     },
 
-    # ?
+    # OK
     {
         'id': 12,
         'en': u'Hillery is not the mother of Bill.',
@@ -89,7 +89,7 @@ CORPUS_ES = [
         'relations': []
     },
 
-    # ?
+    # OK
     {
         'id': 13,
         'en': u'Hillery did not meet with Bill.',
@@ -97,7 +97,7 @@ CORPUS_ES = [
         'relations': []
     },
 
-    # ?
+    # FIX
     {
         'id': 14,
         'en': u'Bill and Hillery Clinton, parents of Chelsea married on October 11, 1975.',
@@ -108,7 +108,7 @@ CORPUS_ES = [
                       ('Hillery Clinton', 'padres de', 'Chelsea', None)]
     },
 
-    # ?
+    # FIX
     {
         'id': 15,
         'en': u'Bill and Hillery Clinton, Chelsea parents, married on October 11, 1975.',
@@ -117,7 +117,7 @@ CORPUS_ES = [
                       ('Hillery Clinton', 'casaron', None, 'October 11, 1975')]
     },
 
-    # ?
+    # FIX
     {
         'id': 16,
         'en': u'Bill and Hillery Clinton married on October 11, 1975.',

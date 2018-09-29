@@ -91,6 +91,7 @@ def create_relation(s, p, o):
         return (s, p, None, o)
 
     w = extract_when(p)
-    logging.debug('when: {}'.format(w))
+
+    logging.debug('(x:util) when: {}'.format(w))
 
     return (s, p, o, w)

@@ -66,7 +66,12 @@ class RelationPipeline(object):
 
     def is_neg(self, r):
         rt = root(r.p)
-        for w in rt.children:
-            if (w.dep_ == 'neg'):
-                return True
+        if (rt.lang_ == 'en'):
+            for w in rt.children:
+                if (w.dep_ == 'neg'):
+                    return True
+        elif (rt.lang_ == 'es'):
+            for w in r.p[0].children:
+                if (w.dep_ == 'advmod' and w.lemma_ == 'no'):
+                    return True
         return False

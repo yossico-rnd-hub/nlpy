@@ -111,12 +111,13 @@ def main(model, id, text, tokens=False, debug=False):
         if (0 == num_found):
             print('No relations!')
 
-            if (len(doc.ents) == 0):
-                print('No entities!')
-            else:
-                print('entities:')
-                for e in doc.ents:
-                    print('  {}/{}'.format(e.text, e.label_))
+            if (True == debug):
+                if (len(doc.ents) == 0):
+                    print('No entities!')
+                else:
+                    print('entities:')
+                    for e in doc.ents:
+                        print('  {}/{}'.format(e.text, e.label_))
 
         # gold scoring for this document
         doc_scoring = gold.add(doc, doc_id, sample['relations'])
@@ -163,7 +164,7 @@ if __name__ == '__main__':
                             default=None, help='text to process')
     _argparser.add_argument('--tokens', type=bool, default=False,
                             nargs='?', const=True, help='print token information')
-    _argparser.add_argument('--debug', type=bool, default=False,
+    _argparser.add_argument('-d', '--debug', type=bool, default=False,
                             nargs='?', const=True, help='turn on debug mode')
 
     args = _argparser.parse_args()

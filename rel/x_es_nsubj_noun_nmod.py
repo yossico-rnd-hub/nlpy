@@ -38,9 +38,17 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
             pred = subj.head
             if (pred.pos_ != 'NOUN'):
                 continue  # skip if not NOUN
-            logging.debug('(x:{}) pred: {}'.format(self.name, pred))
 
-            pred_span = doc[pred.i: pred.i+1]
+            # amod: 'el primer presidente'
+            start = end = pred.i
+            amod = next(filter(lambda w: w.dep_ ==
+                               'amod', pred.children), None)
+            if (None != amod):
+                start = min(pred.i, amod.i)
+                end = max(pred.i, amod.i)
+            pred_span = doc[start: end+1]
+            logging.debug('(x:{}) pred: {}'.format(self.name, pred_span))
+            print(list(pred.children))
 
             # extract objects (nmod) and relations
             for obj in filter(lambda w: w.dep_ == 'nmod', pred.children):

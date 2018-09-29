@@ -1,3 +1,4 @@
+import logging
 import spacy
 from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
 
@@ -23,15 +24,15 @@ class EN_SVO_RelationExtractor(object):
         for subj in filter(lambda t: is_xsubj(t), doc):
             if (0 == subj.ent_type):
                 continue  # skip none-entity
-            print('----- lilo - ({}) subj: {}'.format(self.name, subj))
+            logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
             verb = self._extract_verb(subj)
             if (None == verb):
                 continue
-            print('----- lilo - ({}) verb: {}'.format(self.name, verb))
+            logging.debug('(x:{}) verb: {}'.format(self.name, verb))
 
             for obj in self._extract_objects(verb):
-                print('----- lilo - ({}) obj: {}'.format(self.name, obj))
+                logging.debug('(x:{}) obj: {}'.format(self.name, obj))
                 yield (subj, verb, obj)
 
             # subj.conj

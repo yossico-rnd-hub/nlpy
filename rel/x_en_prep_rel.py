@@ -1,3 +1,4 @@
+import logging
 import spacy
 from rel.util import is_xsubj, _extend_entity_name, _right_conj, create_relation, root
 
@@ -36,7 +37,7 @@ class EN_PREP_RelationExtractor(object):
             pred = prep.head
             if (pred.pos_ != 'NOUN'):
                 continue  # skip if not NOUN
-            print('----- lilo - ({}) pred: {}'.format(self.name, pred))
+            logging.debug('(x:{})\t\tpred: {}'.format(self.name, pred))
 
             # subj (try searching subj in pred.head)
             subj = pred.head
@@ -50,13 +51,13 @@ class EN_PREP_RelationExtractor(object):
                 continue
             if (0 == subj.ent_type):
                 continue  # skip none-entity
-            print('----- lilo - ({}) subj: {}'.format(self.name, subj))
+            logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
             # extract objects and relations
             pred_span = doc[pred.i: prep.i+1]
 
             for obj in self._extract_prep_objects(prep):
-                print('----- lilo - ({}) obj: {}'.format(self.name, obj))
+                logging.debug('(x:{}) obj:\{}'.format(self.name, obj))
                 yield (subj, pred_span, obj)
 
             # subj.conj
