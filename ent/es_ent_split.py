@@ -14,31 +14,36 @@ class ES_EntitySplit(object):
         pass
 
     def __call__(self, doc, entities):
-        ent_spans = []
+        ents = []
+        splited_ents = []
         found_split = False
         for e in doc.ents:
-            if (e.end - e.start > 1):  # more than a single token?
-                start = end = -1
-                for t in e:
-                    if (t.text == 'y'):
-                        if (start >= 0 and end >= 0):
-                            # lilo:remove label of 'y'
-                            span = Span(doc, t.i, t.i+1, label=0)
-                            ent_spans.append(span)
-                            span = Span(doc, start, end+1, label=e.label)
-                            ent_spans.append(span)
-                            start = end = -1
-                            if (not found_split):
-                                found_split = True
-                    else:
-                        if (start < 0):
-                            start = t.i
-                        end = t.i
+            split_token = next(filter(lambda t: t.text == 'y', e), None)
+            if (None == split_token):
+                ents.append(e)  # include entity as is
+            else:
+                # entity contains split_token
+                if (e.end - e.start > 1):  # more than a single token?
+                    found_split = True
+                    start = end = -1
+                    for t in e:
+                        if (t.text == 'y'):
+                            if (start >= 0 and end >= 0):
+                                splited_ents.append(
+                                    Span(doc, start, end+1, label=e.label))
+                                start = end = -1
+                        else:
+                            if (start < 0):
+                                start = t.i
+                            end = t.i
 
-                if (start >= 0 and end >= 0):
-                    span = Span(doc, start, end+1, label=e.label)
-                    ent_spans.append(span)
+                    if (start >= 0 and end >= 0):
+                        splited_ents.append(
+                            Span(doc, start, end+1, label=e.label))
 
-        if (found_split and len(ent_spans) > 0):
-            doc.ents = list(doc.ents) + ent_spans
+        if (found_split):
+            doc.ents = ents + splited_ents
+            print('----------------------------------')
+            print(doc.ents)
+            print('----------------------------------')
         return doc
