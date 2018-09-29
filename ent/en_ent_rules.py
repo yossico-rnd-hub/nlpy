@@ -1,5 +1,4 @@
 import spacy
-from spacy.tokens import Doc
 
 
 class EN_EntityRules(object):
@@ -18,4 +17,5 @@ class EN_EntityRules(object):
         pass
 
     def __call__(self, doc, entities):
+        # lilo:TODO
         return doc

@@ -12,8 +12,9 @@ you can add your relation extrators (one or more) using:
 
 import spacy
 from spacy.tokens import Span
-from ent.lang.en import EN_TerminologyList_EntityMatcher
-from ent.lang.en import EN_EntityRules
+from ent.en_ent_matcher import EN_TerminologyList_EntityMatcher
+from ent.en_ent_rules import EN_EntityRules
+from ent.es_ent_split import ES_EntitySplit
 
 
 class EntitiesPipeline(object):
@@ -21,9 +22,13 @@ class EntitiesPipeline(object):
     pipe_ = []
 
     def __init__(self, nlp):
-        # en entities only
-        self.add_pipe(EN_EntityRules())
-        self.add_pipe(EN_TerminologyList_EntityMatcher(nlp))
+        if (nlp.lang == 'en'):
+            # en entities only
+            self.add_pipe(EN_EntityRules())
+            self.add_pipe(EN_TerminologyList_EntityMatcher(nlp))
+            # lilo: self.add_pipe(ES_EntitySplit())
+        elif (nlp.lang == 'es'):
+            self.add_pipe(ES_EntitySplit())
 
     def __call__(self, doc):
 
@@ -31,6 +36,7 @@ class EntitiesPipeline(object):
         for c in self.pipe_:
             doc = c(doc, entities)
 
+        #  add extracted entities to doc.ents
         for e in entities:
             start, end, label = e
             span = Span(doc, start, end, label=label)

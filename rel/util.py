@@ -78,7 +78,9 @@ def extract_when(pred_span):
     if (when.dep_ in ('amod', 'compound')):
         return when.doc[when.i: when.head.i+1]  # extend right
 
-    return when.doc[when.i:when.i+1]
+    when_span = when.doc[when.i:when.i+1]
+
+    return when_span
 
 
 def create_relation(s, p, o):
@@ -88,7 +90,7 @@ def create_relation(s, p, o):
     # if obj is DATE/TIME -> put in when component
     # e.g: Bill born 1977
     if (o[0].ent_type_ in ('DATE', 'TIME')):
-        return (s, p, None, o)
+        o = None  # lilo:return (s, p, None, o)
 
     w = extract_when(p)
 
