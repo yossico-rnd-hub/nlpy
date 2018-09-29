@@ -3,6 +3,7 @@
 '''
 test extracting entity relations
 '''
+import logging
 
 import sys
 sys.path.append('.')
@@ -49,6 +50,14 @@ class bcolors:
 
 
 def main(model, id, text, tokens=False, debug=False):
+
+    #lilo
+    if (True == debug):
+        logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+    else:
+        logging.basicConfig(level=logging.WARNING, format='%(message)s')
+
+
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 

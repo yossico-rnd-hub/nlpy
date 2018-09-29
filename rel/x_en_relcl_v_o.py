@@ -2,13 +2,13 @@ import spacy
 from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
 
 
-class RELCL_V_O_RelationExtractor(object):
+class EN_RELCL_V_O_RelationExtractor(object):
     '''
     extract RELCL_V_O relations\n
     e.g: '<Bill/relcl> and Hillery Clinton, parents of Chelsea <married/verb> on October 11, 1975.'
     '''
 
-    name = 'relcl-v-o'
+    name = 'en-relcl-v-o'
 
     def __init__(self):
         pass
@@ -39,7 +39,7 @@ class RELCL_V_O_RelationExtractor(object):
                 for obj in self._extract_objects(verb):
                     yield (conj, verb, obj)
 
-    # lilo:TODO - change (copied from svo)
+    # lilo:TODO - change (copied from en-svo)
     def _extract_objects(self, verb):
         ''' return objects in (s,v,o) related to given VERB '''
 

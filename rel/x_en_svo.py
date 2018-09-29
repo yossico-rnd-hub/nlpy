@@ -2,12 +2,12 @@ import spacy
 from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
 
 
-class SVO_RelationExtractor(object):
+class EN_SVO_RelationExtractor(object):
     '''
     extract SPO relations between entities
     '''
 
-    name = 'svo'
+    name = 'en-svo'
 
     def __init__(self):
         pass
@@ -23,12 +23,15 @@ class SVO_RelationExtractor(object):
         for subj in filter(lambda t: is_xsubj(t), doc):
             if (0 == subj.ent_type):
                 continue  # skip none-entity
+            print('----- lilo - ({}) subj: {}'.format(self.name, subj))
 
             verb = self._extract_verb(subj)
             if (None == verb):
                 continue
+            print('----- lilo - ({}) verb: {}'.format(self.name, verb))
 
             for obj in self._extract_objects(verb):
+                print('----- lilo - ({}) obj: {}'.format(self.name, obj))
                 yield (subj, verb, obj)
 
             # subj.conj

@@ -2,10 +2,12 @@ import spacy
 from spacy.tokens import Doc
 from rel.util import root
 from rel.relation import Relation, Relations
-from rel.x_svo import SVO_RelationExtractor
-from rel.x_prep_rel import PREP_RelationExtractor
-from rel.x_relcl_v_o import RELCL_V_O_RelationExtractor
+from rel.x_en_svo import EN_SVO_RelationExtractor
+from rel.x_en_prep_rel import EN_PREP_RelationExtractor
+from rel.x_en_relcl_v_o import EN_RELCL_V_O_RelationExtractor
 
+from rel.x_es_svo import ES_SVO_RelationExtractor
+from rel.x_es_nsubj_noun_nmod import ES_NSUBJ_NOUN_NMOD_RelationExtractor
 
 class RelationPipeline(object):
     '''
@@ -25,9 +27,16 @@ class RelationPipeline(object):
 
     def __init__(self, nlp):
         Doc.set_extension('relations', default=[])
-        self.add_pipe(SVO_RelationExtractor())
-        self.add_pipe(PREP_RelationExtractor())
-        self.add_pipe(RELCL_V_O_RelationExtractor())
+
+        if (nlp.lang == 'en'):
+            self.add_pipe(EN_SVO_RelationExtractor())
+            self.add_pipe(EN_PREP_RelationExtractor())
+            self.add_pipe(EN_RELCL_V_O_RelationExtractor())
+        elif (nlp.lang == 'es'):
+            self.add_pipe(ES_SVO_RelationExtractor())
+            self.add_pipe(ES_NSUBJ_NOUN_NMOD_RelationExtractor())
+        else:
+            raise TypeError('language not supported!')
 
     def __call__(self, doc):
         all_relations = Relations()
