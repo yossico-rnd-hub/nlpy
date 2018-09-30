@@ -60,7 +60,7 @@ def _extend_compound(w):
     elif ('es' == lang):
         for right in filter(lambda t: t.dep_ in ('compound', 'flat') and t.head == w, w.rights):
             end = max(end, right.i)
-
+    
     return w.doc[start:end + 1]
 
 

@@ -50,13 +50,8 @@ class bcolors:
 
 
 def main(model, id, text, tokens=False, debug=False):
-
-    #lilo
-    if (True == debug):
-        logging.basicConfig(level=logging.DEBUG, format='%(message)s')
-    else:
-        logging.basicConfig(level=logging.WARNING, format='%(message)s')
-
+    level = logging.DEBUG if debug else logging.WARNING
+    logging.basicConfig(level=level, format='%(message)s')
 
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
@@ -95,8 +90,8 @@ def main(model, id, text, tokens=False, debug=False):
         if (True == tokens):
             print()
             for t in doc:
-                print('lemma: {}    pos: {}, dep: {}, ent_type: {}, like_num: {}'
-                      .format(t.lemma_, t.pos_, t.dep_, t.ent_type_, t.like_num))
+                print('norm: {}    pos: {}, dep: {}, ent_type: {}'
+                      .format(t.norm_, t.pos_, t.dep_, t.ent_type_))
 
         num_found = 0
         for r in doc._.relations:

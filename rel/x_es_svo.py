@@ -88,9 +88,9 @@ class ES_SVO_RelationExtractor(object):
 
         # rule 1: verb -> obl (oblique nominal)
         # (e.g: <PERSON/nsubj> <casaron (married)/verb> <DATE-TIME/obl>)
-        for obl in filter(lambda w: w.dep_ in ('obl'), verb.rights):
-            if (0 == obl.ent_type):
+        for obj in filter(lambda w: w.dep_ in ('obj', 'obl'), verb.rights):
+            if (0 == obj.ent_type):
                 continue  # skip none-entity
-            return [_extend_compound(obl)] + _right_conj(obl)
+            return [obj] + _right_conj(obj)
 
         return []  # None

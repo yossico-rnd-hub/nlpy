@@ -29,11 +29,12 @@ class TermList_Matcher(object):
 
             # es only: try extending the match (compound)
             compound_expanded = False
-            if (span.root.lang_ == 'es'):
-                span = self._try_expand_compound(span, label)
-                if (None != span):
-                    spans.append(span)
-                    compound_expanded = True
+            # lilo
+            # if (span.root.lang_ == 'es'):
+            #     span = self._try_expand_compound(span, label)
+            #     if (None != span):
+            #         spans.append(span)
+            #         compound_expanded = True
 
             if (False == compound_expanded):
                 span = Span(doc, start, end, label=label)
@@ -62,7 +63,8 @@ class TermList_Matcher(object):
                     compound_end = max(compound_end, t.i)
 
         if (compound_start >= 0):
-            compound_span = Span(span.doc, compound_start, compound_end+1, label=label)
+            compound_span = Span(span.doc, compound_start,
+                                 compound_end+1, label=label)
             return compound_span
 
         return None
