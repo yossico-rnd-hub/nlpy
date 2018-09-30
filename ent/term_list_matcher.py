@@ -29,12 +29,11 @@ class TermList_Matcher(object):
 
             # es only: try extending the match (compound)
             compound_expanded = False
-            # lilo
-            # if (span.root.lang_ == 'es'):
-            #     span = self._try_expand_compound(span, label)
-            #     if (None != span):
-            #         spans.append(span)
-            #         compound_expanded = True
+            if (span.root.lang_ == 'es'):
+                span = self._try_expand_compound(span, label)
+                if (None != span):
+                    spans.append(span)
+                    compound_expanded = True
 
             if (False == compound_expanded):
                 span = Span(doc, start, end, label=label)
