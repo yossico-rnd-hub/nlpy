@@ -101,9 +101,7 @@ class EN_SVO_RelationExtractor(object):
 
         # rule 3: verb -> prep/dative/agent -> pobj
         # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
-        prep = next(filter(lambda w: w.dep_ in (
-            'prep', 'dative', 'agent'), verb.rights), None)
-        if (None != prep):
+        for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), verb.rights):
             pobj = next(filter(lambda w: w.dep_ ==
                                'pobj', prep.children), None)
             if (None != pobj and 0 != pobj.ent_type):  # skip none-entity

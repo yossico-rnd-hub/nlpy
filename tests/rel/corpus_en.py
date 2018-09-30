@@ -92,7 +92,8 @@ CORPUS_EN = [
         'id': 14,
         'text': u'Bill and Hillary Clinton, parents of Chelsea married on October 11, 1975.',
         'relations': [('Bill', 'married', None, 'October 11, 1975', 'x:en-relcl-v-o'),
-                      ('Hillary Clinton', 'married', None, 'October 11, 1975', 'x:en-relcl-v-o'),
+                      ('Hillary Clinton', 'married', None,
+                       'October 11, 1975', 'x:en-relcl-v-o'),
                       #   ('Bill', 'married', 'Hillary Clinton', 'October 11, 1975'),
                       ('Bill', 'parents of', 'Chelsea', None, 'x:prep-rel'),
                       ('Hillary Clinton', 'parents of', 'Chelsea', None, 'x:prep-rel')]
