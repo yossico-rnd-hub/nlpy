@@ -65,9 +65,8 @@ class EN_RELCL_V_O_RelationExtractor(object):
                     continue  # skip none-entity
                 return [pobj] + _right_conj(pobj)
 
-        for obj in filter(lambda w: w.dep_ in ('nmod'), verb.rights):
-            if (0 == obj.ent_type):
-                continue  # skip none-entity
+        obj = next(filter(lambda w: w.dep_ in ('nmod'), verb.rights), None)
+        if (None != obj and 0 != obj.ent_type):  # skip none-entity
             return [obj] + _right_conj(obj)
 
         return []  # None

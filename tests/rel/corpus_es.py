@@ -7,15 +7,16 @@ CORPUS_ES = [
         'relations': [('Hillary Clinton', 'reunió', 'Barack Obama', None, 'x:es-svo')],
     },
 
-    # FIX
+    # OK
     {
         'id': 3,
         'en': u'Donald Trump had a debate with Barak Hussein Obama and Hillary Clinton last Tuesday.',
         'text': u'Donald Trump debate con Barack Obama y Hillary Clinton el martes pasado.',
-        'relations': [('Donald Trump', 'debate', 'Barack Obama', 'el martes pasado')],
+        'relations': [('Donald Trump', 'debate', 'Barack Obama', 'martes pasado'),
+                      ('Donald Trump', 'debate', 'Hillary Clinton', 'martes pasado')],
     },
 
-    # FIX
+    # OK
     {
         'id': 4,
         'en': u'Hillary Clinton, mother of Chelsea, met with congressman Mike Pence in the White House.',
@@ -103,7 +104,8 @@ CORPUS_ES = [
         'en': u'Bill and Hillary Clinton, parents of Chelsea married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton, padres de Chelsea se casaron el 11 de octubre de 1975.',
         'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
-                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975'),
+                      ('Hillary Clinton', 'casaron',
+                       None, '11 de octubre de 1975'),
                       ('Bill', 'padres', 'Chelsea', None),
                       ('Hillary Clinton', 'padres', 'Chelsea', None)]
     },
@@ -114,7 +116,8 @@ CORPUS_ES = [
         'en': u'Bill and Hillary Clinton, Chelsea parents, married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton, padres del Chelsea, se casaron el 11 de octubre de 1975.',
         'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
-                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975'),
+                      ('Hillary Clinton', 'casaron',
+                       None, '11 de octubre de 1975'),
                       ('Bill', 'padres', 'Chelsea', None),
                       ('Hillary Clinton', 'padres', 'Chelsea', None)]
     },

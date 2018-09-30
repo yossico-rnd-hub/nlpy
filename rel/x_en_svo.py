@@ -88,29 +88,28 @@ class EN_SVO_RelationExtractor(object):
 
         # rule 1: verb -> dobj
         # (e.g: <PERSON/nsubj> <killed/verb> <PERSON/dobj>)
-        for dobj in filter(lambda w: w.dep_ in ('dobj', 'obj'), verb.rights):
-            if (0 == dobj.ent_type):
-                continue  # skip none-entity
+        dobj = next(filter(lambda w: w.dep_ in (
+            'dobj', 'obj'), verb.rights), None)
+        if (None != dobj and 0 != dobj.ent_type):  # skip none-entity
             return [dobj] + _right_conj(dobj)
 
         # rule 2: verb-span (including: prep/dative/agent) -> pobj
         # (e.g: <PERSON/nsubj> <killed by/verb-span> <PERSON/pobj>)
-        for pobj in filter(lambda w: w.dep_ == 'pobj', verb.rights):
-            if (0 == pobj.ent_type):
-                continue  # skip none-entity
+        pobj = next(filter(lambda w: w.dep_ == 'pobj', verb.rights), None)
+        if (None != pobj and 0 != pobj.ent_type):  # skip none-entity
             return [pobj] + _right_conj(pobj)
 
         # rule 3: verb -> prep/dative/agent -> pobj
         # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
-        for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), verb.rights):
-            for pobj in filter(lambda w: w.dep_ in ('pobj'), prep.children):
-                if (0 == pobj.ent_type):
-                    continue  # skip none-entity
+        prep = next(filter(lambda w: w.dep_ in (
+            'prep', 'dative', 'agent'), verb.rights), None)
+        if (None != prep):
+            pobj = next(filter(lambda w: w.dep_ ==
+                               'pobj', prep.children), None)
+            if (None != pobj and 0 != pobj.ent_type):  # skip none-entity
                 return [pobj] + _right_conj(pobj)
 
-        for obj in filter(lambda w: w.dep_ in ('nmod'), verb.rights):
-            if (0 == obj.ent_type):
-                continue  # skip none-entity
+        obj = next(filter(lambda w: w.dep_ in ('nmod'), verb.rights), None)
+        if (None != obj and 0 != obj.ent_type):  # skip none-entity
             return [obj] + _right_conj(obj)
-
         return []  # None

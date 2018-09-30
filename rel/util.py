@@ -44,6 +44,14 @@ def _right_conj(w):
     return list(filter(lambda w: w.dep_ == 'conj', w.rights))
 
 
+def extend_right(w, alist, dep):
+    start = end = w.i
+    for child in filter(lambda x: x.dep_ in dep, alist):
+        start = min(start, child.i)
+        end = max(end, child.i)
+    return w.doc[start: end+1]
+
+
 def _extend_compound(w):
     start = w.start if hasattr(w, 'start') else w.i
     end = w.end if hasattr(w, 'end') else w.i
@@ -60,7 +68,7 @@ def _extend_compound(w):
     elif ('es' == lang):
         for right in filter(lambda t: t.dep_ in ('compound', 'flat') and t.head == w, w.rights):
             end = max(end, right.i)
-    
+
     return w.doc[start:end + 1]
 
 
@@ -79,7 +87,8 @@ def extract_when(pred_span):
     if (when.dep_ in ('amod', 'compound')):
         return when.doc[when.i: when.head.i+1]  # extend right
 
-    when_span = when.doc[when.i:when.i+1]
+    # lilo when_span = when.doc[when.i:when.i+1]
+    when_span = extend_right(when, when.rights, '(amod)')
 
     return when_span
 

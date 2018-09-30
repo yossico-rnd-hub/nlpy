@@ -54,14 +54,16 @@ class ES_SVO_RelationExtractor(object):
 
         # rule 1: verb -> obl (oblique nominal)
         # (e.g: <PERSON/nsubj> <casaron (married)/verb> <DATE-TIME/obl>)
-        for obj in filter(lambda w: w.dep_ in ('obj', 'obl'), verb.rights):
+        obj = next(filter(lambda w: w.dep_ in (
+            'obj', 'obl'), verb.rights), None)
+        if (None != obj):
             if (0 == obj.ent_type):
                 # rule 2: verb -> obj -> <real-obj>/appos
                 # e.g: '<reunió/verb> con el -> <congresista/obj> -> <Mike Pence/appos>'
-                appos = next(filter(lambda w: w.dep_ == 'appos', obj.rights), None)
-                if (None == appos or 0 == appos.ent_type):
-                    continue  # skip none-entity
-                obj = appos
+                appos = next(filter(lambda w: w.dep_ ==
+                                    'appos', obj.rights), None)
+                if (None != appos and 0 != appos.ent_type):  # skip none-entity
+                    obj = appos
             return [obj] + _right_conj(obj)
 
         return []  # None
