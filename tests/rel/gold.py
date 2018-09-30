@@ -11,7 +11,8 @@ from rel.relation import Relation, Relations
 
 
 class Gold(object):
-    def __init__(self):
+    def __init__(self, nlp):
+        self.nlp = nlp
         self._dict = {}
 
     def add(self, doc, id, gold_relation_tuples):
@@ -58,7 +59,7 @@ class Gold(object):
         return scoring
 
     def tuples_to_relations(self, gold_relation_tuples):
-        relations = Relations()
+        relations = Relations(self.nlp)
         for t in gold_relation_tuples:
             relations.append(Relation(*t))
         return relations

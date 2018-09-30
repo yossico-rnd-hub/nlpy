@@ -27,6 +27,7 @@ class RelationPipeline(object):
     pipe_ = []
 
     def __init__(self, nlp):
+        self.nlp = nlp
         Doc.set_extension('relations', default=[])
 
         if (nlp.lang == 'en'):
@@ -41,9 +42,9 @@ class RelationPipeline(object):
             raise TypeError('language not supported!')
 
     def __call__(self, doc):
-        all_relations = Relations()
+        all_relations = Relations(self.nlp)
         for c in self.pipe_:
-            c_relations = Relations()
+            c_relations = Relations(self.nlp)
             doc = c(doc, c_relations)
             for r in c_relations:  # update originating extractor
                 r.x = c.name
@@ -55,7 +56,7 @@ class RelationPipeline(object):
         self.pipe_.append(component)
 
     def filter_relations(self, relations):
-        filtered = Relations()
+        filtered = Relations(self.nlp)
         for r in relations:
             # filter out negative relations
             if self.is_neg(r):

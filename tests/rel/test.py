@@ -73,7 +73,7 @@ def main(model, id, text, tokens=False, debug=False):
         print("Processing %d texts" % len(CORPUS))
     print()
 
-    gold = Gold()
+    gold = Gold(nlp)
     num_docs_processed = 0
     show_warning = False
     for sample in CORPUS:

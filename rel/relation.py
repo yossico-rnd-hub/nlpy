@@ -1,5 +1,14 @@
 import spacy
-from spacy.tokens import Token, Span
+from spacy.tokens import Token, Span, Doc
+
+_USE_SIMILARITY_MATCH = False
+
+def str_match(nlp, s1, s2):
+    if (_USE_SIMILARITY_MATCH):
+        return str_match_similarity(nlp, s1, s2)
+    if (txt(s1) != txt(s2)):
+        return False
+    return True
 
 
 def txt(x):
@@ -10,19 +19,36 @@ def txt(x):
     return None
 
 
-def str_match(s1, s2):
-    # lilo:TODO - use other string comparision?
-    if (txt(s1) != txt(s2)):
-        return False
-    return True
+def str_match_similarity(nlp, s1, s2):
+    if (None != s1 and None != s2):
+        span1 = to_span(nlp, s1)
+        span2 = to_span(nlp, s2)
+        sim = span1.similarity(span2)
+        if (sim >= 0.5):
+            return True
+    if (None == s1 and None == s2):
+        return True
+    return False
+
+
+def to_span(nlp, x):
+    if isinstance(x, Span):
+        return x
+    if isinstance(x, Token):
+        return x.doc[x.i, x.i+1]
+    if isinstance(x, str):
+        doc = nlp(x)
+        return doc[doc[0].i:doc[-1].i+1]
+    return None
 
 
 class Relations(object):
 
     ''' a for enumerating relation collection '''
 
-    def __init__(self):
+    def __init__(self, nlp):
         self._relations = []
+        self.nlp = nlp
 
     def __iter__(self):
         return iter(self._relations)
@@ -66,13 +92,13 @@ class Relations(object):
 
     def contains(self, r):
         for _r in self:
-            if not str_match(_r.s, r.s):
+            if not str_match(self.nlp, _r.s, r.s):
                 continue
-            if not str_match(_r.p, r.p):
+            if not str_match(self.nlp, _r.p, r.p):
                 continue
-            if not str_match(_r.o, r.o):
+            if not str_match(self.nlp, _r.o, r.o):
                 continue
-            if not str_match(_r.w, r.w):
+            if not str_match(self.nlp, _r.w, r.w):
                 continue
             return True
 
