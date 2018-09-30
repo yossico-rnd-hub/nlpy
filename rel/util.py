@@ -45,6 +45,7 @@ def _right_conj(w):
 
 
 def extend_right(w, alist, dep):
+    ''' e.g: for obl in extend_right(w, w.children, ('obl')): '''
     start = end = w.i
     for child in filter(lambda x: x.dep_ in dep, alist):
         start = min(start, child.i)
@@ -88,7 +89,7 @@ def extract_when(pred_span):
         return when.doc[when.i: when.head.i+1]  # extend right
 
     # lilo when_span = when.doc[when.i:when.i+1]
-    when_span = extend_right(when, when.rights, '(amod)')
+    when_span = extend_right(when, when.rights, ('amod'))
 
     return when_span
 

@@ -30,7 +30,7 @@ CORPUS_ES = [
         'id': 5,
         'en': u'Mark Zuckerberg, CEO of Facebook, gave testimony to the U.S. Senate Sunday morning.',
         'text': u'Mark Zuckerberg, CEO de Facebook, dio su testimonio al Senado de los Estados Unidos el domingo por la mañana.',
-        'relations': [('Mark Zuckerberg', 'dio su testimonio', 'de los Estados Unidos', 'el domingo por la mañana'),
+        'relations': [('Mark Zuckerberg', 'dio su testimonio', 'de los Estados Unidos', 'domingo por la mañana'),
                       ('Mark Zuckerberg', 'dio', 'Facebook')],
     },
 
