@@ -14,7 +14,7 @@ class EN_SVO_RelationExtractor(object):
         pass
 
     def __call__(self, doc, relations):
-        ''' extracts (subject, verb, object, when, self.name) '''
+        ''' extracts (subject, pred, object, when, self.name) '''
         for t in self.subject_verb_object(doc):
             relations.append(create_relation(*t))
         return doc

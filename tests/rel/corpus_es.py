@@ -20,8 +20,8 @@ CORPUS_ES = [
         'id': 4,
         'en': u'Hillary Clinton, mother of Chelsea, met with congressman Mike Pence in the White House.',
         'text': u'Hillary Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
-        'relations': [('Hillary Clinton', 'conoció', 'Mike Pence'),
-                      ('Hillary Clinton', 'madre de', 'Chelsea Clinton')],
+        'relations': [('Hillary Clinton', 'reunió', 'Mike Pence'),
+                      ('Hillary Clinton', 'madre', 'Chelsea Clinton')],
     },
 
     # FIX
@@ -44,9 +44,9 @@ CORPUS_ES = [
     # FIX
     {
         'id': 7,
-        'en': u'David killed by Hillary.',
-        'text': u'David asesinado por Hillary Clinton.',
-        'relations': [('David', 'asesinado por', 'Hillary Clinton')],
+        'en': u'David killed by Hillary Clinton.',
+        'text': u'David mató por Hillary Clinton.',
+        'relations': [('David', 'mató por', 'Hillary Clinton')],
     },
 
     # OK
@@ -97,27 +97,29 @@ CORPUS_ES = [
         'relations': []
     },
 
-    # FIX
+    # OK
     {
         'id': 14,
         'en': u'Bill and Hillary Clinton, parents of Chelsea married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton, padres de Chelsea se casaron el 11 de octubre de 1975.',
         'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
                       ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975'),
-                      ('Bill', 'padres de', 'Chelsea', None),
-                      ('Hillary Clinton', 'padres de', 'Chelsea', None)]
+                      ('Bill', 'padres', 'Chelsea', None),
+                      ('Hillary Clinton', 'padres', 'Chelsea', None)]
     },
 
-    # FIX
+    # OK
     {
         'id': 15,
         'en': u'Bill and Hillary Clinton, Chelsea parents, married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton, padres del Chelsea, se casaron el 11 de octubre de 1975.',
         'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
-                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975')]
+                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975'),
+                      ('Bill', 'padres', 'Chelsea', None),
+                      ('Hillary Clinton', 'padres', 'Chelsea', None)]
     },
 
-    # FIX
+    # OK
     {
         'id': 16,
         'en': u'Bill and Hillary Clinton married on October 11, 1975.',
