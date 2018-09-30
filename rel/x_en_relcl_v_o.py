@@ -1,11 +1,11 @@
 import spacy
-from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
+from rel.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
 
 
 class EN_RELCL_V_O_RelationExtractor(object):
     '''
     extract RELCL_V_O relations\n
-    e.g: '<Bill/relcl> and Hillery Clinton, parents of Chelsea <married/verb> on October 11, 1975.'
+    e.g: '<Bill/relcl> and Hillary Clinton, parents of Chelsea <married/verb> on October 11, 1975.'
     '''
 
     name = 'en-relcl-v-o'

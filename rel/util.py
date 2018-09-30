@@ -44,20 +44,21 @@ def _right_conj(w):
     return list(filter(lambda w: w.dep_ == 'conj', w.rights))
 
 
-def _extend_entity_name(w):
-    start = end = w.i
+def _extend_compound(w):
+    start = w.start if hasattr(w, 'start') else w.i
+    end = w.end if hasattr(w, 'end') else w.i
 
-    # en:
-    # walk in reverse order on w.lefts
-    # (congressman/NOUN/compound <- Mike/PROPN/compound <- Pence/PROPN)
-    for left in filter(lambda t: t.dep_ in ('compound', 'amod'), reversed(list(w.lefts))):
-        if (not left.pos_ == w.pos_):
-            break
-        start = min(start, left.i)
+    lang = root(w).lang_
 
-    # es:
-    if (start == end):
-        for right in filter(lambda t: t.dep_ in ('flat') and t.head == w, w.rights):
+    if ('en' == lang):
+        # walk in reverse order on w.lefts
+        # (congressman/NOUN/compound <- Mike/PROPN/compound <- Pence/PROPN)
+        for left in filter(lambda t: t.dep_ in ('compound', 'amod'), reversed(list(w.lefts))):
+            if (not left.pos_ == w.pos_):
+                break
+            start = min(start, left.i)
+    elif ('es' == lang):
+        for right in filter(lambda t: t.dep_ in ('compound', 'flat') and t.head == w, w.rights):
             end = max(end, right.i)
 
     return w.doc[start:end + 1]
@@ -84,8 +85,8 @@ def extract_when(pred_span):
 
 
 def create_relation(s, p, o):
-    s = _extend_entity_name(s)
-    o = _extend_entity_name(o)
+    s = _extend_compound(s)
+    o = _extend_compound(o)
 
     # if obj is DATE/TIME -> put in when component
     # e.g: Bill born 1977

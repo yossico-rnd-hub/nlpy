@@ -1,12 +1,12 @@
 import logging
 import spacy
-from rel.util import is_xsubj, _extend_entity_name, _right_conj, create_relation, root
+from rel.util import is_xsubj, _extend_compound, _right_conj, create_relation, root
 
 
 class EN_PREP_RelationExtractor(object):
     '''
     extract preposition relations: (<ENTITY>, <NOUN> prep, <ENTITY>) \n
-     e.g: '<Hillery/subj> is the <mother/pred> <of/prep> <Chelsea/obj>'
+     e.g: '<Hillary/subj> is the <mother/pred> <of/prep> <Chelsea/obj>'
     '''
 
     name = 'prep-rel'
@@ -21,7 +21,7 @@ class EN_PREP_RelationExtractor(object):
                  entities_only=True):
         ''' 
         extracts (subject, pred, object, when, self.name) \n
-        e.g: '<Hillery/subj> is the <mother/pred> <of/prep> <Chelsea/obj>' \n
+        e.g: '<Hillary/subj> is the <mother/pred> <of/prep> <Chelsea/obj>' \n
         e.g: '<Mark Zukerberg/subj> is the <co-founder/pred> and <CEO/pred> <of/prep> <Facebook/obj>'
         '''
         for t in self.extract_preposition_relations(doc):
@@ -37,7 +37,7 @@ class EN_PREP_RelationExtractor(object):
             pred = prep.head
             if (pred.pos_ != 'NOUN'):
                 continue  # skip if not NOUN
-            logging.debug('(x:{})\t\tpred: {}'.format(self.name, pred))
+            logging.debug('(x:{}) pred: {}'.format(self.name, pred))
 
             # subj (try searching subj in pred.head)
             subj = pred.head
@@ -57,7 +57,7 @@ class EN_PREP_RelationExtractor(object):
             pred_span = doc[pred.i: prep.i+1]
 
             for obj in self._extract_prep_objects(prep):
-                logging.debug('(x:{}) obj:\{}'.format(self.name, obj))
+                logging.debug('(x:{}) obj: {}'.format(self.name, obj))
                 yield (subj, pred_span, obj)
 
             # subj.conj
@@ -89,5 +89,5 @@ class EN_PREP_RelationExtractor(object):
         pobj = next(filter(
             lambda w: w.dep_ in ('pobj', 'conj'), prep.rights), None)
         if (None == pobj):
-            return None
+            return []
         return [pobj] + _right_conj(pobj)

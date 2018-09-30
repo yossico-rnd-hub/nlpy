@@ -5,7 +5,7 @@ EN_TERM_LIST = [
     },
     {
         'label': 'PERSON',
-        'terms': (u'Hillery', u'Chelsea')
+        'terms': (u'Hillary', u'Chelsea')
     },
     {
         'label': 'ORG',

@@ -40,10 +40,10 @@ env/bin/pip install textacy[lang] (for language detection)
 ### entities
 - label=PERSON when comes before PERSON-PRED
   e.g: 
-  - Hillery killed David.
-    ( Hillery/ORG, killed, David/PERSON )
-  - Hillery is the step mother of Chelsea.
-    ( Hillery/ORG, step mother, Chelsea/ORG )
+  - Hillary killed David.
+    ( Hillary/ORG, killed, David/PERSON )
+  - Hillary is the step mother of Chelsea.
+    ( Hillary/ORG, step mother, Chelsea/ORG )
 
 ### relations
 - multiple predicates: '... co-founder and CEO of Udacity' (noun_chunks?)

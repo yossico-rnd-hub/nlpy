@@ -1,6 +1,6 @@
 import logging
 import spacy
-from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
+from rel.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
 
 
 class EN_SVO_RelationExtractor(object):

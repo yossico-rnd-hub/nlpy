@@ -95,8 +95,8 @@ def main(model, id, text, tokens=False, debug=False):
         if (True == tokens):
             print()
             for t in doc:
-                print('lemma: {}    pos: {}, dep: {}, ent_type: {}'
-                      .format(t.lemma_, t.pos_, t.dep_, t.ent_type_))
+                print('lemma: {}    pos: {}, dep: {}, ent_type: {}, like_num: {}'
+                      .format(t.lemma_, t.pos_, t.dep_, t.ent_type_, t.like_num))
 
         num_found = 0
         for r in doc._.relations:

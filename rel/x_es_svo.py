@@ -1,6 +1,6 @@
 import logging
 import spacy
-from rel.util import is_xsubj, _extend_entity_name, _extend_lefts, _right_conj, create_relation
+from rel.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
 
 
 class ES_SVO_RelationExtractor(object):
@@ -86,31 +86,11 @@ class ES_SVO_RelationExtractor(object):
     def _extract_objects(self, verb):
         ''' return objects in (s,v,o) related to given VERB '''
 
-        # rule 1: verb -> dobj
-        # (e.g: <PERSON/nsubj> <killed/verb> <PERSON/dobj>)
-        for dobj in filter(lambda w: w.dep_ in ('dobj', 'obj'), verb.rights):
-            if (0 == dobj.ent_type):
+        # rule 1: verb -> obl (oblique nominal)
+        # (e.g: <PERSON/nsubj> <casaron (married)/verb> <DATE-TIME/obl>)
+        for obl in filter(lambda w: w.dep_ in ('obl'), verb.rights):
+            if (0 == obl.ent_type):
                 continue  # skip none-entity
-            return [dobj] + _right_conj(dobj)
-
-        # rule 2: verb-span (including: prep/dative/agent) -> pobj
-        # (e.g: <PERSON/nsubj> <killed by/verb-span> <PERSON/pobj>)
-        for pobj in filter(lambda w: w.dep_ == 'pobj', verb.rights):
-            if (0 == pobj.ent_type):
-                continue  # skip none-entity
-            return [pobj] + _right_conj(pobj)
-
-        # rule 3: verb -> prep/dative/agent -> pobj
-        # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
-        for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), verb.rights):
-            for pobj in filter(lambda w: w.dep_ in ('pobj'), prep.children):
-                if (0 == pobj.ent_type):
-                    continue  # skip none-entity
-                return [pobj] + _right_conj(pobj)
-
-        for obj in filter(lambda w: w.dep_ in ('nmod'), verb.rights):
-            if (0 == obj.ent_type):
-                continue  # skip none-entity
-            return [obj] + _right_conj(obj)
+            return [_extend_compound(obl)] + _right_conj(obl)
 
         return []  # None

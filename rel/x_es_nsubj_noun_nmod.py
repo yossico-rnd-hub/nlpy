@@ -1,12 +1,12 @@
 import logging
 import spacy
-from rel.util import is_xsubj, _extend_entity_name, _right_conj, create_relation, root
+from rel.util import is_xsubj, _extend_compound, _right_conj, create_relation, root
 
 
 class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
     '''
     extract preposition relations: (<ENTITY/nsubj>, <NOUN>, <ENTITY/nmod>) \n
-    e.g: '<Hillery/nsubj> es la <madre/NOUN> del <Chelsea/nmod>'
+    e.g: '<Hillary/nsubj> es la <madre/NOUN> del <Chelsea/nmod>'
     '''
 
     name = 'es-nsubj-noun-nmod'
@@ -18,7 +18,7 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
         ''' 
         extracts (subject, pred, object, when, self.name) \n
         e.g: '<Bill Clinton/subj> es el <presidente/NOUN> de los <U.S.A/nmod>' \n
-        e.g: '<Hillery/nsubj> es la <madre/NOUN> del <Chelsea/nmod>' \n
+        e.g: '<Hillary/nsubj> es la <madre/NOUN> del <Chelsea/nmod>' \n
         e.g: '<Mark Zuckerberg/nsubj> es el <cofundador/NOUN> y <CEO/conj> de <Facebook/nmod>'
         '''
         for t in self.extract_nsubj_noun_nmod_relations(doc):

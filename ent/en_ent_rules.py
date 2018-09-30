@@ -5,10 +5,10 @@ class EN_EntityRules(object):
     '''
     match entities based on rules
     e.g: 
-    - Hillery killed David.
-        spacy: ( Hillery/ORG, killed, David/PERSON )
-    - Hillery is the step mother of Chelsea.
-        spacy: ( Hillery/ORG, step mother, Chelsea/ORG )
+    - Hillary killed David.
+        spacy: ( Hillary/ORG, killed, David/PERSON )
+    - Hillary is the step mother of Chelsea.
+        spacy: ( Hillary/ORG, step mother, Chelsea/ORG )
     '''
 
     name = 'en-ent-rules'

@@ -19,7 +19,7 @@ CORPUS_ES = [
     {
         'id': 4,
         'en': u'Hillary Clinton, mother of Chelsea, met with congressman Mike Pence in the White House.',
-        'text': u'Hillery Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
+        'text': u'Hillary Clinton, madre de Chelsea Clinton, se reunió con el congresista Mike Pence en la Casa Blanca.',
         'relations': [('Hillary Clinton', 'conoció', 'Mike Pence'),
                       ('Hillary Clinton', 'madre de', 'Chelsea Clinton')],
     },
@@ -36,17 +36,17 @@ CORPUS_ES = [
     # OK
     {
         'id': 6,
-        'en': u'Hillery killed David.',
-        'text': u'Hillery Clinton mató a David.',
-        'relations': [('Hillery Clinton', 'mató', 'David')],
+        'en': u'Hillary killed David.',
+        'text': u'Hillary Clinton mató a David.',
+        'relations': [('Hillary Clinton', 'mató', 'David')],
     },
 
     # FIX
     {
         'id': 7,
-        'en': u'David killed by Hillery.',
-        'text': u'David asesinado por Hillery Clinton.',
-        'relations': [('David', 'asesinado por', 'Hillery Clinton')],
+        'en': u'David killed by Hillary.',
+        'text': u'David asesinado por Hillary Clinton.',
+        'relations': [('David', 'asesinado por', 'Hillary Clinton')],
     },
 
     # OK
@@ -68,7 +68,7 @@ CORPUS_ES = [
     # OK
     {
         'id': 10,
-        'en': u'Hillery is the biologic mother of Chelsea.',
+        'en': u'Hillary is the biologic mother of Chelsea.',
         'text': u'Hillary es la madre biológica de Chelsea.',
         'relations': [('Hillary', 'madre biológica', 'Chelsea', None, 'x:es-nsubj-noun-nmod')]
     },
@@ -76,53 +76,53 @@ CORPUS_ES = [
     # OK
     {
         'id': 11,
-        'en': u'Hillery is the step mother of Chelsea.',
-        'text': u'Hillery es la madrastra de Chelsea.',
-        'relations': [('Hillery', 'madrastra', 'Chelsea', None, 'x:es-nsubj-noun-nmod')]
+        'en': u'Hillary is the step mother of Chelsea.',
+        'text': u'Hillary es la madrastra de Chelsea.',
+        'relations': [('Hillary', 'madrastra', 'Chelsea', None, 'x:es-nsubj-noun-nmod')]
     },
 
     # OK
     {
         'id': 12,
-        'en': u'Hillery is not the mother of Bill.',
-        'text': u'Hillery no es la madre de Bill.',
+        'en': u'Hillary is not the mother of Bill.',
+        'text': u'Hillary no es la madre de Bill.',
         'relations': []
     },
 
     # OK
     {
         'id': 13,
-        'en': u'Hillery did not meet with Bill.',
-        'text': u'Hillery no se reunió con Bill.',
+        'en': u'Hillary did not meet with Bill.',
+        'text': u'Hillary no se reunió con Bill.',
         'relations': []
     },
 
     # FIX
     {
         'id': 14,
-        'en': u'Bill and Hillery Clinton, parents of Chelsea married on October 11, 1975.',
+        'en': u'Bill and Hillary Clinton, parents of Chelsea married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton, padres de Chelsea se casaron el 11 de octubre de 1975.',
-        'relations': [('Bill', 'casaron', None, 'October 11, 1975'),
-                      ('Hillery Clinton', 'casaron', None, 'October 11, 1975'),
+        'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
+                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975'),
                       ('Bill', 'padres de', 'Chelsea', None),
-                      ('Hillery Clinton', 'padres de', 'Chelsea', None)]
+                      ('Hillary Clinton', 'padres de', 'Chelsea', None)]
     },
 
     # FIX
     {
         'id': 15,
-        'en': u'Bill and Hillery Clinton, Chelsea parents, married on October 11, 1975.',
+        'en': u'Bill and Hillary Clinton, Chelsea parents, married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton, padres del Chelsea, se casaron el 11 de octubre de 1975.',
-        'relations': [('Bill', 'casaron', None, 'October 11, 1975'),
-                      ('Hillery Clinton', 'casaron', None, 'October 11, 1975')]
+        'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
+                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975')]
     },
 
     # FIX
     {
         'id': 16,
-        'en': u'Bill and Hillery Clinton married on October 11, 1975.',
+        'en': u'Bill and Hillary Clinton married on October 11, 1975.',
         'text': u'Bill y Hillary Clinton se casaron el 11 de octubre de 1975.',
-        'relations': [('Bill', 'casaron', None, 'October 11, 1975'),
-                      ('Hillery Clinton', 'casaron', None, 'October 11, 1975')]
+        'relations': [('Bill', 'casaron', None, '11 de octubre de 1975'),
+                      ('Hillary Clinton', 'casaron', None, '11 de octubre de 1975')]
     },
 ]
