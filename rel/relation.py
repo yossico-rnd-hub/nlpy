@@ -2,6 +2,7 @@ import spacy
 from spacy.tokens import Token, Span, Doc
 
 _USE_SIMILARITY_MATCH = True
+TRESHOLD = 0.6
 
 
 def str_match(nlp, s1, s2):
@@ -21,13 +22,13 @@ def txt(x):
 
 
 def str_match_similarity(nlp, s1, s2):
-    if (None != s1 and None != s2):
+    if (s1 and s2):
         span1 = to_span(nlp, s1)
         span2 = to_span(nlp, s2)
         sim = span1.similarity(span2)
-        if (sim >= 0.5):
+        if (sim >= TRESHOLD):
             return True
-    if (None == s1 and None == s2):
+    if (not s1 and not s2):
         return True
     return False
 

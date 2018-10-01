@@ -31,7 +31,7 @@ class TermList_Matcher(object):
             compound_expanded = False
             if (span.root.lang_ == 'es'):
                 span = self._try_expand_compound(span, label)
-                if (None != span):
+                if span:
                     spans.append(span)
                     compound_expanded = True
 
@@ -52,7 +52,7 @@ class TermList_Matcher(object):
             compound = next(filter(lambda x: x.dep_ ==
                                    'compound', span[0].children), None)
         compound_start = compound_end = -1
-        if (None != compound):
+        if compound:
             # the entity starts from the head
             head = compound.head
             compound_start = compound_end = head.i

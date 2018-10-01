@@ -76,7 +76,7 @@ class Gold(Document):
             if (None == e_doc and None == e_gold):
                 break # done
 
-            if (None != e_doc and None == e_gold):
+            if (e_doc and None == e_gold):
                 # only e_doc valid => false positive
                 false_positives += 1
                 doc_index += 1

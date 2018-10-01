@@ -77,9 +77,9 @@ class EN_PREP_RelationExtractor(object):
         pred = next(filter(
             lambda w: w.dep_ == 'appos', subj_span.rights), None)
 
-        if (None != pred):
+        if pred:
             prep = next(filter(lambda w: w.dep_ == 'prep', pred.rights), None)
-            if (None != prep):
+            if prep:
                 pred = subj_span.doc[pred.i: prep.i + 1]
                 return pred
 

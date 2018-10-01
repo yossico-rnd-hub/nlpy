@@ -43,7 +43,7 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
             start = end = pred.i
             amod = next(filter(lambda w: w.dep_ ==
                                'amod', pred.children), None)
-            if (None != amod):
+            if amod:
                 start = min(pred.i, amod.i)
                 end = max(pred.i, amod.i)
             pred_span = doc[start: end+1]

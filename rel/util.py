@@ -29,7 +29,7 @@ def root(w):
 
 def _extend_lefts(w):
     start = end = w.i
-    for left in filter(lambda t: t.pos_ == w.pos_ or t.dep_ in ('compound', 'amod'), w.lefts):
+    for left in [t for t in w.lefts if t.dep_ in ('compound', 'amod')]:
         start = left.i
     return w.doc[start:end + 1]
 

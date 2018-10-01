@@ -15,7 +15,7 @@ CORPUS_EN = [
     {
         'id': 2,
         'text': u'Hillary Clinton met secretly with Barak Obama last week.',
-        'relations': [('Hillary Clinton', 'met', 'Barak Obama', 'last week', 'x:en-svo')]
+        'relations': [('Hillery Clinton', 'met', 'Barak Obama', 'last week', 'x:en-svo')]
     },
 
     {

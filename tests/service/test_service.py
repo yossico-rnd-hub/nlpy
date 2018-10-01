@@ -14,9 +14,9 @@ class TestEntities(object):
     def run(self):
         args = self.parser.parse_args()
 
-        if (None != args.text):
+        if args.text:
             text = args.text
-        elif (None != args.file):
+        elif args.file:
             with open(args.file, 'r') as f:
                 text = f.read()
         else:
@@ -29,7 +29,7 @@ class TestEntities(object):
                 u"Recode earlier this week.")
 
         default_model = 'en_core_web_sm' # default model
-        model = args.model if (None != args.model) else default_model
+        model = args.model if args.model else default_model
             
         data = { 'text': text, 'model': model }
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}

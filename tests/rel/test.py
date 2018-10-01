@@ -64,7 +64,7 @@ def main(model, id, text, tokens=False, debug=False):
     # relations pipeline
     nlp.add_pipe(RelationPipeline(nlp), last=True)
 
-    if (None != text):
+    if text:
         CORPUS = [{'text': text, 'relations': []}]
     elif is_spanish(model):
         CORPUS = CORPUS_ES
@@ -101,7 +101,7 @@ def main(model, id, text, tokens=False, debug=False):
         num_found = 0
         for r in doc._.relations:
             num_found += 1
-            if (None != r.w):
+            if r.w:
                 print('( {}/{}, {}, {}/{}, {} ), [{}]'
                       .format(r.s, ent_types(r.s), r.p, r.o, ent_types(r.o), r.w, r.x))
             else:
