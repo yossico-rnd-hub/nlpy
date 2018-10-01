@@ -6,6 +6,8 @@ add one or more docs
 get scoring for a single doc or scoring of all docs
 '''
 
+import spacy
+from spacy.lang.en import English
 from tests.scoring import Scoring
 from rel.relation import Relation, Relations
 

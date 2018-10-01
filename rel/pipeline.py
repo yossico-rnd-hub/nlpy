@@ -10,6 +10,7 @@ from rel.x_es_appos import ES_APPOS_RelationExtractor
 from rel.x_es_svo import ES_SVO_RelationExtractor
 from rel.x_es_nsubj_noun_nmod import ES_NSUBJ_NOUN_NMOD_RelationExtractor
 
+
 class RelationPipeline(object):
     '''
     a pipeline for extracting entity relations.

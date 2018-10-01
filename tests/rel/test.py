@@ -10,6 +10,8 @@ sys.path.append('.')
 
 import argparse
 
+import timeit
+
 import spacy
 
 from ent import EntitiesPipeline
@@ -72,6 +74,9 @@ def main(model, id, text, tokens=False, debug=False):
     if (id <= 0):
         print("Processing %d texts" % len(CORPUS))
     print()
+
+    # start time
+    start = timeit.default_timer()
 
     gold = Gold(nlp)
     num_docs_processed = 0
@@ -144,6 +149,7 @@ def main(model, id, text, tokens=False, debug=False):
         overall_scoring = gold.scoring()
         print(bcolors.DEFAULT + '{} documents, overall scoring: f1-score: {} (precision: {}, recall: {})'.format(
             num_docs_processed, overall_scoring.f1score(), overall_scoring.precision(), overall_scoring.recall()))
+        print('timeit: {0:.2f} sec'.format(timeit.default_timer() - start))
 
 
 if __name__ == '__main__':

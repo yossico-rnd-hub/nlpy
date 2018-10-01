@@ -1,7 +1,8 @@
 import spacy
 from spacy.tokens import Token, Span, Doc
 
-_USE_SIMILARITY_MATCH = False
+_USE_SIMILARITY_MATCH = True
+
 
 def str_match(nlp, s1, s2):
     if (_USE_SIMILARITY_MATCH):
@@ -37,7 +38,9 @@ def to_span(nlp, x):
     if isinstance(x, Token):
         return x.doc[x.i, x.i+1]
     if isinstance(x, str):
-        doc = nlp(x)
+        # lilo: doc = nlp(x)
+        with nlp.disable_pipes('ws_relations'):
+            doc = nlp(x)
         return doc[doc[0].i:doc[-1].i+1]
     return None
 
