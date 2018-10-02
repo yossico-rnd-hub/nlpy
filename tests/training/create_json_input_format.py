@@ -19,10 +19,7 @@ def main(fname, label, model, debug=False):
     _label = label
 
     _fname = os.path.join(this_script_dir, fname)
-    _word = 'horse'
-
-    # _fname = os.path.join(this_script_dir, 'cats')
-    # _word = 'cat'
+    _words = ['horse', ]
 
     # open input file
     with open(_fname) as f_in:
@@ -51,7 +48,7 @@ def main(fname, label, model, debug=False):
                 for t in doc:
                     offset = t.idx
                     length = len(t.lemma_)
-                    if (t.orth_ == _word or t.lemma_ == _word):
+                    if (t.orth_ in _words or t.lemma_ in _words):
                         entities.append((offset, offset+length, _label))
                     elif t.ent_type:
                         entities.append((offset, offset+length, t.ent_type_))
