@@ -109,26 +109,26 @@ def main(fname, label, model, debug=False):
                 for t in doc:
                     # start token
                     if (t.i > 0):
-                        f_out.write(u'\t\t\t\t\t,{\n')
+                        f_out.write(u'\t\t\t\t\t,{ ')
                     else:
-                        f_out.write(u'\t\t\t\t\t{\n')
+                        f_out.write(u'\t\t\t\t\t { ')
                     # index of the token in the document
-                    f_out.write(u'\t\t\t\t\t\t"id": {},\n'.format(t.i))
+                    f_out.write(u'"id": {}, '.format(t.i))
                     # dependency label
-                    f_out.write(u'\t\t\t\t\t\t"dep": "{}",\n'.format(t.dep_))
+                    f_out.write(u'"dep": "{}", '.format(t.dep_))
                     # offset of token head relative to token index
                     f_out.write(
-                        u'\t\t\t\t\t\t"head": {},\n'.format(t.i - t.head.i))
+                        u'"head": {}, '.format(t.i - t.head.i))
                     # part-of-speech tag
-                    f_out.write(u'\t\t\t\t\t\t"tag": "{}",\n'.format(t.tag_))
+                    f_out.write(u'"tag": "{}", '.format(t.tag_))
                     # verbatim text of the token
                     f_out.write(
-                        u'\t\t\t\t\t\t"orth": "{}",\n'.format(escape(t.orth_)))
+                        u'"orth": "{}", '.format(escape(t.orth_)))
                     # BILUO label, e.g. "O" or "U-ORG"
                     f_out.write(
-                        u'\t\t\t\t\t\t\t"ner": "{}"\n'.format(biluo_tags[t.i]))
+                        u'"ner": "{}" '.format(biluo_tags[t.i]))
                     # end token
-                    f_out.write(u'\t\t\t\t\t}\n')  # without trailing ','
+                    f_out.write(u'}\n')  # without trailing ','
 
                 # end tokens (sentence)
                 f_out.write(u'\t\t\t\t]\n')
