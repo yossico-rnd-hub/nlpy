@@ -26,7 +26,7 @@ def main(fname, label, model, debug=False):
 
     # open input file
     with open(_fname) as f_in:
-        # create output file
+        # create output file (json-input-format)
         with open(_fname + '.json', 'w') as f_out:
             # start json-input-format
             f_out.write(u'[{\n')
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         description='conver a file line by line to spacy input-json-format.')
 
     _argparser.add_argument('-f', '--file', type=str,
-                            default='horses', help='input file')
+                            default='data/horses', help='input file')
     _argparser.add_argument('-l', '--label', type=str,
                             default='ANIMAL', help='label to use')
     _argparser.add_argument('-m', '--model', type=str,
