@@ -32,8 +32,8 @@ import random
 from pathlib import Path
 import spacy
 
-from cats import sentences as cat_sentences
-from horses import sentences as horse_sentences
+from data.cats import sentences as cat_sentences
+from data.horses import sentences as horse_sentences
 
 
 # new entity label

@@ -1,2 +1,2 @@
 #!/bin/bash
-../../env/bin/python -m spacy train en models ./data/horses.train.json ./data/horses.dev.json
+../../env/bin/python -m spacy train en models ./data/horses.train.json ./data/horses.dev.json --use-gpu 1

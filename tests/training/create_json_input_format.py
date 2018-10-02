@@ -3,23 +3,19 @@
 import os
 import logging
 import argparse
+import random
 import spacy
 from spacy.gold import biluo_tags_from_offsets
-import random
 
-
-def escape(text):
-    # lilo: TODO - a better way?
-    escaped = text.replace("\"", "\\\"")
-    return escaped
+from util import escape
 
 
 def main(fname, label, model, debug=False):
     level = logging.DEBUG if debug else logging.WARNING
     logging.basicConfig(level=level, format='%(message)s')
 
+    print("Loading model '%s' ... " % model)
     nlp = spacy.load(model)
-    print("Loaded model '%s'" % model)
 
     this_script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -58,10 +54,6 @@ def main(fname, label, model, debug=False):
             # convert input - line by line
             id = 0  # incremental doc-id
             for line in lines:
-
-                # skip irrelevant lines
-                if len(line) < 10:
-                    continue
 
                 # line clenup
                 sentence = line.strip('\r\n')
@@ -149,7 +141,7 @@ def main(fname, label, model, debug=False):
 if __name__ == '__main__':
     # process command-line args
     _argparser = argparse.ArgumentParser(
-        description='conver a file line by line to spacy input-json-format.')
+        description='convert a file to spacy input-json-format.')
 
     _argparser.add_argument('-f', '--file', type=str,
                             default='data/horses', help='input file')
