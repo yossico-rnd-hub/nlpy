@@ -10,8 +10,6 @@ import random
 
 def escape(text):
     # lilo: TODO - a better way?
-    # escaped = text.replace("'", "\\'")
-    # escaped = escaped.replace("\"", "\\\"")
     escaped = text.replace("\"", "\\\"")
     return escaped
 
@@ -118,7 +116,7 @@ def main(fname, label, model, debug=False):
                     f_out.write(u'"dep": "{}", '.format(t.dep_))
                     # offset of token head relative to token index
                     f_out.write(
-                        u'"head": {}, '.format(t.i - t.head.i))
+                        u'"head": {}, '.format(t.head.i - t.i))
                     # part-of-speech tag
                     f_out.write(u'"tag": "{}", '.format(t.tag_))
                     # verbatim text of the token
