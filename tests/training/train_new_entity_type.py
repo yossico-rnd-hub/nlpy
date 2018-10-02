@@ -27,13 +27,22 @@ Compatible with: spaCy v2.0.0+
 """
 from __future__ import unicode_literals, print_function
 
+import os
 import plac
 import random
 from pathlib import Path
 import spacy
 
-from data.cats import sentences as cat_sentences
-from data.horses import sentences as horse_sentences
+# from data.cats import sentences as cat_sentences
+if os.path.isfile('tests/training/data/cats.py'):
+    from data.cats import sentences as cat_sentences
+else:
+    cat_sentences = None
+
+if os.path.isfile('tests/training/data/horses.py'):
+    from data.horses import sentences as horse_sentences
+else:
+    horse_sentences = None
 
 
 # new entity label
@@ -44,7 +53,8 @@ LABEL = 'ANIMAL'
 # other entity types that spaCy correctly recognized before. Otherwise, your
 # model might learn the new type, but "forget" what it previously knew.
 # https://explosion.ai/blog/pseudo-rehearsal-catastrophic-forgetting
-TRAIN_DATA = cat_sentences + horse_sentences
+
+TRAIN_DATA = cat_sentences or [] + horse_sentences or []
 
 
 @plac.annotations(
@@ -52,21 +62,22 @@ TRAIN_DATA = cat_sentences + horse_sentences
     new_model_name=("New model name for model meta.", "option", "nm", str),
     output_dir=("Optional output directory", "option", "o", Path),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model=None, new_model_name='animal', output_dir=None, n_iter=20):
+def main(model='en', new_model_name='en-animals', output_dir='models', n_iter=20):
     """Set up the pipeline and entity recognizer, and train the new entity."""
     if model is not None:
+        print("Loading model '%s' ... " % model)
         nlp = spacy.load(model)  # load existing spaCy model
-        print("Loaded model '%s'" % model)
     else:
+        print("Creating blank 'en' model ... ")
         nlp = spacy.blank('en')  # create blank Language class
-        print("Created blank 'en' model")
+    
     # Add entity recognizer to model if it's not in the pipeline
     # nlp.create_pipe works for built-ins that are registered with spaCy
     if 'ner' not in nlp.pipe_names:
         ner = nlp.create_pipe('ner')
         nlp.add_pipe(ner)
-    # otherwise, get it, so we can add labels to it
     else:
+        # otherwise, get it, so we can add labels to it
         ner = nlp.get_pipe('ner')
 
     ner.add_label(LABEL)   # add new entity label to entity recognizer
