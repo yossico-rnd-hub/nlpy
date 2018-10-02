@@ -5,6 +5,15 @@ import logging
 import argparse
 import spacy
 from spacy.gold import biluo_tags_from_offsets
+import random
+
+
+def escape(text):
+    # lilo: TODO - a better way?
+    # escaped = text.replace("'", "\\'")
+    # escaped = escaped.replace("\"", "\\\"")
+    escaped = text.replace("\"", "\\\"")
+    return escaped
 
 
 def main(fname, label, model, debug=False):
@@ -12,25 +21,45 @@ def main(fname, label, model, debug=False):
     logging.basicConfig(level=level, format='%(message)s')
 
     nlp = spacy.load(model)
-    logging.info("Loaded model '%s'" % model)
+    print("Loaded model '%s'" % model)
 
     this_script_dir = os.path.dirname(os.path.abspath(__file__))
 
+    _words = ['horse', ]
     _label = label
 
-    _fname = os.path.join(this_script_dir, fname)
-    _words = ['horse', ]
-
     # open input file
+    _fname = os.path.join(this_script_dir, fname)
+    print('reading from {} ...'.format(_fname))
+    lines = []
     with open(_fname) as f_in:
-        # create output file (json-input-format)
-        with open(_fname + '.train.json', 'w') as f_out:
+        for line in f_in:
+            # skip irrelevant lines
+            if len(line) < 10:
+                continue
+            lines.append(line)
+
+    # shuffle
+    random.shuffle(lines)
+
+    # dev/train split
+    dev_length = len(lines) // 4
+    split_list = [
+        (lines[:dev_length], 'dev'),
+        (lines[dev_length:], 'train'),
+    ]
+
+    # create output file (json-input-format)
+    for lines, split_name in split_list:
+        fname_out = '{}.{}.json'.format(_fname, split_name)
+        print('generating spacy json-input-format: {} ...'.format(fname_out))
+        with open(fname_out, 'w') as f_out:
             # start json-input-format
-            f_out.write(u'[{\n')
+            f_out.write(u'[\n')
 
             # convert input - line by line
             id = 0  # incremental doc-id
-            for line in f_in:
+            for line in lines:
 
                 # skip irrelevant lines
                 if len(line) < 10:
@@ -56,45 +85,67 @@ def main(fname, label, model, debug=False):
 
                 # write json-input-format
 
+                # open doc
+                if (id > 1):
+                    f_out.write(u'\t,{\n')
+                else:
+                    f_out.write(u'\t{\n')
+
                 # ID of the document within the corpus
-                f_out.write(u'\t"id": {},\n'.format(id))
+                f_out.write(u'\t\t"id": {},\n'.format(id))
+
                 # list of paragraphs in the corpus
-                f_out.write(u'\t"paragraphs": [{\n')
+                f_out.write(u'\t\t"paragraphs": [{\n')
+
                 # raw text of the paragraph
-                # lilo: TODO - a better way?
-                escaped = sentence.replace("'", "\\'")
-                escaped = escaped.replace("\"", "\\\"")
-                f_out.write(u'\t\t"raw": "{}",\n'.format(escaped))
+                f_out.write(u'\t\t\t"raw": "{}",\n'.format(escape(sentence)))
+
                 # list of sentences in the paragraph
-                f_out.write(u'\t\t"sentences": [{\n')
+                f_out.write(u'\t\t\t"sentences": [{\n')
+
                 # list of tokens in the sentence
-                f_out.write(u'\t\t\t"tokens": [{\n')
+                f_out.write(u'\t\t\t\t"tokens": [\n')
 
                 for t in doc:
+                    # start token
+                    if (t.i > 0):
+                        f_out.write(u'\t\t\t\t\t,{\n')
+                    else:
+                        f_out.write(u'\t\t\t\t\t{\n')
                     # index of the token in the document
-                    f_out.write(u'\t\t\t\t"id": {},\n'.format(t.i))
+                    f_out.write(u'\t\t\t\t\t\t"id": {},\n'.format(t.i))
                     # dependency label
-                    f_out.write(u'\t\t\t\t"dep": "{}",\n'.format(t.dep_))
+                    f_out.write(u'\t\t\t\t\t\t"dep": "{}",\n'.format(t.dep_))
                     # offset of token head relative to token index
                     f_out.write(
-                        u'\t\t\t\t"head": {},\n'.format(t.i - t.head.i))
+                        u'\t\t\t\t\t\t"head": {},\n'.format(t.i - t.head.i))
                     # part-of-speech tag
-                    f_out.write(u'\t\t\t\t"tag": "{}",\n'.format(t.tag_))
+                    f_out.write(u'\t\t\t\t\t\t"tag": "{}",\n'.format(t.tag_))
                     # verbatim text of the token
-                    f_out.write(u'\t\t\t\t"orth": "{}",\n'.format(t.orth_))
+                    f_out.write(
+                        u'\t\t\t\t\t\t"orth": "{}",\n'.format(escape(t.orth_)))
                     # BILUO label, e.g. "O" or "U-ORG"
                     f_out.write(
-                        u'\t\t\t\t"ner": "{}",\n'.format(biluo_tags[t.i]))
+                        u'\t\t\t\t\t\t\t"ner": "{}"\n'.format(biluo_tags[t.i]))
+                    # end token
+                    f_out.write(u'\t\t\t\t\t}\n')  # without trailing ','
 
-                # end tokens
-                f_out.write(u'\t\t\t}],\n')
-                # end sentence
-                f_out.write(u'\t\t}],\n')
-                # end paragraph
-                f_out.write(u'\t}],\n')
+                # end tokens (sentence)
+                f_out.write(u'\t\t\t\t]\n')
+
+                # end sentences
+                f_out.write(u'\t\t\t}]\n')
+
+                # end paragraps
+                f_out.write(u'\t\t}]\n')
+
+                # end doc
+                f_out.write(u'\t}\n')
 
             # end json-input-format
-            f_out.write(u"}]")
+            f_out.write(u']\n')
+
+    print('Done.')
 
 
 if __name__ == '__main__':
