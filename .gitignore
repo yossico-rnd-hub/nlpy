@@ -1,5 +1,5 @@
 env
 __pycache__
 tmp
-tests/training/cats.json
-tests/training/horses.json
+tests/training/data/*.dev.json
+tests/training/data/*.train.json
