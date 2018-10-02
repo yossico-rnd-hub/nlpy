@@ -27,7 +27,7 @@ def main(fname, label, model, debug=False):
     # open input file
     with open(_fname) as f_in:
         # create output file
-        with open(_fname + '.py', 'w') as f_out:
+        with open(_fname + '.json', 'w') as f_out:
             # start json-input-format
             f_out.write(u'[{\n')
 
