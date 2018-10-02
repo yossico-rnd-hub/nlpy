@@ -1,4 +1,4 @@
-#!../../env/bin/python
+#!env/bin/python
 # coding: utf8
 """Example of training an additional entity type
 

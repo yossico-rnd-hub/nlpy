@@ -1,15 +1,19 @@
-#!../../env/bin/python
+#!env/bin/python
 
-import spacy
+import os
 import re
+import spacy
+from spacy.gold import biluo_tags_from_offsets
+
 
 model = 'en'
 nlp = spacy.load(model, disable=['parser', 'ner'])
 
-# word = 'horse'
-fname = 'horses'
-word = 'cat'
-fname = 'cats'
+_this_script_dir = os.path.dirname(os.path.abspath(__file__))
+fname = os.path.join(_this_script_dir, 'horses')
+word = 'horse'
+# fname = os.path.join(_this_script_dir, 'cats')
+# word = 'cat'
 
 lines = []
 with open(fname) as f:
@@ -33,11 +37,15 @@ with open(fname) as f:
             if offset < 0 or length <= 0:
                 continue
 
+            entities = [(offset, offset+length, 'ANIMAL')]
+            tags = biluo_tags_from_offsets(doc, entities)
+            assert tags == ['O', 'O', 'U-LOC', 'O']
+
             escaped = sentence.replace("'", "\\'")
             escaped = escaped.replace("\"", "\\\"")
 
             f2.write(u'\t("{}", {{\n'.format(escaped))
             f2.write(u"\t\t'entities': [({}, {}, 'ANIMAL')]\n"
-            .format(offset, length))
+                     .format(offset, length))
             f2.write(u"\t}),\n\n")
         f2.write(u"]")
