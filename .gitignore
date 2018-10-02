@@ -1,5 +1,6 @@
 env
 __pycache__
 tmp
+models
 tests/training/data/*.dev.json
 tests/training/data/*.train.json
