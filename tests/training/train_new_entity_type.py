@@ -30,6 +30,7 @@ from __future__ import unicode_literals, print_function
 import os
 import plac
 import random
+import tqdm
 from pathlib import Path
 import spacy
 from spacy.util import minibatch, compounding, decaying, env_opt
@@ -68,6 +69,14 @@ if not cat_sentences and not horse_sentences:
     exit(-1)
 TRAIN_DATA = cat_sentences or [] + horse_sentences or []
 
+def count_train():
+    return sum(count_tokens(text) for text, _ in TRAIN_DATA)
+
+def count_tokens(texts):
+    if isinstance(texts, tuple) or isinstance(texts, list):
+        return sum(count_tokens(txt) for txt in texts)
+    if isinstance(texts, str):
+        return len(texts.split())
 
 @plac.annotations(
     model=("Model name. Defaults to blank 'en' model.", "option", "m", str),
@@ -119,24 +128,25 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
     # disable other pipes during training
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
     with nlp.disable_pipes(*other_pipes):  # only train NER
+        n_train_words = count_train()
         for itn in range(n_iter):
-            random.shuffle(TRAIN_DATA)
             losses = {}
+            random.shuffle(TRAIN_DATA)
 
-            for batch in minibatch(TRAIN_DATA, size=batch_sizes):
-                texts, annotations = zip(*batch)
-                nlp.update(texts, annotations, sgd=optimizer,
-                           drop=next(dropout_rates), losses=losses)
-
-            print(losses)
+            with tqdm.tqdm(total=n_train_words, leave=False) as pbar:
+                for batch in minibatch(TRAIN_DATA, size=batch_sizes):
+                    texts, annotations = zip(*batch)
+                    nlp.update(texts, annotations, sgd=optimizer,
+                            drop=next(dropout_rates), losses=losses)
+                    pbar.update(count_tokens(texts))
+            print('loss:', losses)
 
     # test the trained model
-    # test_text = 'Do you like horses?'
     test_texts = [
         'Do you like horses?',
         'People ride horses',
         'A horse is tall',
-        'horses are tall',
+        'riding horses is fun',
         'The horse is tall',
         'my horse is riding fast',
         'horses run fast',
