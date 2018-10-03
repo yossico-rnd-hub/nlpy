@@ -32,7 +32,15 @@ import plac
 import random
 from pathlib import Path
 import spacy
-from spacy.util import minibatch, compounding
+from spacy.util import minibatch, compounding, decaying, env_opt
+
+# TODO:
+# meta?
+# meta = util.read_json(meta_path) if meta_path else {}
+# if not isinstance(meta, dict):
+#     print(error)
+# meta.setdefault('lang', lang)
+# meta.setdefault('name', 'unnamed')
 
 # from data.cats import sentences as cat_sentences
 if os.path.isfile('tests/training/data/cats.py'):
@@ -67,7 +75,7 @@ TRAIN_DATA = cat_sentences or [] + horse_sentences or []
     output_dir=("Optional output directory", "option", "o", Path),
     use_gpu=("Use GPU", "option", "g", int),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=0, n_iter=20):
+def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-1, n_iter=20):
     """Set up the pipeline and entity recognizer, and train the new entity."""
     if model is not None:
         print("Loading model '%s' ... " % model)
@@ -97,6 +105,17 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=0
         # existing entity types.
         optimizer = nlp.entity.create_optimizer()
 
+    # Take dropout and batch size as generators of values -- dropout
+    # starts high and decays sharply, to force the optimizer to explore.
+    # Batch size starts at 1 and grows, so that we make updates quickly
+    # at the beginning of training.
+    dropout_rates = decaying(env_opt('dropout_from', 0.35),
+                             env_opt('dropout_to', 0.20),
+                             env_opt('dropout_decay', 0.01))
+    batch_sizes = compounding(env_opt('batch_from', 10),
+                              env_opt('batch_to', 20),
+                              env_opt('batch_compound', 1.001))
+
     # disable other pipes during training
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
     with nlp.disable_pipes(*other_pipes):  # only train NER
@@ -104,13 +123,10 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=0
             random.shuffle(TRAIN_DATA)
             losses = {}
 
-            # lilo
-            # for text, annotations in TRAIN_DATA:
-            #     nlp.update([text], [annotations], sgd=optimizer, drop=0.35, losses=losses)
-            for batch in minibatch(TRAIN_DATA, size=compounding(10., 32., 1.001)):
+            for batch in minibatch(TRAIN_DATA, size=batch_sizes):
                 texts, annotations = zip(*batch)
                 nlp.update(texts, annotations, sgd=optimizer,
-                           drop=0.35, losses=losses)
+                           drop=next(dropout_rates), losses=losses)
 
             print(losses)
 
@@ -118,9 +134,12 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=0
     # test_text = 'Do you like horses?'
     test_texts = [
         'Do you like horses?',
+        'People ride horses',
         'A horse is tall',
+        'horses are tall',
         'The horse is tall',
         'my horse is riding fast',
+        'horses run fast',
     ]
 
     for text in test_texts:
