@@ -24,19 +24,16 @@ from corpus_en import CORPUS_EN
 from corpus_es import CORPUS_ES
 
 
+global _DEBUG
+
+
 def is_spanish(model):
     return model.startswith('es')
 
 
 def ent_types(span):
     ''' returns an array of entity-types for each token in the span'''
-    if (None == span):
-        return None
-    res = []
-    for w in span:
-        if (w.ent_type > 0):
-            res.append(w.ent_type_)
-    return res
+    return span[0].ent_type_ if span else None
 
 
 class bcolors:
@@ -94,24 +91,29 @@ def main(model, id, text, tokens=False, debug=False):
 
         if (True == tokens):
             print()
+            print('{:20}\t{:10}\t{:10}\t{:10}'.format(
+                'NORM', 'POS', 'DEP', 'LABEL'))
+            print()
             for t in doc:
-                print('norm: {}    pos: {}, dep: {}, ent_type: {}'
-                      .format(t.norm_, t.pos_, t.dep_, t.ent_type_))
+                print('{:20}\t{:10}\t{:10}\t{:10}'.format(
+                    t.norm_, t.pos_, t.dep_, t.ent_type_))
+            print()
 
         num_found = 0
         for r in doc._.relations:
             num_found += 1
             if r.w:
-                print('( {}/{}, {}, {}/{}, {} ), [{}]'
+                print('({} / {}, {}, {} / {}, {}) [x: {}]'
                       .format(r.s, ent_types(r.s), r.p, r.o, ent_types(r.o), r.w, r.x))
             else:
-                print('( {}/{}, {}, {}/{} ), [{}]'
+                print('({} / {}, {}, {} / {}) [x: {}]'
                       .format(r.s, ent_types(r.s), r.p, r.o, ent_types(r.o), r.x))
 
         if (0 == num_found):
             print('No relations!')
 
             if (True == debug):
+                _DEBUG = true
                 if (len(doc.ents) == 0):
                     print('No entities!')
                 else:
@@ -133,6 +135,7 @@ def main(model, id, text, tokens=False, debug=False):
         else:
             COLOR = bcolors.DEFAULT
 
+        print()
         print(COLOR + 'doc-id: {} f1-score: {} (precision: {}, recall: {})'.format(
             doc_id, doc_scoring.f1score(), doc_scoring.precision(), doc_scoring.recall()))
 

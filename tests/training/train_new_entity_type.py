@@ -32,7 +32,9 @@ import plac
 import random
 from pathlib import Path
 import spacy
+from spacy.util import minibatch, compounding
 
+7
 # from data.cats import sentences as cat_sentences
 if os.path.isfile('tests/training/data/cats.py'):
     from data.cats import sentences as cat_sentences
@@ -54,6 +56,9 @@ LABEL = 'ANIMAL'
 # model might learn the new type, but "forget" what it previously knew.
 # https://explosion.ai/blog/pseudo-rehearsal-catastrophic-forgetting
 
+if not cat_sentences and not horse_sentences:
+    print('first generate TRAIN_DATA using: {}/create_biluo.py'.format(os.path.dirname(__file__)))
+    exit(-1)
 TRAIN_DATA = cat_sentences or [] + horse_sentences or []
 
 
@@ -61,16 +66,19 @@ TRAIN_DATA = cat_sentences or [] + horse_sentences or []
     model=("Model name. Defaults to blank 'en' model.", "option", "m", str),
     new_model_name=("New model name for model meta.", "option", "nm", str),
     output_dir=("Optional output directory", "option", "o", Path),
+    use_gpu=("Use GPU", "option", "g", int),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model='en', new_model_name='en-animals', output_dir='models', n_iter=20):
+def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=0, n_iter=20):
     """Set up the pipeline and entity recognizer, and train the new entity."""
     if model is not None:
         print("Loading model '%s' ... " % model)
+        if (use_gpu >= 0):
+            spacy.util.use_gpu(0)
         nlp = spacy.load(model)  # load existing spaCy model
     else:
         print("Creating blank 'en' model ... ")
         nlp = spacy.blank('en')  # create blank Language class
-    
+
     # Add entity recognizer to model if it's not in the pipeline
     # nlp.create_pipe works for built-ins that are registered with spaCy
     if 'ner' not in nlp.pipe_names:
@@ -81,8 +89,10 @@ def main(model='en', new_model_name='en-animals', output_dir='models', n_iter=20
         ner = nlp.get_pipe('ner')
 
     ner.add_label(LABEL)   # add new entity label to entity recognizer
+
+    print('begin training... ')
     if model is None:
-        optimizer = nlp.begin_training()
+        optimizer = nlp.begin_training(device=use_gpu)
     else:
         # Note that 'begin_training' initializes the models, so it'll zero out
         # existing entity types.
@@ -94,13 +104,18 @@ def main(model='en', new_model_name='en-animals', output_dir='models', n_iter=20
         for itn in range(n_iter):
             random.shuffle(TRAIN_DATA)
             losses = {}
-            for text, annotations in TRAIN_DATA:
-                nlp.update([text], [annotations], sgd=optimizer, drop=0.35,
-                           losses=losses)
+
+            # lilo
+            # for text, annotations in TRAIN_DATA:
+            #     nlp.update([text], [annotations], sgd=optimizer, drop=0.35, losses=losses)
+            for batch in minibatch(TRAIN_DATA, size=compounding(10., 32., 1.001)):
+                texts, annotations = zip(*batch)
+                nlp.update(texts, annotations, sgd=optimizer,
+                           drop=0.35, losses=losses)
+
             print(losses)
 
     # test the trained model
-    # lilo
     # test_text = 'Do you like horses?'
     test_texts = [
         'Do you like horses?',
@@ -126,6 +141,8 @@ def main(model='en', new_model_name='en-animals', output_dir='models', n_iter=20
 
         # test the saved model
         print("Loading from", output_dir)
+        if (use_gpu >= 0):
+            spacy.util.use_gpu(0)
         for text in test_texts:
             nlp2 = spacy.load(output_dir)
             doc2 = nlp2(text)
