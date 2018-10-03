@@ -113,7 +113,7 @@ def main(model, id, text, tokens=False, debug=False):
             print('No relations!')
 
             if (True == debug):
-                _DEBUG = true
+                _DEBUG = True
                 if (len(doc.ents) == 0):
                     print('No entities!')
                 else:
@@ -135,7 +135,6 @@ def main(model, id, text, tokens=False, debug=False):
         else:
             COLOR = bcolors.DEFAULT
 
-        print()
         print(COLOR + 'doc-id: {} f1-score: {} (precision: {}, recall: {})'.format(
             doc_id, doc_scoring.f1score(), doc_scoring.precision(), doc_scoring.recall()))
 
