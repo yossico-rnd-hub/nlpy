@@ -34,7 +34,6 @@ from pathlib import Path
 import spacy
 from spacy.util import minibatch, compounding
 
-7
 # from data.cats import sentences as cat_sentences
 if os.path.isfile('tests/training/data/cats.py'):
     from data.cats import sentences as cat_sentences
