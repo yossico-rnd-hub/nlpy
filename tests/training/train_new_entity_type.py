@@ -135,7 +135,7 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
     with nlp.disable_pipes(*other_pipes):  # only train NER
         n_train_words = count_train()
-        for itn in range(n_iter):
+        for i in range(n_iter):
             losses = {}
             random.shuffle(TRAIN_DATA)
 
@@ -145,13 +145,14 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
                     nlp.update(texts, annotations, sgd=optimizer,
                                drop=next(dropout_rates), losses=losses)
                     pbar.update(count_tokens(texts))
-            print('loss:', losses)
+            print('{}/{} loss: {}'.format(i+1, n_iter, losses))
 
     # test the trained model
     test_texts = [
         'Do you like cats?',
         'A cat pures',
         'cats chase mice',
+        'cats who chase their tail',
         'Do you like horses?',
         'People ride horses',
         'A horse is tall',

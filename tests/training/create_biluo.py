@@ -47,7 +47,7 @@ def main(fname, words, label, model, debug=False):
             entities = []
             for t in doc:
                 offset = t.idx
-                length = len(t.lemma_)
+                length = len(t.orth_)
                 if (t.orth_ in _words or t.lemma_ in _words):
                     entities.append((offset, offset+length, _label))
                 elif t.ent_type:
