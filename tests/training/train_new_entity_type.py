@@ -67,16 +67,22 @@ LABEL = 'ANIMAL'
 if not cat_sentences and not horse_sentences:
     print('first generate TRAIN_DATA using: {}/create_biluo.py'.format(os.path.dirname(__file__)))
     exit(-1)
-TRAIN_DATA = cat_sentences or [] + horse_sentences or []
+
+TRAIN_DATA = []
+TRAIN_DATA += cat_sentences or []
+TRAIN_DATA += horse_sentences or []
+
 
 def count_train():
     return sum(count_tokens(text) for text, _ in TRAIN_DATA)
+
 
 def count_tokens(texts):
     if isinstance(texts, tuple) or isinstance(texts, list):
         return sum(count_tokens(txt) for txt in texts)
     if isinstance(texts, str):
         return len(texts.split())
+
 
 @plac.annotations(
     model=("Model name. Defaults to blank 'en' model.", "option", "m", str),
@@ -137,12 +143,15 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
                 for batch in minibatch(TRAIN_DATA, size=batch_sizes):
                     texts, annotations = zip(*batch)
                     nlp.update(texts, annotations, sgd=optimizer,
-                            drop=next(dropout_rates), losses=losses)
+                               drop=next(dropout_rates), losses=losses)
                     pbar.update(count_tokens(texts))
             print('loss:', losses)
 
     # test the trained model
     test_texts = [
+        'Do you like cats?',
+        'A cat pures',
+        'cats chase mice',
         'Do you like horses?',
         'People ride horses',
         'A horse is tall',
