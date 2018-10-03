@@ -50,6 +50,7 @@ def main(fname, words, label, model, debug=False):
                 length = len(t.orth_)
                 if (t.orth_ in _words or t.lemma_ in _words):
                     entities.append((offset, offset+length, _label))
+                    # print(t.orth_, _label)
                 elif t.ent_type:
                     entities.append((offset, offset+length, t.ent_type_))
 

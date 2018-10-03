@@ -125,11 +125,11 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
     # Batch size starts at 1 and grows, so that we make updates quickly
     # at the beginning of training.
     dropout_rates = decaying(env_opt('dropout_from', 0.35),
-                             env_opt('dropout_to', 0.20),
-                             env_opt('dropout_decay', 0.01))
-    batch_sizes = compounding(env_opt('batch_from', 10),
-                              env_opt('batch_to', 20),
-                              env_opt('batch_compound', 1.001))
+                             env_opt('dropout_to', 0.10),
+                             env_opt('dropout_decay', 0.05))
+    batch_sizes = compounding(env_opt('batch_from', 15),
+                              env_opt('batch_to', 30),
+                              env_opt('batch_compound', 1.005))
 
     # disable other pipes during training
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
