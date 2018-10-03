@@ -17,13 +17,12 @@ def main(fname, label, model, debug=False):
     print("Loading model '%s' ... " % model)
     nlp = spacy.load(model)
 
-    this_script_dir = os.path.dirname(os.path.abspath(__file__))
-
     _words = ['horse', ]
     _label = label
 
     # open input file
-    _fname = os.path.join(this_script_dir, fname)
+    PWD = os.path.dirname(__file__)
+    _fname = os.path.join(PWD, fname)
     print('reading from {} ...'.format(_fname))
     lines = []
     with open(_fname) as f_in:

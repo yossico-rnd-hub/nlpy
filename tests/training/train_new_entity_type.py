@@ -88,7 +88,7 @@ def main(model='en', new_model_name='en-animals', output_dir='models', n_iter=20
         # existing entity types.
         optimizer = nlp.entity.create_optimizer()
 
-    # get names of other pipes to disable them during training
+    # disable other pipes during training
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
     with nlp.disable_pipes(*other_pipes):  # only train NER
         for itn in range(n_iter):
