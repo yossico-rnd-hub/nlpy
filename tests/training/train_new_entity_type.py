@@ -73,6 +73,45 @@ TRAIN_DATA += cat_sentences or []
 TRAIN_DATA += horse_sentences or []
 
 
+# test the trained model
+test_texts = [
+    'Do you like cats?',
+    'A cat pures',
+    'cats chase mice',
+    'cats who chase their tail',
+    'Do you like horses?',
+    'People ride horses',
+    'A horse is tall',
+    'riding horses is fun',
+    'The horse is tall',
+    'my horse is riding fast',
+    'horses run fast',
+    '\"Sweet cats,\" Jenn replied.',
+    'They didn\'t purr like cats but growled.',
+]
+
+
+def test_model(model_dir, use_gpu):
+    print("Loading from", model_dir)
+    if (use_gpu >= 0):
+        spacy.util.use_gpu(0)
+    nlp2 = spacy.load(model_dir)
+    for text in test_texts:
+        doc2 = nlp2(text)
+        for ent in doc2.ents:
+            print(ent.label_, ent.text)
+
+
+def model_exists(model_dir):
+    if not model_dir:
+        return False
+    if not os.path.isdir(model_dir.name):
+        return False
+    if not os.listdir(model_dir.name):
+        return False
+    return True
+
+
 def count_train():
     return sum(count_tokens(text) for text, _ in TRAIN_DATA)
 
@@ -91,6 +130,11 @@ def count_tokens(texts):
     use_gpu=("Use GPU", "option", "g", int),
     n_iter=("Number of training iterations", "option", "n", int))
 def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-1, n_iter=20):
+    if model_exists(output_dir):
+        print('model exists.')
+        test_model(output_dir, use_gpu)
+        return
+
     """Set up the pipeline and entity recognizer, and train the new entity."""
     if model is not None:
         print("Loading model '%s' ... " % model)
@@ -147,21 +191,6 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
                     pbar.update(count_tokens(texts))
             print('{}/{} loss: {}'.format(i+1, n_iter, losses))
 
-    # test the trained model
-    test_texts = [
-        'Do you like cats?',
-        'A cat pures',
-        'cats chase mice',
-        'cats who chase their tail',
-        'Do you like horses?',
-        'People ride horses',
-        'A horse is tall',
-        'riding horses is fun',
-        'The horse is tall',
-        'my horse is riding fast',
-        'horses run fast',
-    ]
-
     for text in test_texts:
         doc = nlp(text)
         print("Entities in '%s'" % text)
@@ -178,14 +207,7 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
         print("Saved model to", output_dir)
 
         # test the saved model
-        print("Loading from", output_dir)
-        if (use_gpu >= 0):
-            spacy.util.use_gpu(0)
-        for text in test_texts:
-            nlp2 = spacy.load(output_dir)
-            doc2 = nlp2(text)
-            for ent in doc2.ents:
-                print(ent.label_, ent.text)
+        test_model(output_dir, use_gpu)
 
 
 if __name__ == '__main__':
