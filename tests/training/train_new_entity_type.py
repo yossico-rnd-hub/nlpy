@@ -105,9 +105,9 @@ def test_model(model_dir, use_gpu):
 def model_exists(model_dir):
     if not model_dir:
         return False
-    if not os.path.isdir(model_dir.name):
+    if not os.path.isdir(model_dir):
         return False
-    if not os.listdir(model_dir.name):
+    if not os.listdir(model_dir):
         return False
     return True
 
@@ -122,14 +122,15 @@ def count_tokens(texts):
     if isinstance(texts, str):
         return len(texts.split())
 
+animal_model = os.path.join(os.path.dirname(__file__), 'models/animal')
 
 @plac.annotations(
     model=("Model name. Defaults to blank 'en' model.", "option", "m", str),
     new_model_name=("New model name for model meta.", "option", "nm", str),
-    output_dir=("Optional output directory", "option", "o", Path),
+    output_dir=("Optional output directory", "option", "o", str),
     use_gpu=("Use GPU", "option", "g", int),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-1, n_iter=20):
+def main(model='en', new_model_name='en-animals', output_dir=animal_model, use_gpu=-1, n_iter=20):
     if model_exists(output_dir):
         print('model exists.')
         test_model(output_dir, use_gpu)
@@ -168,9 +169,9 @@ def main(model='en', new_model_name='en-animals', output_dir='models', use_gpu=-
     # starts high and decays sharply, to force the optimizer to explore.
     # Batch size starts at 1 and grows, so that we make updates quickly
     # at the beginning of training.
-    dropout_rates = decaying(env_opt('dropout_from', 0.35),
-                             env_opt('dropout_to', 0.10),
-                             env_opt('dropout_decay', 0.05))
+    dropout_rates = decaying(env_opt('dropout_from', 0.6),
+                             env_opt('dropout_to', 0.2),
+                             env_opt('dropout_decay', 1e-4))
     batch_sizes = compounding(env_opt('batch_from', 15),
                               env_opt('batch_to', 30),
                               env_opt('batch_compound', 1.005))

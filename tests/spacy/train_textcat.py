@@ -28,13 +28,13 @@ from spacy.util import minibatch, compounding
     output_dir=("Optional output directory", "option", "o", Path),
     n_texts=("Number of texts to train from", "option", "t", int),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
+def main(model='en_core_web_md', output_dir='models/cat', n_iter=20, n_texts=2000):
     if model is not None:
+        print("Loading model '%s'" % model)
         nlp = spacy.load(model)  # load existing spaCy model
-        print("Loaded model '%s'" % model)
     else:
+        print("Creating blank 'en' model")
         nlp = spacy.blank('en')  # create blank Language class
-        print("Created blank 'en' model")
 
     # add the text classifier to the pipeline if it doesn't exist
     # nlp.create_pipe works for built-ins that are registered with spaCy
