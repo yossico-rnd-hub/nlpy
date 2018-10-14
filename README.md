@@ -1,30 +1,37 @@
 # wsnlp
+
 nlp playground based on spacy
 
 ## install virtualenv python3
+
 virtualenv -p python3 env
 
 ## packages
+
 env/bin/pip install spacy
 env/bin/pip install flask
 env/bin/pip install jsonpickle
 
 ### en
+
 env/bin/python -m spacy download en
 env/bin/python -m spacy download en_core_web_sm
 env/bin/python -m spacy download en_core_web_md
 env/bin/python -m spacy download en_core_web_lg
 
 ### es
+
 env/bin/python -m spacy download es
 env/bin/python -m spacy download es_core_news_sm
 env/bin/python -m spacy download es_core_news_md
 
 ### jupiter notebook virtual env
+
 env/bin/pip install ipykernel
 env/bin/ipython kernel install --user --name=env
 
 ## training (es)
+
 git clone https://github.com/UniversalDependencies/UD_Spanish-AnCora
 mkdir ancora-json
 python -m spacy convert UD_Spanish-AnCora/es_ancora-ud-train.conllu ancora-json
@@ -37,6 +44,7 @@ cd dist/{model_name}
 python setup.py sdist
 
 ## TODO
+
 - understand spacy code
 - KGs
 - Training a parser for custom semantics (test/spacy/train_intent_parser.py, see: relations below)
@@ -47,10 +55,12 @@ python setup.py sdist
 - categorization (spacy: TextCategorizer - https://spacy.io/api/textcategorizer)
 
 ### textacy
+
 env/bin/pip install textacy
 env/bin/pip install textacy[lang] (for language detection)
 
 ### misc
+
 - displayCy
 - tagger (prodigy)
 - basis (compare performance)
@@ -59,15 +69,17 @@ env/bin/pip install textacy[lang] (for language detection)
 - https://github.com/conllul/UL_Hebrew-HTB
 
 ### entities
+
 - label=PERSON when comes before PERSON-PRED
-  e.g: 
+  e.g:
   - Hillary killed David.
     ( Hillary/ORG, killed, David/PERSON )
   - Hillary is the step mother of Chelsea.
     ( Hillary/ORG, step mother, Chelsea/ORG )
 
 ### relations
-- Training a parser for custom semantics: 
+
+- Training a parser for custom semantics:
   - https://spacy.io/usage/training#intent-parser
   - test/spacy/train_intent_parser.py
 - multiple predicates: '... co-founder and CEO of Udacity' (noun_chunks?)
