@@ -1,3 +1,2 @@
+from server import NlpyServer
 name = "nlpy"
-
-# import xxx from app as NlpyService
