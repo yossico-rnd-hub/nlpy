@@ -1,21 +1,25 @@
 #!env/bin/python
+
 from flask import Flask, request, jsonify, abort
 from datetime import datetime
 from nlp import Nlp, Document
 import json
 
 import logging
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 nlp = Nlp()
+
 
 @app.route('/')
 def home():
     now = datetime.now()
     formatted_now = now.strftime("%A, %d %B, %Y at %X")
     return "nlp-service ready.<br>" + formatted_now
+
 
 @app.route('/api/v1.0/docs', methods=['POST'])
 def process_doc():
@@ -25,22 +29,24 @@ def process_doc():
     '''
     # text is a required field
     if not request.json or not 'text' in request.json:
-        abort(400) # bad request
+        abort(400)  # bad request
 
-    # process the document 
+    # process the document
     doc = Document()
     doc.text = request.json['text']
-    
-    default_model = 'en_core_web_sm' # default model
-    model = request.json['model'] if ('model' in request.json) else default_model
+
+    default_model = 'en_core_web_sm'  # default model
+    model = request.json['model'] if (
+        'model' in request.json) else default_model
 
     try:
         res = nlp.process(doc, model)
     except Exception as ex:
         logger.exception(ex)
-        return json.dumps({ "error": ex.args }), 500
+        return json.dumps({"error": ex.args}), 500
 
     return json.dumps(res.entities, indent=4, default=lambda x: x.__dict__), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

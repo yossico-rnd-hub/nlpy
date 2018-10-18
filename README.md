@@ -1,4 +1,4 @@
-# wsnlp
+# nlpy
 
 nlp playground based on spacy
 

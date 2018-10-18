@@ -8,21 +8,27 @@ import jsonpickle.util as util
 
 
 import logging
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # NER tags pure whitespace as entities #1717
 # https://github.com/explosion/spaCy/issues/1717
+
+
 def remove_whitespace_entities(doc):
     doc.ents = [e for e in doc.ents if not e.text.isspace()]
     return doc
 
-#lilo
+
+# lilo
 do_pre_process_text = False
+
+
 def pre_process_text(text):
     if (False == do_pre_process_text):
         return text
-        
+
     # (keep paragraph separator) replace 2 or more newlines with tmp '\r\r'
     text = re.sub(r'\n\n+', '\r\r', text)
     # replace newlines with spaces
@@ -31,9 +37,11 @@ def pre_process_text(text):
     text = re.sub(r'\r\r', '\n\n', text)
     return text
 
+
 class Document(object):
     """Document class"""
-    def __init__(self, text = ''):
+
+    def __init__(self, text=''):
         self.text = text
         self.entities = []
 
@@ -42,7 +50,7 @@ class Document(object):
         with open(file, 'r') as f:
             doc_json = f.read()
             self.from_json(doc_json)
-    
+
     def from_json(self, json):
         '''load from json string'''
         doc_dict = jsonpickle.decode(json)
@@ -66,16 +74,20 @@ class Document(object):
             entities.append(e)
         return entities
 
+
 class Entity(object):
     """Entity class"""
-    def __init__(self, text = '', start_char = -1, end_char = -1, label = ''):
+
+    def __init__(self, text='', start_char=-1, end_char=-1, label=''):
         self.text = text
         self.label = label
         self.start_char = start_char
         self.end_char = end_char
 
+
 class Nlp(object):
     """Nlp class"""
+
     def __init__(self):
         self.models = {}
 
