@@ -1,19 +1,14 @@
 import json
-from logger import logger
-from nlp import Nlp, Document
-from api.action import Action
 from flask import request, abort
+from .action_base import Action
+from logger import logger
+from nlp.nlp import Nlp, Document
 
 
-class Entities(Action):
-    '''
-    Extract entities\n
-    Usage: curl -i -H "Content-Type: application/json" -X POST -d '{"text": "foo", "model": "en"}' http://localhost:5000/api/v0.0.1/nlp/entities
-    '''
-
+class NLP(Action):
     def __init__(self):
-        self.name = 'entities'
-        self.endpoint = '/api/v0.0.1/nlp/entities'
+        self.name = __class__.__name__
+        self.endpoint = '/nlp'
         self.methods = ['POST']
         self.nlp = Nlp()
 

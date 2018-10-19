@@ -257,7 +257,7 @@ class GoldTest(object):
         else:
             # process file (nlp-service)
             try:
-                url = 'http://localhost:5000/api/v0.0.1/nlp/entities'
+                url = 'http://localhost:5000/nlp'
                 data = { 'text': text }
                 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 json_doc = requests.post(url, data=json.dumps(data), headers = headers)

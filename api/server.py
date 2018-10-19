@@ -1,7 +1,7 @@
 #!env/bin/python
 
 from flask import Flask
-from api import Action
+from actions.action_base import Action
 
 
 class NlpyServer(object):

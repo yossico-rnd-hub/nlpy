@@ -5,7 +5,7 @@ import requests
 import json
 
 
-class TestEntities(object):
+class TestNLP(object):
     def __init__(self):
         self.parser = argparse.ArgumentParser(
             description='test nlp-service entity extraction.')
@@ -35,12 +35,14 @@ class TestEntities(object):
 
         data = {'text': text, 'model': model}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        url = 'http://localhost:5000/api/v0.0.1/nlp/entities'
+        url = 'http://localhost:5000/nlp'
         json_doc = requests.post(url, data=json.dumps(data), headers=headers)
+
+        print(text)
+        print()
         print(json_doc.text)
 
 
-test = TestEntities()
-
 if __name__ == '__main__':
+    test = TestNLP()
     test.run()

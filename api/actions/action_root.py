@@ -1,8 +1,8 @@
 from datetime import datetime
-from api.action import Action
+from .action_base import Action
 
 
-class API_Root(Action):
+class Root(Action):
     '''
     API root
     '''

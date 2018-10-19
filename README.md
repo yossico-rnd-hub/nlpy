@@ -2,6 +2,12 @@
 
 nlp playground based on spacy
 
+## test service
+
+process full nlp pipeline
+Usage:
+curl -i -H "Content-Type: application/json" -X POST -d '{"text": "foo", "model": "en"}' http://localhost:5000/nlp
+
 ## install virtualenv python3
 
 virtualenv -p python3 env
