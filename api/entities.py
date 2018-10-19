@@ -22,18 +22,20 @@ class Entities(Action):
         if not request.json or not 'text' in request.json:
             abort(400)  # bad request
 
-        # process the document
-        doc = Document()
-        doc.text = request.json['text']
-
+        # get model from request
         default_model = 'en_core_web_sm'  # default model
         model = request.json['model'] if (
             'model' in request.json) else default_model
 
+        # get the text
+        text = request.json['text']
+
+        # process the document
         try:
-            res = self.nlp.process(doc, model)
+            doc = self.nlp(text, model)
         except Exception as ex:
             logger.exception(ex)
             return json.dumps({"error": ex.args}), 500
 
-        return json.dumps(res.entities, indent=4, default=lambda x: x.__dict__), 200
+        # serialize doc entities to json
+        return json.dumps(doc.entities, indent=4, default=lambda x: x.__dict__), 200

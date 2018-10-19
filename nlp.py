@@ -69,16 +69,17 @@ class Nlp(object):
     def __init__(self):
         pass
 
-    def process(self, doc, model):
-
-        # process document
+    def __call__(self, text, model):
+        # get model
         nlp = self.spacy_nlp_from_model_name(model)
 
+        # process text
         if False:  # lilo: why do we need this?
-            doc.text = self.pre_process_text(doc.text)
+            text = self.pre_process_text(text)
+        spacy_doc = nlp(text)
 
-        spacy_doc = nlp(doc.text)
-
+        # create doc result
+        doc = Document(text)
         for ent in spacy_doc.ents:
             e = Entity(ent.text, ent.start_char, ent.end_char, ent.label_)
             doc.entities.append(e)
