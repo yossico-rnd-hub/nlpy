@@ -1,6 +1,6 @@
 import logging
 import spacy
-from rel.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
+from relations.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
 
 
 class ES_APPOS_RelationExtractor(object):

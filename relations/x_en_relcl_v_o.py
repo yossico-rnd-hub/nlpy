@@ -1,5 +1,5 @@
 import spacy
-from rel.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
+from relations.util import is_xsubj, _extend_compound, _extend_lefts, _right_conj, create_relation
 
 
 class EN_RELCL_V_O_RelationExtractor(object):

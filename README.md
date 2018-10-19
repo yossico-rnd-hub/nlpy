@@ -12,6 +12,10 @@ env/bin/pip install spacy
 env/bin/pip install flask
 env/bin/pip install jsonpickle
 
+### spacy version
+
+env/bin/python -c "import os; import spacy; print(spacy.__version__)"
+
 ### en
 
 env/bin/python -m spacy download en

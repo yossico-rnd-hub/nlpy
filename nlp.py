@@ -1,16 +1,10 @@
 import spacy
 import re
-
+from logger import logger
 import jsonpickle
 import jsonpickle.tags as tags
 import jsonpickle.unpickler as unpickler
 import jsonpickle.util as util
-
-
-import logging
-logging.basicConfig(
-    format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # NER tags pure whitespace as entities #1717
 # https://github.com/explosion/spaCy/issues/1717
@@ -21,21 +15,14 @@ def remove_whitespace_entities(doc):
     return doc
 
 
-# lilo
-do_pre_process_text = False
+class Entity(object):
+    """Entity class"""
 
-
-def pre_process_text(text):
-    if (False == do_pre_process_text):
-        return text
-
-    # (keep paragraph separator) replace 2 or more newlines with tmp '\r\r'
-    text = re.sub(r'\n\n+', '\r\r', text)
-    # replace newlines with spaces
-    text = re.sub(r'\n', ' ', text)
-    # restore paragraph separator ('\r\r' -> '\n\n')
-    text = re.sub(r'\r\r', '\n\n', text)
-    return text
+    def __init__(self, text='', start_char=-1, end_char=-1, label=''):
+        self.text = text
+        self.label = label
+        self.start_char = start_char
+        self.end_char = end_char
 
 
 class Document(object):
@@ -75,29 +62,45 @@ class Document(object):
         return entities
 
 
-class Entity(object):
-    """Entity class"""
-
-    def __init__(self, text='', start_char=-1, end_char=-1, label=''):
-        self.text = text
-        self.label = label
-        self.start_char = start_char
-        self.end_char = end_char
-
-
 class Nlp(object):
     """Nlp class"""
+    models = {}
 
     def __init__(self):
-        self.models = {}
+        pass
 
     def process(self, doc, model):
+
+        # process document
+        nlp = self.spacy_nlp_from_model_name(model)
+
+        if False:  # lilo: why do we need this?
+            doc.text = self.pre_process_text(doc.text)
+
+        spacy_doc = nlp(doc.text)
+
+        for ent in spacy_doc.ents:
+            e = Entity(ent.text, ent.start_char, ent.end_char, ent.label_)
+            doc.entities.append(e)
+        return doc
+
+    def pre_process_text(self, text):
+        # (keep paragraph separator) replace 2 or more newlines with tmp '\r\r'
+        text = re.sub(r'\n\n+', '\r\r', text)
+        # replace newlines with spaces
+        text = re.sub(r'\n', ' ', text)
+        # restore paragraph separator ('\r\r' -> '\n\n')
+        text = re.sub(r'\r\r', '\n\n', text)
+        return text
+
+    def spacy_nlp_from_model_name(self, model):
         if (not model in self.models):
             try:
                 # load tokenizer, tagger, parser, NER and word vectors
                 nlp = self.models[model] = spacy.load(model)
                 nlp.add_pipe(remove_whitespace_entities, after='ner')
                 logger.info("Loaded model '%s'" % model)
+                return nlp
             except Exception as ex:
                 error = "Failed to load model: '{}'".format(model)
                 logger.error(error)
@@ -105,12 +108,4 @@ class Nlp(object):
                 raise Exception(error)
         else:
             nlp = self.models[model]
-
-        # process document
-        doc.text = pre_process_text(doc.text)
-        spacy_doc = nlp(doc.text)
-
-        for ent in spacy_doc.ents:
-            e = Entity(ent.text, ent.start_char, ent.end_char, ent.label_)
-            doc.entities.append(e)
-        return doc
+            return nlp

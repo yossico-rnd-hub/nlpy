@@ -1,1 +1,0 @@
-env/bin/python -c "import os; import spacy; print(spacy.__version__)"

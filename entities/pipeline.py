@@ -14,9 +14,9 @@ import spacy
 from spacy.tokens import Span
 from .en_term_list import EN_TERM_LIST
 from .es_term_list import ES_TERM_LIST
-from ent.term_list_matcher import TermList_Matcher
-from ent.en_ent_rules import EN_EntityRules
-from ent.es_ent_split import ES_EntitySplit
+from entities.term_list_matcher import TermList_Matcher
+from entities.en_ent_rules import EN_EntityRules
+from entities.es_ent_split import ES_EntitySplit
 
 
 class EntitiesPipeline(object):

@@ -11,9 +11,7 @@ import json
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from nlp import Document, Entity
 from types import SimpleNamespace as Namespace
-
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+from logger import logger
 
 def is_hidden(f):
     # linux

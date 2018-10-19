@@ -1,14 +1,14 @@
 import spacy
 from spacy.tokens import Doc
-from rel.util import root
-from rel.relation import Relation, Relations
-from rel.x_en_svo import EN_SVO_RelationExtractor
-from rel.x_en_prep_rel import EN_PREP_RelationExtractor
-from rel.x_en_relcl_v_o import EN_RELCL_V_O_RelationExtractor
-from rel.x_es_appos import ES_APPOS_RelationExtractor
+from relations.util import root
+from relations.relation import Relation, Relations
+from relations.x_en_svo import EN_SVO_RelationExtractor
+from relations.x_en_prep_rel import EN_PREP_RelationExtractor
+from relations.x_en_relcl_v_o import EN_RELCL_V_O_RelationExtractor
+from relations.x_es_appos import ES_APPOS_RelationExtractor
 
-from rel.x_es_svo import ES_SVO_RelationExtractor
-from rel.x_es_nsubj_noun_nmod import ES_NSUBJ_NOUN_NMOD_RelationExtractor
+from relations.x_es_svo import ES_SVO_RelationExtractor
+from relations.x_es_nsubj_noun_nmod import ES_NSUBJ_NOUN_NMOD_RelationExtractor
 
 
 class RelationPipeline(object):
