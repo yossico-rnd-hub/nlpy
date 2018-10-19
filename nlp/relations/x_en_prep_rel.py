@@ -1,6 +1,6 @@
 import logging
 import spacy
-from relations.util import is_xsubj, _extend_compound, _right_conj, create_relation, root
+from .util import is_xsubj, _extend_compound, _right_conj, create_relation, root
 
 
 class EN_PREP_RelationExtractor(object):

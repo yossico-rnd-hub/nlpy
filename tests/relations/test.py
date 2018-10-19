@@ -14,10 +14,10 @@ import timeit
 
 import spacy
 
-from ent import EntitiesPipeline
-from rel import RelationPipeline
+from nlp.entities import EntitiesPipeline
+from nlp.relations import RelationPipeline
 
-from tests.rel.gold import Gold
+from tests.relations.gold import Gold
 from tests.scoring import Scoring
 
 from corpus_en import CORPUS_EN

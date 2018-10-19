@@ -9,9 +9,11 @@ class TestNLP(object):
     def __init__(self):
         self.parser = argparse.ArgumentParser(
             description='test nlp-service entity extraction.')
-        self.parser.add_argument('-f', '--file', help='file to process')
-        self.parser.add_argument('-t', '--text', help='text to process')
-        self.parser.add_argument('-m', '--model', help='model to use')
+        self.parser.add_argument(
+            '-f', '--file', help='path of file to process')
+        self.parser.add_argument(
+            '-t', '--text', help='text to process (within single quotes)')
+        self.parser.add_argument('-m', '--model', help='model to use (e.g: en/es)')
 
     def run(self):
         args = self.parser.parse_args()
@@ -38,8 +40,9 @@ class TestNLP(object):
         url = 'http://localhost:5000/nlp'
         json_doc = requests.post(url, data=json.dumps(data), headers=headers)
 
-        print(text)
-        print()
+        if not args.text:
+            print(text)
+            print()
         print(json_doc.text)
 
 

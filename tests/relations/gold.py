@@ -9,7 +9,7 @@ get scoring for a single doc or scoring of all docs
 import spacy
 from spacy.lang.en import English
 from tests.scoring import Scoring
-from relations.relation import Relation, Relations
+from nlp.relations.relation import Relation, Relations
 
 
 class Gold(object):
