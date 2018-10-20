@@ -14,13 +14,13 @@ import spacy
 from spacy.tokens import Span
 from .en_term_list import EN_TERM_LIST
 from .es_term_list import ES_TERM_LIST
-from nlp.entities.term_list_matcher import TermList_Matcher
-from nlp.entities.en_ent_rules import EN_EntityRules
-from nlp.entities.es_ent_split import ES_EntitySplit
+from .term_list_matcher import TermList_Matcher
+from .en_ent_rules import EN_EntityRules
+from .es_ent_split import ES_EntitySplit
 
 
 class EntitiesPipeline(object):
-    name = 'ws_entities'
+    name = 'nlpy_entities'
     pipe_ = []
 
     def __init__(self, nlp):

@@ -1,14 +1,11 @@
-#!env/bin/python
-
 '''
-relation gold grader
-add one or more docs
-get scoring for a single doc or scoring of all docs
+relation gold scorer:\n
+add one or more docs, and get their gold relation scoring.
 '''
 
 import spacy
 from spacy.lang.en import English
-from tests.scoring import Scoring
+from tests.util.scoring import Scoring
 from nlp.relations.relation import Relation, Relations
 
 

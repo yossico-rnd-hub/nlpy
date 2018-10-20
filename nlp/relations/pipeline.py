@@ -24,7 +24,7 @@ class RelationPipeline(object):
 
     '''
 
-    name = 'ws_relations'
+    name = 'nlpy_relations'
     pipe_ = []
 
     def __init__(self, nlp):

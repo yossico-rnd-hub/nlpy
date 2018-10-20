@@ -3,26 +3,17 @@
 '''
 test extracting entity relations
 '''
-import logging
 
 import sys
 sys.path.append('.')
 
-import argparse
-
-import timeit
-
-import spacy
-
-from nlp.entities import EntitiesPipeline
-from nlp.relations import RelationPipeline
-
-from tests.relations.gold import Gold
-from tests.scoring import Scoring
-
-from corpus_en import CORPUS_EN
 from corpus_es import CORPUS_ES
-
+from corpus_en import CORPUS_EN
+from gold import Gold
+from nlp import Nlpy
+import timeit
+import argparse
+import logging
 
 global _DEBUG
 
@@ -52,15 +43,6 @@ def main(model, id, text, tokens=False, debug=False):
     level = logging.DEBUG if debug else logging.WARNING
     logging.basicConfig(level=level, format='%(message)s')
 
-    nlp = spacy.load(model)
-    print("Loaded model '%s'" % model)
-
-    # entities pipeline
-    nlp.add_pipe(EntitiesPipeline(nlp), after='ner')
-
-    # relations pipeline
-    nlp.add_pipe(RelationPipeline(nlp), last=True)
-
     if text:
         CORPUS = [{'text': text, 'relations': []}]
     elif is_spanish(model):
@@ -75,6 +57,7 @@ def main(model, id, text, tokens=False, debug=False):
     # start time
     start = timeit.default_timer()
 
+    nlp = Nlpy.load(model)
     gold = Gold(nlp)
     num_docs_processed = 0
     show_warning = False

@@ -39,8 +39,7 @@ def to_span(nlp, x):
     if isinstance(x, Token):
         return x.doc[x.i, x.i+1]
     if isinstance(x, str):
-        # lilo: doc = nlp(x)
-        with nlp.disable_pipes('ws_relations'):
+        with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(x)
         return doc[doc[0].i:doc[-1].i+1]
     return None

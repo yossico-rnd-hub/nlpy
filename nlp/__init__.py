@@ -1,5 +1,5 @@
-from .nlp import Nlp
+from .nlpy import Nlpy
 
 __all__ = [
-    "Nlp",
+    "Nlpy",
 ]

@@ -41,6 +41,7 @@ class TestNLP(object):
         json_doc = requests.post(url, data=json.dumps(data), headers=headers)
 
         if not args.text:
+            print()
             print(text)
             print()
         print(json_doc.text)

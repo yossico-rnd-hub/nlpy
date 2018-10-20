@@ -1,5 +1,5 @@
 from .api.server import NlpyServer
-from .nlp import Nlp
+from .nlp import Nlpy
 from .logger import logger
 
 name = "nlpy"
@@ -7,5 +7,5 @@ name = "nlpy"
 __all__ = [
     "logger",
     "NlpyServer",
-    "Nlp",
+    "Nlpy",
 ]
