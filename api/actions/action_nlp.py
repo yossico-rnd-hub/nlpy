@@ -3,7 +3,7 @@ from flask import request, abort
 from .action_base import Action
 from logger import logger
 from nlp import Nlpy
-from nlp.json.json_model import Entity
+from nlp.json.json_model import Document, Entity, Relation, Span
 
 
 class NLP(Action):
@@ -29,18 +29,42 @@ class NLP(Action):
         text = request.json['text']
 
         # process the document
-        entities = []
+        # lilo:TODO - relations
+        doc_json = Document()
+        doc_json.entities = []
         try:
             doc = nlp(text, model)
 
             # create result
             for ent in doc.ents:
-                e = Entity(ent.text, ent.start_char, ent.end_char, ent.label_)
-                entities.append(e)
+                e_json = Entity(ent.text, ent.start_char,
+                                ent.end_char, ent.label_)
+                doc_json.entities.append(e_json)
+
+            for r in doc._.relations:
+                # lilo:TODO - should we give entities in json_doc an id and use these ids in the relations?
+                # s = Entity(r.s.text, r.s.start_char, r.s.end_char,
+                #            r.s.label_) if r.s else None
+                # p = Span(r.p.text, r.p.start_char, r.p.end_char)
+                # o = Entity(r.o.text, r.o.start_char, r.o.end_char,
+                #            r.o.label_) if r.o else None
+                # w = Entity(r.w.text, r.w.start_char, r.w.end_char,
+                #            r.w.label_) if r.w else None
+                # r_json = Relation(s, p, o, w)
+                doc_json.relations.append(to_tuple(r))
 
         except Exception as ex:
             logger.exception(ex)
             return json.dumps({"error": ex.args}), 500
 
         # serialize doc entities to json
-        return json.dumps(entities, indent=4, default=lambda x: x.__dict__), 200
+        return json.dumps(doc_json, indent=4, default=lambda x: x.__dict__), 200
+
+
+def to_tuple(r):
+    ''' serialize the given relation to a tuple (s,p,o,w) '''
+    s = r.s.text if r.s else None
+    p = r.p.text if r.p else None
+    o = r.o.text if r.o else None
+    w = r.w.text if r.w else None
+    return (s, p, o, w)
