@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _extend_compound, _right_conj, create_relation, root
+from .util import is_xsubj, _right_conj, create_relation, root
 
 
 class EN_PREP_RelationExtractor(object):
@@ -19,7 +19,7 @@ class EN_PREP_RelationExtractor(object):
                  relations,
                  exclude_negation=True,
                  entities_only=True):
-        ''' 
+        '''
         extracts (subject, pred, object, when, self.name) \n
         e.g: '<Hillary/subj> is the <mother/pred> <of/prep> <Chelsea/obj>' \n
         e.g: '<Mark Zukerberg/subj> is the <co-founder/pred> and <CEO/pred> <of/prep> <Facebook/obj>'

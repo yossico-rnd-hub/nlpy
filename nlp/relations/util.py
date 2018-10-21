@@ -46,7 +46,8 @@ def _right_conj(w):
 
 def extend_right(w, alist, dep):
     ''' e.g: for obl in extend_right(w, w.children, ('obl')): '''
-    start = end = w.i
+    start = w.start if hasattr(w, 'start') else w.i
+    end = w.end if hasattr(w, 'end') else w.i
     for child in filter(lambda x: x.dep_ in dep, alist):
         start = min(start, child.i)
         end = max(end, child.i)
@@ -88,8 +89,7 @@ def extract_when(pred_span):
     if (when.dep_ in ('amod', 'compound')):
         return when.doc[when.i: when.head.i+1]  # extend right
 
-    # lilo when_span = when.doc[when.i:when.i+1]
-    when_span = extend_right(when, when.rights, ('amod'))
+    when_span = extend_right(when, when.rights, ('amod', 'nummod'))
 
     return when_span
 
@@ -99,10 +99,9 @@ def create_relation(s, p, o):
     o = _extend_compound(o)
 
     # if obj is DATE/TIME -> put in when component
-    # e.g: Bill born 1977
+    # e.g: 'Bill married October 11, 1975.'
     if (o[0].ent_type_ in ('DATE', 'TIME')):
         o = None  # lilo:return (s, p, None, o)
-
     w = extract_when(p)
 
     logging.debug('(x:util) when: {}'.format(w))

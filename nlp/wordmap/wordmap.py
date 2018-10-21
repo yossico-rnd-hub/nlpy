@@ -1,7 +1,7 @@
 import spacy
 from spacy.tokens import Doc
 
-SIMILARITY_TRESHOLD = 0.5
+SIMILARITY_TRESHOLD = 0.90
 
 
 class Cluster(object):
@@ -51,20 +51,23 @@ class Wordmap(object):
         self.words = []
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
-            clusters = self.cluster_entity_mentions(doc)
+            clusters = self.cluster_entities(doc)
             sorted(clusters, key=lambda c: len(c.items), reverse=True)
-            # print(clusters)  # lilo
+            doc_len = 0
             for c in clusters:
-                print(c.leader, len(c.items))
-            # lilo
-            print('lilo ---------------------------- noun_chunks:begin')
-            for chunk in doc.noun_chunks:
-                print(chunk.text)
+                doc_len += len(c.items)
+            for c in clusters:
+                # lilo:print(c.leader, len(c.items))
+                self.words.append((c.leader.text, len(c.items) / doc_len))
+
+            # print('lilo ---------------------------- noun_chunks:begin')
+            # for chunk in doc.noun_chunks:
+            #     print(chunk.text)
                 # for t in chunk:
                 #     print(t.text, t.pos_)
-            print('lilo ---------------------------- noun_chunks:end')
+            # print('lilo ---------------------------- noun_chunks:end')
 
-    def cluster_entity_mentions(self, doc):
+    def cluster_entities(self, doc):
         '''
         cluster mentions of entities together
         '''
@@ -115,24 +118,18 @@ class Wordmap(object):
         span1 = c1.leader
         span2 = c2.leader
 
+        # compare entities using similarity function
         sim = span1.similarity(span2)
         if (sim >= SIMILARITY_TRESHOLD):
             return True
 
+        # merge names, e.g: 'Thrun' and 'Sebastian Thrun'
+        # but not 'Hillary Clinton' and 'Bill Clinton'
         if (c1.leader.label_ in ('PERSON', 'ORG')):
-            print('lilo 1 ----------------------------')
-            print(span1.start, span1.end)
-            print(span2.start, span2.end)
             set1 = set([t.lower_ for t in span1])
-            print(set1)
             set2 = set([t.lower_ for t in span2])
-            print(set2)
             set3 = set1.intersection(set2)
-            if (len(set3) > 0):
+            if (len(set3) / (len(set1) + len(set2)) > 0.3):
                 return True
-
-        # for t1 in span1:
-        #     for t2 in span2:
-        #         pass
 
         return False

@@ -31,7 +31,9 @@ class Test(object):
                     u"car companies would shake my hand and turn away because I wasn’t "
                     u"worth talking to,” said Thrun, now the co-founder and CEO of "
                     u"online higher education startup Udacity, in an interview with "
-                    u"Recode earlier this week.")
+                    u"Recode earlier this week. "
+                    u"We do NOT want to merge entities like Hillary Clinton and Bill Clinton  ."
+                    )
 
         default_model = 'en_core_web_sm'  # default model
         model = args.model if args.model else default_model

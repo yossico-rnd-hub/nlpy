@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _extend_compound, _right_conj, create_relation, root
+from .util import is_xsubj, _right_conj, create_relation, root
 
 
 class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):

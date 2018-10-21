@@ -23,14 +23,16 @@ class EntitiesPipeline(object):
     name = 'nlpy_entities'
     pipe_ = []
 
-    def __init__(self, nlp):
+    def __init__(self, nlp, merge_entity_spans = False):
         if (nlp.lang == 'en'):
-            # en entities only
             self.add_pipe(EN_EntityRules())
             self.add_pipe(TermList_Matcher(nlp, EN_TERM_LIST))
         elif (nlp.lang == 'es'):
             self.add_pipe(ES_EntitySplit())
             self.add_pipe(TermList_Matcher(nlp, ES_TERM_LIST))
+        
+        # should we merge entities spans
+        self.merge_entity_spans = merge_entity_spans
 
     def __call__(self, doc):
 
@@ -44,9 +46,10 @@ class EntitiesPipeline(object):
             span = Span(doc, start, end, label=label)
             doc.ents = list(doc.ents) + [span]
 
-        # merge entities into one token
-        for span in doc.ents:
-            span.merge()
+        # merge entities into one token? (default to False)
+        if (self.merge_entity_spans):
+            for span in doc.ents:
+                span.merge()
 
         return doc
 
