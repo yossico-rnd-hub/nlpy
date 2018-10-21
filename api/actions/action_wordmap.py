@@ -3,18 +3,8 @@ from flask import request, abort
 from .action_base import Action
 from logger import logger
 from nlp import Nlpy
+from nlp.wordmap.wordmap import Wordmap
 from nlp.json.json_model import Document, Entity, Relation, Span
-
-
-class Wordmap(object):
-    def __init__(self, text, nlp):
-        self.create_wordmap(text, nlp)
-
-    def create_wordmap(self, text, nlp):
-        self.words = []
-        with nlp.disable_pipes('nlpy_relations'):
-            doc = nlp(text)
-            print(doc.ents)
 
 
 class WordmapAction(Action):
