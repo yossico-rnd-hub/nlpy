@@ -1,11 +1,7 @@
 import spacy
 from spacy.tokens import Doc
 
-SIMILARITY_TRESHOLD = 0.7
-
-# lilo
-# other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
-# with nlp.disable_pipes(*other_pipes):  # only train NER
+SIMILARITY_TRESHOLD = 0.5
 
 
 class Cluster(object):
@@ -16,6 +12,7 @@ class Cluster(object):
         else:
             self.leader = None
             self.items = set([])
+        self.merged = False
 
     def add(self, item):
         self.items.add(item)
@@ -28,18 +25,20 @@ class Cluster(object):
             raise Exception()
         c = Cluster()
         c.items = c1.items.union(c2.items)
-        c.leader = Cluster.select_leader(c1.leader, c2.leader)
+        c.leader = Cluster.select_leader(c1, c2)
         return c
 
     @staticmethod
     def select_leader(c1, c2):
-        # lilo:TODO
         if not c1.leader:
             return c2.leader
         if not c2.leader:
             return c1.leader
+
+        # lilo:TODO - how should we decide which leader to use?
         if (len(c1.leader) >= len(c2.leader)):
             return c1.leader
+
         return c2.leader
 
 
@@ -52,44 +51,57 @@ class Wordmap(object):
         self.words = []
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
-            clusters = self.cluster_entity_instances(doc)
+            clusters = self.cluster_entity_mentions(doc)
             sorted(clusters, key=lambda c: len(c.items), reverse=True)
-            print(clusters)  # lilo
+            # print(clusters)  # lilo
+            for c in clusters:
+                print(c.leader, len(c.items))
+            # lilo
+            print('lilo ---------------------------- noun_chunks:begin')
+            for chunk in doc.noun_chunks:
+                print(chunk.text)
+                # for t in chunk:
+                #     print(t.text, t.pos_)
+            print('lilo ---------------------------- noun_chunks:end')
 
-    def cluster_entity_instances(self, doc):
+    def cluster_entity_mentions(self, doc):
         '''
-        cluster instances of entities together
+        cluster mentions of entities together
         '''
         # lilo:TODO
-        # if (not 'instances' in doc._):
-        #     Doc.set_extension('instances', default=[])
+        # if (not 'mentions' in doc._):
+        #     Doc.set_extension('mentions', default=[])
 
         # start with each entity in its own cluster
         clusters = []
         for e in doc.ents:
+            if (e.label_ in ('DATE', 'TIME', 'NORP')):
+                continue  # skip some entity types
             clusters.append(Cluster(e))
         clusters = self.cluster(clusters)
         return clusters
 
     def cluster(self, clusters):
         if not clusters or len(clusters) < 2:
-            print('lilo -----------------------')
             return clusters
 
         merge_occured = False
         new_clusters = []
         for c1 in clusters:
-            c1_merged = False
+            if c1.merged:
+                continue
             for c2 in clusters:
+                if c2.merged:
+                    continue
                 if (c1 == c2):
                     continue
                 if self.should_merge(c1, c2):
                     new_clusters.append(Cluster.merge(c1, c2))
-                    c1_merged = True
+                    c1.merged = True
+                    c2.merged = True
+                    merge_occured = True
                     break
-            if c1_merged:
-                merge_occured = True
-            else:
+            if not c1.merged:
                 new_clusters.append(c1)
         if merge_occured:
             return self.cluster(new_clusters)  # recurse here
@@ -98,10 +110,29 @@ class Wordmap(object):
     def should_merge(self, c1, c2):
         if (c1.leader.label != c2.leader.label):
             return False
+
         # lilo:TODO - check leader entities similarity
         span1 = c1.leader
         span2 = c2.leader
+
         sim = span1.similarity(span2)
-        if (sim < SIMILARITY_TRESHOLD):
-            return False
-        return True
+        if (sim >= SIMILARITY_TRESHOLD):
+            return True
+
+        if (c1.leader.label_ in ('PERSON', 'ORG')):
+            print('lilo 1 ----------------------------')
+            print(span1.start, span1.end)
+            print(span2.start, span2.end)
+            set1 = set([t.lower_ for t in span1])
+            print(set1)
+            set2 = set([t.lower_ for t in span2])
+            print(set2)
+            set3 = set1.intersection(set2)
+            if (len(set3) > 0):
+                return True
+
+        # for t1 in span1:
+        #     for t2 in span2:
+        #         pass
+
+        return False

@@ -77,6 +77,8 @@ env/bin/pip install textacy[lang] (for language detection)
 - training (git): spaCy/examples/training
 - env/bin/pip install --upgrade gensim
 - https://github.com/conllul/UL_Hebrew-HTB
+- other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
+  with nlp.disable_pipes(*other_pipes):  # only train NER
 
 ### entities
 

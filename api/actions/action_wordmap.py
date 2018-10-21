@@ -37,4 +37,4 @@ class WordmapAction(Action):
             return json.dumps({"error": ex.args}), 500
 
         # serialize doc entities to json
-        return json.dumps(wmap, indent=4, default=lambda x: x.__dict__), 200
+        return json.dumps(wmap.words, indent=4, default=lambda x: x.__dict__), 200
