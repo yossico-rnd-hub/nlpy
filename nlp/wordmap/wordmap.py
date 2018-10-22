@@ -1,80 +1,59 @@
 import spacy
 from spacy.tokens import Doc
+from collections import Counter
 
 SIMILARITY_TRESHOLD = 0.90
 
 
-class Cluster(object):
-    def __init__(self, item=None):
-        if item:
-            self.leader = item
-            self.items = set([item])
-        else:
-            self.leader = None
-            self.items = set([])
-        self.merged = False
-
-    def add(self, item):
-        self.items.add(item)
-        if (not self.leader):
-            self.leader = item
-
-    @staticmethod
-    def merge(c1, c2):
-        if not isinstance(c1, Cluster) or not isinstance(c2, Cluster):
-            raise Exception()
-        c = Cluster()
-        c.items = c1.items.union(c2.items)
-        c.leader = Cluster.select_leader(c1, c2)
-        return c
-
-    @staticmethod
-    def select_leader(c1, c2):
-        if not c1.leader:
-            return c2.leader
-        if not c2.leader:
-            return c1.leader
-
-        # lilo:TODO - how should we decide which leader to use?
-        if (len(c1.leader) >= len(c2.leader)):
-            return c1.leader
-
-        return c2.leader
-
-
 class Wordmap(object):
     def __init__(self, text, nlp):
-        self.create_wordmap(text, nlp)
+        # lilo
+        # self.create_wordmap_from_noun_chunks(text, nlp)
+        self.create_wordmap_from_entities(text, nlp)
+        # self.create_wordmap_from_tokens(text, nlp)
 
-    def create_wordmap(self, text, nlp):
-        self.nlp = nlp
-        self.words = []
+    def create_wordmap_from_tokens(self, text, nlp):
+        def filter_token(t):  # inner token filter
+            if t.is_stop:
+                return False
+            if t.is_punct:
+                return False
+            if t.pos_ in ('ADV', 'PRON', 'SPACE'):
+                return False
+            return True
+
+        self.words = {}
+        with nlp.disable_pipes('nlpy_relations'):
+            doc = nlp(text)
+            self.words = Counter(t.orth_ for t in doc if filter_token(t))
+        return self.words
+
+    def create_wordmap_from_noun_chunks(self, text, nlp):
+        def filter_noun_chunk(chunk):  # inner chunk filter
+            if len(chunk) == 1:  # a single token
+                if (chunk[0].pos_ in ('ADV', 'PRON', 'SPACE')):
+                    return False
+            return True
+
+        self.words = {}
+        with nlp.disable_pipes('nlpy_relations'):
+            doc = nlp(text)
+            self.words = Counter(
+                chunk.text for chunk in doc.noun_chunks if filter_noun_chunk(chunk))
+        return self.words
+
+    def create_wordmap_from_entities(self, text, nlp):
+        self.words = {}
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
             clusters = self.cluster_entities(doc)
-            sorted(clusters, key=lambda c: len(c.items), reverse=True)
-            doc_len = 0
-            for c in clusters:
-                doc_len += len(c.items)
-            for c in clusters:
-                # lilo:print(c.leader, len(c.items))
-                self.words.append((c.leader.text, len(c.items) / doc_len))
-
-            # print('lilo ---------------------------- noun_chunks:begin')
-            # for chunk in doc.noun_chunks:
-            #     print(chunk.text)
-                # for t in chunk:
-                #     print(t.text, t.pos_)
-            # print('lilo ---------------------------- noun_chunks:end')
+            self.words = Counter(c.leader.text for c in clusters for item in c.items)
+        return self.words
 
     def cluster_entities(self, doc):
         '''
         cluster mentions of entities together
         '''
-        # lilo:TODO
-        # if (not 'mentions' in doc._):
-        #     Doc.set_extension('mentions', default=[])
-
         # start with each entity in its own cluster
         clusters = []
         for e in doc.ents:
@@ -114,7 +93,7 @@ class Wordmap(object):
         if (c1.leader.label != c2.leader.label):
             return False
 
-        # lilo:TODO - check leader entities similarity
+        # check leader entities similarity
         span1 = c1.leader
         span2 = c2.leader
 
@@ -133,3 +112,41 @@ class Wordmap(object):
                 return True
 
         return False
+
+
+class Cluster(object):
+    def __init__(self, item=None):
+        if item:
+            self.leader = item
+            self.items = set([item])
+        else:
+            self.leader = None
+            self.items = set([])
+        self.merged = False
+
+    def add(self, item):
+        self.items.add(item)
+        if (not self.leader):
+            self.leader = item
+
+    @staticmethod
+    def merge(c1, c2):
+        if not isinstance(c1, Cluster) or not isinstance(c2, Cluster):
+            raise Exception()
+        c = Cluster()
+        c.items = c1.items.union(c2.items)
+        c.leader = Cluster.select_leader(c1, c2)
+        return c
+
+    @staticmethod
+    def select_leader(c1, c2):
+        if not c1.leader:
+            return c2.leader
+        if not c2.leader:
+            return c1.leader
+
+        # TODO - how should we decide which leader to use?
+        if (len(c1.leader) >= len(c2.leader)):
+            return c1.leader
+
+        return c2.leader
