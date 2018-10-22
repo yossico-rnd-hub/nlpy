@@ -17,21 +17,21 @@ class Wordmap(object):
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
             self.words = Counter(
-                chunk.text for chunk in doc.noun_chunks if self.filter_noun_chunk(chunk))
+                chunk.lemma_ for chunk in doc.noun_chunks if self.filter_noun_chunk(chunk))
         return self.words
 
     def filter_noun_chunk(self, chunk):  # inner chunk filter
         if len(chunk) == 1:  # a single token
             if (chunk[0].pos_ in ('ADV', 'PRON', 'SPACE')):
                 return False
-            #lilo: if (chunk[0].ent_type_)
+            #lilo (filter some entity types): if (chunk[0].ent_type_)
         return True
 
     def create_wordmap_from_tokens(self, text, nlp):
         self.words = {}
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
-            self.words = Counter(t.orth_ for t in doc if self.filter_token(t))
+            self.words = Counter(t.lemma_ for t in doc if self.filter_token(t))
         return self.words
 
     def filter_token(self, t):  # inner token filter
