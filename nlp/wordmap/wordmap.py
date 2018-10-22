@@ -8,68 +8,68 @@ SIMILARITY_TRESHOLD = 0.90
 class Wordmap(object):
     def __init__(self, text, nlp):
         # lilo
-        # self.create_wordmap_from_noun_chunks(text, nlp)
-        self.create_wordmap_from_entities(text, nlp)
+        self.create_wordmap_from_noun_chunks(text, nlp)
+        # self.create_wordmap_from_entities(text, nlp)
         # self.create_wordmap_from_tokens(text, nlp)
 
-    def create_wordmap_from_tokens(self, text, nlp):
-        def filter_token(t):  # inner token filter
-            if t.is_stop:
-                return False
-            if t.is_punct:
-                return False
-            if t.pos_ in ('ADV', 'PRON', 'SPACE'):
-                return False
-            return True
-
-        self.words = {}
-        with nlp.disable_pipes('nlpy_relations'):
-            doc = nlp(text)
-            self.words = Counter(t.orth_ for t in doc if filter_token(t))
-        return self.words
-
     def create_wordmap_from_noun_chunks(self, text, nlp):
-        def filter_noun_chunk(chunk):  # inner chunk filter
-            if len(chunk) == 1:  # a single token
-                if (chunk[0].pos_ in ('ADV', 'PRON', 'SPACE')):
-                    return False
-            return True
-
         self.words = {}
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
             self.words = Counter(
-                chunk.text for chunk in doc.noun_chunks if filter_noun_chunk(chunk))
+                chunk.text for chunk in doc.noun_chunks if self.filter_noun_chunk(chunk))
         return self.words
+
+    def filter_noun_chunk(self, chunk):  # inner chunk filter
+        if len(chunk) == 1:  # a single token
+            if (chunk[0].pos_ in ('ADV', 'PRON', 'SPACE')):
+                return False
+            #lilo: if (chunk[0].ent_type_)
+        return True
+
+    def create_wordmap_from_tokens(self, text, nlp):
+        self.words = {}
+        with nlp.disable_pipes('nlpy_relations'):
+            doc = nlp(text)
+            self.words = Counter(t.orth_ for t in doc if self.filter_token(t))
+        return self.words
+
+    def filter_token(self, t):  # inner token filter
+        if t.is_stop:
+            return False
+        if t.is_punct:
+            return False
+        if t.pos_ in ('ADV', 'PRON', 'SPACE'):
+            return False
+        return True
 
     def create_wordmap_from_entities(self, text, nlp):
         self.words = {}
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
-            clusters = self.cluster_entities(doc)
-            for c in clusters:
-                print(c.leader.text, c.leader.label_)
-            self.words = Counter(c.leader.text for c in clusters for item in c.items)
+
+            # start with each entity in its own cluster
+            clusters = [Cluster(e) for e in doc.ents if self.filter_entity(e)]
+
+            # cluster same entities together
+            clusters = self.cluster(clusters)
+
+            # generate wordmap
+            self.words = Counter(
+                c.leader.text for c in clusters for item in c.items)
+
         return self.words
 
-    def cluster_entities(self, doc):
-        '''
-        cluster mentions of entities together
-        '''
-        # start with each entity in its own cluster
-        clusters = []
-        for e in doc.ents:
-            if (e.label_ in ('DATE', 'TIME', 'NORP', 'NUM', 'CARDINAL')):
-                continue  # skip some entity types
-            clusters.append(Cluster(e))
-        clusters = self.cluster(clusters)
-        return clusters
+    def filter_entity(self, e):
+        if (e.label_ in ('DATE', 'TIME', 'NORP', 'NUM', 'CARDINAL')):
+            return False
+        return True
 
     def cluster(self, clusters):
         if not clusters or len(clusters) < 2:
             return clusters
 
-        merge_occured = False
+        any_merge_occured = False
         new_clusters = []
         for c1 in clusters:
             if c1.merged:
@@ -81,13 +81,11 @@ class Wordmap(object):
                     continue
                 if self.should_merge(c1, c2):
                     new_clusters.append(Cluster.merge(c1, c2))
-                    c1.merged = True
-                    c2.merged = True
-                    merge_occured = True
+                    any_merge_occured = True
                     break
             if not c1.merged:
                 new_clusters.append(c1)
-        if merge_occured:
+        if any_merge_occured:
             return self.cluster(new_clusters)  # recurse here
         return clusters
 
@@ -138,6 +136,8 @@ class Cluster(object):
         c = Cluster()
         c.items = c1.items.union(c2.items)
         c.leader = Cluster.select_leader(c1, c2)
+        c1.merged = True
+        c2.merged = True
         return c
 
     @staticmethod
