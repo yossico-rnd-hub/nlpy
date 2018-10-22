@@ -14,9 +14,12 @@ virtualenv -p python3 env
 
 ## packages
 
-env/bin/pip install spacy
-env/bin/pip install flask
-env/bin/pip install jsonpickle
+using: pip install (env/bin/pip install)
+spacy
+flask
+jsonpickle
+pytextrank
+gensim
 
 ### spacy version
 
