@@ -47,6 +47,8 @@ class Wordmap(object):
         with nlp.disable_pipes('nlpy_relations'):
             doc = nlp(text)
             clusters = self.cluster_entities(doc)
+            for c in clusters:
+                print(c.leader.text, c.leader.label_)
             self.words = Counter(c.leader.text for c in clusters for item in c.items)
         return self.words
 
@@ -57,7 +59,7 @@ class Wordmap(object):
         # start with each entity in its own cluster
         clusters = []
         for e in doc.ents:
-            if (e.label_ in ('DATE', 'TIME', 'NORP')):
+            if (e.label_ in ('DATE', 'TIME', 'NORP', 'NUM', 'CARDINAL')):
                 continue  # skip some entity types
             clusters.append(Cluster(e))
         clusters = self.cluster(clusters)
