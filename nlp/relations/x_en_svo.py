@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _extend_lefts, _right_conj, create_relation
+from .util import is_xsubj, filter_subj, filter_obj, _extend_lefts, _right_conj, create_relation
 
 
 class EN_SVO_RelationExtractor(object):
@@ -22,7 +22,7 @@ class EN_SVO_RelationExtractor(object):
     def subject_verb_object(self, doc):
         ''' extract (subject, verb, object) triples '''
         for subj in filter(lambda t: is_xsubj(t), doc):
-            if (0 == subj.ent_type):
+            if (not filter_subj(subj)):
                 continue  # skip none-entity
             logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
@@ -37,7 +37,7 @@ class EN_SVO_RelationExtractor(object):
 
             # subj.conj
             for conj in _right_conj(subj):
-                if (0 == conj.ent_type):
+                if (not filter_subj(conj)):
                     continue  # skip none-entity
                 for obj in self._extract_objects(verb):
                     yield (conj, verb, obj)
@@ -90,13 +90,13 @@ class EN_SVO_RelationExtractor(object):
         # (e.g: <PERSON/nsubj> <killed/verb> <PERSON/dobj>)
         dobj = next(filter(lambda w: w.dep_ in (
             'dobj', 'obj'), verb.rights), None)
-        if (dobj and dobj.ent_type):  # skip none-entity
+        if (dobj and filter_obj(dobj)):  # skip none-entity
             return [dobj] + _right_conj(dobj)
 
         # rule 2: verb-span (including: prep/dative/agent) -> pobj
         # (e.g: <PERSON/nsubj> <killed by/verb-span> <PERSON/pobj>)
         pobj = next(filter(lambda w: w.dep_ == 'pobj', verb.rights), None)
-        if (pobj and pobj.ent_type):  # skip none-entity
+        if (pobj and filter_obj(pobj)):  # skip none-entity
             return [pobj] + _right_conj(pobj)
 
         # rule 3: verb -> prep/dative/agent -> pobj
@@ -104,10 +104,10 @@ class EN_SVO_RelationExtractor(object):
         for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), verb.rights):
             pobj = next(filter(lambda w: w.dep_ ==
                                'pobj', prep.children), None)
-            if (pobj and pobj.ent_type):  # skip none-entity
+            if (pobj and filter_obj(pobj)):  # skip none-entity
                 return [pobj] + _right_conj(pobj)
 
         obj = next(filter(lambda w: w.dep_ in ('nmod'), verb.rights), None)
-        if (obj and obj.ent_type):  # skip none-entity
+        if (obj and filter_obj(obj)):  # skip none-entity
             return [obj] + _right_conj(obj)
         return []  # None

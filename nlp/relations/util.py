@@ -107,3 +107,15 @@ def create_relation(s, p, o):
     logging.debug('(x:util) when: {}'.format(w))
 
     return (s, p, o, w)
+
+def filter_subj(subj):
+    if (0 == subj.ent_type):
+        return False  # skip none-entity
+    if (subj.ent_type_ in ('DATE', 'CARDINAL', 'NUM')):
+        return False  # skip these entities
+    return True
+
+def filter_obj(obj):
+    if (0 == obj.ent_type):
+        return False  # skip none-entity
+    return True

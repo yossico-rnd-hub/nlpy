@@ -7,12 +7,18 @@ SIMILARITY_TRESHOLD = 0.90
 
 
 class Wordmap(object):
-    def __init__(self, text, nlp):
+    def __init__(self, text, nlp, method='noun_chunks'):
         # lilo
-        self.create_wordmap_from_noun_chunks(text, nlp)
-        # self.create_wordmap_from_entities(text, nlp)
-        # self.create_wordmap_from_tokens(text, nlp)
-        # self.create_wordmap_from_gensim_keywords(text, nlp)
+        if (method == 'noun_chunks'):
+            self.create_wordmap_from_noun_chunks(text, nlp)
+        elif (method == 'entities'):
+            self.create_wordmap_from_entities(text, nlp)
+        elif (method == 'tokens'):
+            self.create_wordmap_from_tokens(text, nlp)
+        elif (method == 'gensim'):
+            self.create_wordmap_from_gensim_keywords(text, nlp)
+        else:  # default
+            self.create_wordmap_from_noun_chunks(text, nlp)
 
     def create_wordmap_from_gensim_keywords(self, text, nlp):
         self.words = Counter(keywords(text).split('\n'))
@@ -30,7 +36,7 @@ class Wordmap(object):
         if len(chunk) == 1:  # a single token
             if (chunk[0].pos_ in ('ADV', 'PRON', 'SPACE')):
                 return False
-            #lilo (filter some entity types): if (chunk[0].ent_type_)
+            # lilo (filter some entity types): if (chunk[0].ent_type_)
         return True
 
     def create_wordmap_from_tokens(self, text, nlp):

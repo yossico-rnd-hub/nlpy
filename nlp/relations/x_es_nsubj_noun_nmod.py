@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _right_conj, create_relation, root
+from .util import is_xsubj, filter_subj, filter_obj, _right_conj, create_relation, root
 
 
 class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
@@ -15,7 +15,7 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
         pass
 
     def __call__(self, doc, relations):
-        ''' 
+        '''
         extracts (subject, pred, object, when, self.name) \n
         e.g: '<Bill Clinton/subj> es el <presidente/NOUN> de los <U.S.A/nmod>' \n
         e.g: '<Hillary/nsubj> es la <madre/NOUN> del <Chelsea/nmod>' \n
@@ -30,7 +30,7 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
 
         # start extraction from nsubj
         for subj in filter(lambda t: is_xsubj(t), doc):
-            if (0 == subj.ent_type):
+            if (not filter_subj(nsubj)):
                 continue  # skip none-entity
             logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
@@ -52,14 +52,14 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
 
             # extract objects (nmod) and relations
             for obj in filter(lambda w: w.dep_ == 'nmod', pred.children):
-                if (0 == obj.ent_type):
+                if (not filter_obj(obj)):
                     continue  # skip none-entity
                 logging.debug('(x:{}) obj: {}'.format(self.name, obj))
                 yield (subj, pred_span, obj)
 
             # subj.conj
             for conj in _right_conj(subj):
-                if (0 == conj.ent_type):
+                if (not filter_subj(conj)):
                     continue  # skip none-entity
                 for obj in filter(lambda w: w.dep_ == 'nmod', pred.children):
                     yield (conj, pred_span, obj)

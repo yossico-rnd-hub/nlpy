@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _extend_lefts, _right_conj, create_relation
+from .util import is_xsubj, filter_subj, filter_obj, _extend_lefts, _right_conj, create_relation
 
 
 class ES_APPOS_RelationExtractor(object):
@@ -24,7 +24,7 @@ class ES_APPOS_RelationExtractor(object):
         ''' extract (subject, verb, object) triples '''
         for nsubj in filter(lambda t: is_xsubj(t), doc):
             # nsubj
-            if (0 == nsubj.ent_type):
+            if (not filter_subj(nsubj)):
                 continue  # skip none-entity
 
             # pred

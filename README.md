@@ -20,6 +20,19 @@ flask
 jsonpickle
 pytextrank
 gensim
+wordcloud
+matplotlib
+
+### wordcloud
+
+https://www.datacamp.com/community/tutorials/wordcloud-python
+
+https://github.com/amueller/word_cloud
+
+### textacy
+
+env/bin/pip install textacy
+env/bin/pip install textacy[lang] (for language detection)
 
 ### spacy version
 
@@ -66,11 +79,6 @@ python setup.py sdist
   - https://spacy.io/usage/training#textcat
 - doc similarity (spacy)
 - categorization (spacy: TextCategorizer - https://spacy.io/api/textcategorizer)
-
-### textacy
-
-env/bin/pip install textacy
-env/bin/pip install textacy[lang] (for language detection)
 
 ### misc
 

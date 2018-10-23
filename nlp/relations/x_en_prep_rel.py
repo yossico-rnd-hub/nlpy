@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _right_conj, create_relation, root
+from .util import is_xsubj, filter_subj, filter_obj, _right_conj, create_relation, root
 
 
 class EN_PREP_RelationExtractor(object):
@@ -45,12 +45,14 @@ class EN_PREP_RelationExtractor(object):
                 # try searching subj in pred.lefts
                 subj = next(pred.lefts, None)
                 if (None == subj):
-                    # try searching subj in pred.root
-                    subj = root(pred)
+                    subj = root(pred)  # try searching subj in pred.root
+
             if (None == subj):
                 continue
-            if (0 == subj.ent_type):
+
+            if (not filter_subj(subj)):
                 continue  # skip none-entity
+
             logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
             # extract objects and relations
@@ -62,7 +64,7 @@ class EN_PREP_RelationExtractor(object):
 
             # subj.conj
             for conj in _right_conj(subj):
-                if (0 == conj.ent_type):
+                if (not filter_subj(conj)):
                     continue  # skip none-entity
                 for obj in self._extract_prep_objects(prep):
                     yield (conj, pred_span, obj)

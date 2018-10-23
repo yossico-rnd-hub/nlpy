@@ -1,5 +1,5 @@
 import spacy
-from .util import is_xsubj, _extend_lefts, _right_conj, create_relation
+from .util import is_xsubj, filter_subj, filter_obj, _extend_lefts, _right_conj, create_relation
 
 
 class EN_RELCL_V_O_RelationExtractor(object):
@@ -26,7 +26,7 @@ class EN_RELCL_V_O_RelationExtractor(object):
                 continue
 
             subj = verb.head
-            if (0 == subj.ent_type):
+            if (not filter_subj(subj)):
                 continue  # skip none-entity
 
             verb = doc[verb.i:verb.i+1]
@@ -46,14 +46,14 @@ class EN_RELCL_V_O_RelationExtractor(object):
         # rule 1: verb -> dobj
         # (e.g: <PERSON/nsubj> <killed/verb> <PERSON/dobj>)
         for dobj in filter(lambda w: w.dep_ in ('dobj', 'obj'), verb.rights):
-            if (0 == dobj.ent_type):
+            if (not filter_subj(dobj)):
                 continue  # skip none-entity
             return [dobj] + _right_conj(dobj)
 
         # rule 2: verb-span (including: prep/dative/agent) -> pobj
         # (e.g: <PERSON/nsubj> <killed by/verb-span> <PERSON/pobj>)
         for pobj in filter(lambda w: w.dep_ == 'pobj', verb.rights):
-            if (0 == pobj.ent_type):
+            if (not filter_subj(pobj)):
                 continue  # skip none-entity
             return [pobj] + _right_conj(pobj)
 
@@ -61,12 +61,11 @@ class EN_RELCL_V_O_RelationExtractor(object):
         # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
         for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), verb.rights):
             for pobj in filter(lambda w: w.dep_ in ('pobj'), prep.children):
-                if (0 == pobj.ent_type):
+                if (not filter_subj(pobj)):
                     continue  # skip none-entity
                 return [pobj] + _right_conj(pobj)
 
         obj = next(filter(lambda w: w.dep_ in ('nmod'), verb.rights), None)
-        if (obj and obj.ent_type):  # skip none-entity
+        if (obj and filter_obj(dobj)):  # skip none-entity
             return [obj] + _right_conj(obj)
-
         return []  # None

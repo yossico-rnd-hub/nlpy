@@ -1,6 +1,6 @@
 import logging
 import spacy
-from .util import is_xsubj, _extend_lefts, _right_conj, create_relation
+from .util import is_xsubj, filter_subj, filter_obj, _extend_lefts, _right_conj, create_relation
 
 
 class ES_SVO_RelationExtractor(object):
@@ -22,7 +22,7 @@ class ES_SVO_RelationExtractor(object):
     def subject_verb_object(self, doc):
         ''' extract (subject, verb, object) triples '''
         for subj in filter(lambda t: is_xsubj(t), doc):
-            if (0 == subj.ent_type):
+            if (not filter_subj(subj)):
                 continue  # skip none-entity
             logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
@@ -37,7 +37,7 @@ class ES_SVO_RelationExtractor(object):
 
             # subj.conj
             for conj in _right_conj(subj):
-                if (0 == conj.ent_type):
+                if (not filter_subj(conj)):
                     continue  # skip none-entity
                 for obj in self._extract_objects(verb):
                     yield (conj, verb, obj)
@@ -57,12 +57,12 @@ class ES_SVO_RelationExtractor(object):
         obj = next(filter(lambda w: w.dep_ in (
             'obj', 'obl'), verb.rights), None)
         if obj:
-            if (0 == obj.ent_type):
+            if (not filter_obj(obj)):
                 # rule 2: verb -> obj -> <real-obj>/appos
                 # e.g: '<reunió/verb> con el -> <congresista/obj> -> <Mike Pence/appos>'
                 appos = next(filter(lambda w: w.dep_ ==
                                     'appos', obj.rights), None)
-                if (appos and 0 != appos.ent_type):  # skip none-entity
+                if (appos and filter_obj(appos)):  # skip none-entity
                     obj = appos
             return [obj] + _right_conj(obj)
 

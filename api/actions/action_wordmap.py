@@ -19,9 +19,12 @@ class WordmapAction(Action):
             abort(400)  # bad request
 
         # get model from request
-        default_model = 'en_core_web_sm'  # default model
+        default_model = 'en'  # default model
         model = request.json['model'] if (
             'model' in request.json) else default_model
+
+        # get the method from request
+        method = request.json['method'] if ('method' in request.json) else None
 
         # load model
         nlp = Nlpy.load(model)
@@ -31,7 +34,7 @@ class WordmapAction(Action):
 
         # create word map
         try:
-            wmap = Wordmap(text, nlp)
+            wmap = Wordmap(text, nlp, method=method)
         except Exception as ex:
             logger.exception(ex)
             return json.dumps({"error": ex.args}), 500

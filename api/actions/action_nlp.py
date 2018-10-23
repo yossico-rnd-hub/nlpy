@@ -18,7 +18,7 @@ class NLP(Action):
             abort(400)  # bad request
 
         # get model from request
-        default_model = 'en_core_web_sm'  # default model
+        default_model = 'en'  # default model
         model = request.json['model'] if (
             'model' in request.json) else default_model
 
