@@ -1,6 +1,7 @@
 import spacy
 from spacy.tokens import Doc
 from collections import Counter
+from gensim.summarization import keywords
 
 SIMILARITY_TRESHOLD = 0.90
 
@@ -11,6 +12,11 @@ class Wordmap(object):
         self.create_wordmap_from_noun_chunks(text, nlp)
         # self.create_wordmap_from_entities(text, nlp)
         # self.create_wordmap_from_tokens(text, nlp)
+        # self.create_wordmap_from_gensim_keywords(text, nlp)
+
+    def create_wordmap_from_gensim_keywords(self, text, nlp):
+        self.words = Counter(keywords(text).split('\n'))
+        return self.words
 
     def create_wordmap_from_noun_chunks(self, text, nlp):
         self.words = {}

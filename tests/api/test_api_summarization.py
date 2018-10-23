@@ -33,7 +33,7 @@ class Test(object):
                     u"We do NOT want to merge entities like Hillary Clinton and Bill Clinton  ."
                     )
 
-        data = {'text': text, 'word_count': 100}
+        data = {'text': text, 'word_count': 50}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         url = 'http://localhost:5000/nlp/summarization'
         res = requests.post(url, data=json.dumps(data), headers=headers)

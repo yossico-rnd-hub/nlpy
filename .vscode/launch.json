@@ -20,8 +20,8 @@
                 // "es",
                 // "--id",
                 // "2",
-                "-f",
-                "./tests/docs/text4",
+                // "-f",
+                // "./tests/docs/text4",
             ]
         },
         {
