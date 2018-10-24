@@ -14,12 +14,14 @@ class EN_REL_PERSON_ORG(object):
         pass
 
     def __call__(self, doc, relations):
-        for person in filter(lambda e: e.label_ in ('PERSON'), doc.ents):
+        for person in filter(lambda e: e.label_ == 'PERSON', doc.ents):
             for t in self.person_verb_org(doc, person):
                 relations.append(create_relation(*t))
             for t in self.person_rights_org(doc, person):
                 relations.append(create_relation(*t))
             for t in self.person_lefts_org(doc, person):
+                relations.append(create_relation(*t))
+            for t in self.person_prep_org(doc, person):
                 relations.append(create_relation(*t))
         return doc
 
@@ -43,10 +45,19 @@ class EN_REL_PERSON_ORG(object):
                 yield (person, pred, org)
 
     def person_lefts_org(self, doc, person):
-        # TODO
+        # e.g: 'NYU professor Gary Marcus'
         pred = next(filter(lambda w: w.pos_ in (
             'NOUN', 'VERB'), person.lefts), None)
         if pred:
             pred = doc[pred.i:pred.i+1]
             for org in filter(lambda w: w.ent_type_ == 'ORG', pred.lefts):
+                yield (person, pred, org)
+
+    def person_prep_org(self, doc, person):
+        # e.g: '... authored by Peter W. Battaglia of Google's DeepMind'
+        prep = next(filter(lambda w: w.dep_ == 'prep', person.subtree), None)
+        if prep:
+            # print('lilo ---------------', list(prep.rights))
+            pred = doc[prep.i:prep.i+1]
+            for org in filter(lambda w: w.ent_type_ == 'ORG', prep.subtree):
                 yield (person, pred, org)
