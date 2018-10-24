@@ -17,6 +17,10 @@ def is_root(w):
 
 
 def root(w):
+    # lilox
+    # if (not w):
+    #     return None
+
     if (type(w) == spacy.tokens.Span):
         head = w[0].head
     else:
@@ -60,11 +64,13 @@ def _extend_compound(w):
 
     lang = root(w).lang_
 
+    w_0 = w[0] if hasattr(w, 'start') else w
+
     if ('en' == lang):
         # walk in reverse order on w.lefts
         # (congressman/NOUN/compound <- Mike/PROPN/compound <- Pence/PROPN)
         for left in filter(lambda t: t.dep_ in ('compound', 'amod'), reversed(list(w.lefts))):
-            if (not left.pos_ == w.pos_):
+            if (not left.pos_ == w_0.pos_):
                 break
             start = min(start, left.i)
     elif ('es' == lang):
@@ -75,6 +81,10 @@ def _extend_compound(w):
 
 
 def extract_when(pred_span):
+    # lilox
+    # if (not pred_span):
+    #     return None
+
     when = next(filter(
         lambda w: w.ent_type_ in ('DATE', 'TIME'), pred_span.subtree), None)
 
@@ -108,12 +118,14 @@ def create_relation(s, p, o):
 
     return (s, p, o, w)
 
+
 def filter_subj(subj):
     if (0 == subj.ent_type):
         return False  # skip none-entity
     if (subj.ent_type_ in ('DATE', 'CARDINAL', 'NUM')):
         return False  # skip these entities
     return True
+
 
 def filter_obj(obj):
     if (0 == obj.ent_type):

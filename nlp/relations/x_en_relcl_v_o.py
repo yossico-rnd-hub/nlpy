@@ -61,11 +61,11 @@ class EN_RELCL_V_O_RelationExtractor(object):
         # (e.g: <PERSON/nsubj> <met/verb> <with/prep> <PERSON/pobj>)
         for prep in filter(lambda w: w.dep_ in ('prep', 'dative', 'agent'), verb.rights):
             for pobj in filter(lambda w: w.dep_ in ('pobj'), prep.children):
-                if (not filter_subj(pobj)):
+                if (not filter_obj(pobj)):
                     continue  # skip none-entity
                 return [pobj] + _right_conj(pobj)
 
         obj = next(filter(lambda w: w.dep_ in ('nmod'), verb.rights), None)
-        if (obj and filter_obj(dobj)):  # skip none-entity
+        if (obj and filter_obj(obj)):  # skip none-entity
             return [obj] + _right_conj(obj)
         return []  # None

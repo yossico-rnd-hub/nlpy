@@ -17,7 +17,9 @@ class EN_REL_PERSON_ORG(object):
         for person in filter(lambda e: e.label_ in ('PERSON'), doc.ents):
             for t in self.person_verb_org(doc, person):
                 relations.append(create_relation(*t))
-            for t in self.person_right_org(doc, person):
+            for t in self.person_rights_org(doc, person):
+                relations.append(create_relation(*t))
+            for t in self.person_lefts_org(doc, person):
                 relations.append(create_relation(*t))
         return doc
 
@@ -31,9 +33,20 @@ class EN_REL_PERSON_ORG(object):
         #         head_verb = head_verb.head
         return []
 
-    def person_right_org(self, doc, person):
+    def person_rights_org(self, doc, person):
         # TODO
-        # pred = doc[person.root.i:person.root.i+1]
-        # for org in filter(lambda w: w.ent_type_ == 'ORG', person.root.rights):
-        #     yield (person, pred, org)
-        return []
+        pred = next(filter(lambda w: w.pos_ in (
+            'NOUN', 'VERB'), person.rights), None)
+        if pred:
+            pred = doc[pred.i:pred.i+1]
+            for org in filter(lambda w: w.ent_type_ == 'ORG', pred.rights):
+                yield (person, pred, org)
+
+    def person_lefts_org(self, doc, person):
+        # TODO
+        pred = next(filter(lambda w: w.pos_ in (
+            'NOUN', 'VERB'), person.lefts), None)
+        if pred:
+            pred = doc[pred.i:pred.i+1]
+            for org in filter(lambda w: w.ent_type_ == 'ORG', pred.lefts):
+                yield (person, pred, org)
