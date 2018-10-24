@@ -40,10 +40,10 @@ class TestNLP(object):
         url = 'http://localhost:5000/nlp'
         json_doc = requests.post(url, data=json.dumps(data), headers=headers)
 
-        if not args.text:
-            print()
-            print(text)
-            print()
+        # if not args.text:
+        #     print()
+        #     print(text)
+        #     print()
         print(json_doc.text)
 
 

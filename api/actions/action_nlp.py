@@ -36,10 +36,11 @@ class NLP(Action):
             doc = nlp(text, model)
 
             # create result
-            for ent in doc.ents:
-                e_json = Entity(ent.text, ent.start_char,
-                                ent.end_char, ent.label_)
-                doc_json.entities.append(e_json)
+            # lilox
+            # for ent in doc.ents:
+            #     e_json = Entity(ent.text, ent.start_char,
+            #                     ent.end_char, ent.label_)
+            #     doc_json.entities.append(e_json)
 
             for r in doc._.relations:
                 # lilo:TODO - should we give entities in json_doc an id and use these ids in the relations?
