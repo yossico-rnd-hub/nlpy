@@ -33,6 +33,7 @@ class EN_REL_PERSON_ORG(object):
 
     def person_right_org(self, doc, person):
         # TODO
-        pred = doc[person.root.i:person.root.i+1]
-        for org in filter(lambda w: w.ent_type_ == 'ORG', person.root.rights):
-            yield (person, pred, org)
+        # pred = doc[person.root.i:person.root.i+1]
+        # for org in filter(lambda w: w.ent_type_ == 'ORG', person.root.rights):
+        #     yield (person, pred, org)
+        return []
