@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/yossi/dev/py/nlpy')
+sys.path.append('.')
 
 from .action_base import Action
 from .action_root import Root

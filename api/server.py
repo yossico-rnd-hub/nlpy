@@ -1,28 +1,25 @@
 #!env/bin/python
 
-from flask import Flask
+import sys
+sys.path.append('.')
+
 from actions.action_base import Action
+from flask import Flask
 
 
-class NlpyServer(object):
-    """Nlpy REST server"""
+def add_action(action):
+    app.add_url_rule(
+        action.endpoint,
+        action.name,
+        action,
+        methods=action.methods)
 
-    def __init__(self):
-        self.app = Flask(__name__)
-        for cls in Action.__subclasses__():
-            self.add_action(cls())
 
-    def add_action(self, action):
-        self.app.add_url_rule(
-            action.endpoint,
-            action.name,
-            action,
-            methods=action.methods)
+app = Flask(__name__)
 
-    def run(self):
-        self.app.run(debug=True)
+for cls in Action.__subclasses__():
+    add_action(cls())
 
 
 if __name__ == '__main__':
-    server = NlpyServer()
-    server.run()
+    app.run()
