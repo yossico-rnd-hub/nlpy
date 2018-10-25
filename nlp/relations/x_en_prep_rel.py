@@ -56,8 +56,7 @@ class EN_PREP_RelationExtractor(object):
             logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
             # extract objects and relations
-            # lilox:pred_span = doc[pred.i: prep.i+1]
-            pred_span = pred
+            pred_span = doc[pred.i: prep.i+1]
 
             for obj in self._extract_prep_objects(prep):
                 logging.debug('(x:{}) obj: {}'.format(self.name, obj))

@@ -46,8 +46,7 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
             if amod:
                 start = min(pred.i, amod.i)
                 end = max(pred.i, amod.i)
-            # lilox:pred_span = doc[start: end+1]
-            pred_span = pred
+            pred_span = doc[start: end+1]
             logging.debug('(x:{}) pred: {}'.format(self.name, pred_span))
             print(list(pred.children))
 

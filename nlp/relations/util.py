@@ -17,10 +17,6 @@ def is_root(w):
 
 
 def root(w):
-    # lilox
-    # if (not w):
-    #     return None
-
     if (type(w) == spacy.tokens.Span):
         head = w[0].head
     else:
@@ -81,10 +77,6 @@ def _extend_compound(w):
 
 
 def extract_when(pred_span):
-    # lilox
-    # if (not pred_span):
-    #     return None
-
     when = next(filter(
         lambda w: w.ent_type_ in ('DATE', 'TIME'), pred_span.subtree), None)
 
