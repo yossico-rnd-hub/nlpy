@@ -71,6 +71,9 @@ class RelationPipeline(object):
         return filtered
 
     def is_neg(self, r):
+        if (not r.p):
+            return False
+
         rt = root(r.p)
         if (rt.lang_ == 'en'):
             for w in rt.children:

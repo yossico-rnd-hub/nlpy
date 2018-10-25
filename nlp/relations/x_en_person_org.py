@@ -15,12 +15,13 @@ class EN_REL_PERSON_ORG(object):
 
     def __call__(self, doc, relations):
         for person in filter(lambda e: e.label_ == 'PERSON', doc.ents):
-            for t in self.person_verb_org(doc, person):
-                relations.append(create_relation(*t))
-            for t in self.person_rights_org(doc, person):
-                relations.append(create_relation(*t))
-            for t in self.person_lefts_org(doc, person):
-                relations.append(create_relation(*t))
+            # lilox
+            # for t in self.person_verb_org(doc, person):
+            #     relations.append(create_relation(*t))
+            # for t in self.person_rights_org(doc, person):
+            #     relations.append(create_relation(*t))
+            # for t in self.person_lefts_org(doc, person):
+            #     relations.append(create_relation(*t))
             for t in self.person_prep_org(doc, person):
                 relations.append(create_relation(*t))
         return doc
@@ -58,6 +59,6 @@ class EN_REL_PERSON_ORG(object):
         prep = next(filter(lambda w: w.dep_ == 'prep', person.subtree), None)
         if prep:
             # print('lilo ---------------', list(prep.rights))
-            pred = doc[prep.i:prep.i+1]
+            # pred = doc[prep.i:prep.i+1]
             for org in filter(lambda w: w.ent_type_ == 'ORG', prep.subtree):
-                yield (person, pred, org)
+                yield (person, None, org)

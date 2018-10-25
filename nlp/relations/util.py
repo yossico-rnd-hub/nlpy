@@ -56,7 +56,7 @@ def extend_right(w, alist, dep):
 
 def _extend_compound(w):
     start = w.start if hasattr(w, 'start') else w.i
-    end = w.end if hasattr(w, 'end') else w.i
+    end = w.end if hasattr(w, 'end') else w.i + 1
 
     lang = root(w).lang_
 
@@ -73,7 +73,7 @@ def _extend_compound(w):
         for right in filter(lambda t: t.dep_ in ('compound', 'flat') and t.head == w, w.rights):
             end = max(end, right.i)
 
-    return w.doc[start:end + 1]
+    return w.doc[start:end]
 
 
 def extract_when(pred_span):
@@ -103,12 +103,16 @@ def create_relation(s, p, o):
     # if obj is DATE/TIME -> put in when component
     # e.g: 'Bill married October 11, 1975.'
     if (o[0].ent_type_ in ('DATE', 'TIME')):
-        o = None  # lilo:return (s, p, None, o)
-    w = extract_when(p)
+        when = o
+        when = extend_right(when, when.rights, ('amod', 'nummod'))
+        return (s, p, None, when)
 
-    logging.debug('(x:util) when: {}'.format(w))
+    if (None != p):
+        w = extract_when(p)
+        logging.debug('(x:util) when: {}'.format(w))
+        return (s, p, o, w)
 
-    return (s, p, o, w)
+    return (s, p, o, None)
 
 
 def filter_subj(subj):

@@ -29,6 +29,8 @@ class Gold(object):
             return scoring  # empty match
 
         for r in doc_relations:
+            if (not r.p):
+                continue # lilo: skip relations without predicate (general related)
             if (gold_relations.contains(r)):
                 scoring.true_positives += 1
             else:
