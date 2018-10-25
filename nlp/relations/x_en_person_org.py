@@ -57,6 +57,7 @@ class EN_REL_PERSON_ORG(object):
         #     pred = doc[pred.i:pred.i+1]
         #     for org in filter(lambda w: w.ent_type_ == 'ORG', pred.rights):
         #         yield (person, pred, org)
+        return []
 
     def person_verb_org(self, doc, person):
         # TODO
