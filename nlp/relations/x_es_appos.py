@@ -32,7 +32,8 @@ class ES_APPOS_RelationExtractor(object):
                                'NOUN' and w.dep_ == 'appos', nsubj.rights), None)
             if (None == pred):
                 continue
-            pred_span = doc[pred.i:pred.i+1]
+            # lilox:pred_span = doc[pred.i:pred.i+1]
+            pred_span = pred
             logging.debug('(x:{}) pred: {}'.format(self.name, pred_span))
 
             # subj.conj
