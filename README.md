@@ -23,6 +23,16 @@ gensim
 wordcloud
 matplotlib
 
+### graphviz/networkx
+
+sudo apt-get install graphviz
+env/bin/pip install networkx
+env/bin/pip install nxpd
+env/bin/pip install graphviz
+
+pip install "graphistry[all]"
+(https://github.com/graphistry/pygraphistry)
+
 ### wordcloud
 
 https://www.datacamp.com/community/tutorials/wordcloud-python
