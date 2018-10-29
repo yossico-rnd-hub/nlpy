@@ -1,5 +1,6 @@
 env
 __pycache__
+.ipynb_checkpoints
 tmp
 models
 tests/training/data/*.py
