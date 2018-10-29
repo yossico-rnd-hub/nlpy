@@ -1,19 +1,18 @@
 #!env/bin/python
 
-'''
-test extracting entity relations
-'''
-
 import sys
 sys.path.append('.')
 
-from corpus_es import CORPUS_ES
-from corpus_en import CORPUS_EN
-from gold import Gold
-from nlp import Nlpy
-import timeit
-import argparse
 import logging
+import argparse
+import timeit
+from nlp import Nlpy
+from gold import Gold
+from corpus_en import CORPUS_EN
+from corpus_es import CORPUS_ES
+'''
+test extracting entity relations
+'''
 
 global _DEBUG
 
@@ -44,7 +43,7 @@ def main(model, id, text, tokens=False, debug=False):
     logging.basicConfig(level=level, format='%(message)s')
 
     if text:
-        CORPUS = [{'text': text, 'relations': []}]
+        CORPUS = [{'id': 1, 'text': text, 'relations': []}]
     elif is_spanish(model):
         CORPUS = CORPUS_ES
     else:
