@@ -28,31 +28,35 @@ class NLP(Action):
         # get the text
         text = request.json['text']
 
+        process_all = 0 == len(request.args) or 'all' in request.args
+        process_entities = process_all or 'entities' in request.args
+        process_relations = process_all or 'relations' in request.args
+
         # process the document
-        # lilo:TODO - relations
         doc_json = Document()
         doc_json.entities = []
         try:
             doc = nlp(text, model)
 
             # create result
-            # lilox
-            # for ent in doc.ents:
-            #     e_json = Entity(ent.text, ent.start_char,
-            #                     ent.end_char, ent.label_)
-            #     doc_json.entities.append(e_json)
+            if process_entities:
+                for ent in doc.ents:
+                    e_json = Entity(ent.text, ent.start_char,
+                                    ent.end_char, ent.label_)
+                    doc_json.entities.append(e_json)
 
-            for r in doc._.relations:
-                # lilo:TODO - should we give entities in json_doc an id and use these ids in the relations?
-                # s = Entity(r.s.text, r.s.start_char, r.s.end_char,
-                #            r.s.label_) if r.s else None
-                # p = Span(r.p.text, r.p.start_char, r.p.end_char)
-                # o = Entity(r.o.text, r.o.start_char, r.o.end_char,
-                #            r.o.label_) if r.o else None
-                # w = Entity(r.w.text, r.w.start_char, r.w.end_char,
-                #            r.w.label_) if r.w else None
-                # r_json = Relation(s, p, o, w)
-                doc_json.relations.append(to_tuple(r))
+            if process_relations:
+                for r in doc._.relations:
+                    # lilo:TODO - should we give entities in json_doc an id and use these ids in the relations?
+                    # s = Entity(r.s.text, r.s.start_char, r.s.end_char,
+                    #            r.s.label_) if r.s else None
+                    # p = Span(r.p.text, r.p.start_char, r.p.end_char)
+                    # o = Entity(r.o.text, r.o.start_char, r.o.end_char,
+                    #            r.o.label_) if r.o else None
+                    # w = Entity(r.w.text, r.w.start_char, r.w.end_char,
+                    #            r.w.label_) if r.w else None
+                    # r_json = Relation(s, p, o, w)
+                    doc_json.relations.append(to_tuple(r))
 
         except Exception as ex:
             logger.exception(ex)

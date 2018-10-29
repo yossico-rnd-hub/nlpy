@@ -13,7 +13,12 @@ class TestNLP(object):
             '-f', '--file', help='path of file to process')
         self.parser.add_argument(
             '-t', '--text', help='text to process (within single quotes)')
-        self.parser.add_argument('-m', '--model', help='model to use (e.g: en/es)')
+        self.parser.add_argument(
+            '-m', '--model', help='model to use (e.g: en/es)')
+        self.parser.add_argument(
+            '-e', '--entities', nargs='?', const=True, help='process entities')
+        self.parser.add_argument(
+            '-r', '--relations', nargs='?', const=True, help='process relations')
 
     def run(self):
         args = self.parser.parse_args()
@@ -38,7 +43,21 @@ class TestNLP(object):
         data = {'text': text, 'model': model}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         url = 'http://localhost:5000/nlp'
-        json_doc = requests.post(url, data=json.dumps(data), headers=headers)
+
+        params = None
+        if args.entities:
+            if not params:
+                params = {}
+            params['entities'] = 'entities'
+        if args.relations:
+            if not params:
+                params = {}
+            params['relations'] = 'relations'
+        if not params:
+            params = {'all': 'all'}
+
+        json_doc = requests.post(url, data=json.dumps(
+            data), headers=headers, params=params)
 
         # if not args.text:
         #     print()
