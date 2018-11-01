@@ -23,6 +23,9 @@ gensim
 wordcloud
 matplotlib
 
+beautifulsoup4
+lxml
+
 ### graphviz/networkx
 
 sudo apt-get install graphviz
@@ -116,3 +119,9 @@ python setup.py sdist
   - https://spacy.io/usage/training#intent-parser
   - test/spacy/train_intent_parser.py
 - multiple predicates: '... co-founder and CEO of Udacity' (noun_chunks?)
+
+### fuzzy
+
+https://towardsdatascience.com/natural-language-processing-for-fuzzy-string-matching-with-python-6632b7824c49
+
+pip install fuzzywuzzy
