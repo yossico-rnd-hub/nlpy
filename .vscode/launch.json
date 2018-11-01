@@ -18,10 +18,12 @@
                 // "Hello"
                 // "--model",
                 // "es",
-                "--id",
-                "1",
+                // "--id",
+                // "1",
                 // "-f",
                 // "./tests/docs/text4",
+                "--url",
+                "http://www.lapdonline.org/january_2018/news_view/63909",
             ]
         },
         {
