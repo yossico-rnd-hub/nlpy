@@ -1,5 +1,6 @@
 #!env/bin/python
 
+import os
 from bs4 import BeautifulSoup
 import requests
 import lxml.html.clean
@@ -16,6 +17,45 @@ class Feed(object):
         self.where = ''
         self.who = ''
         self.text = ''
+
+
+YEARS = [
+    '1999',
+    '2000',
+    '2001',
+    '2002',
+    '2003',
+    '2004',
+    '2005',
+    '2006',
+    '2007',
+    '2008',
+    '2009',
+    '2010',
+    '2011',
+    '2012',
+    '2013',
+    '2014',
+    '2015',
+    '2016',
+    '2017',
+    '2018',
+]
+
+MONTHS = [
+    'january',
+    'february',
+    'march',
+    'april',
+    'may',
+    'june',
+    'july',
+    'august',
+    'september',
+    'october',
+    'november',
+    'december',
+]
 
 
 @plac.annotations(
@@ -53,27 +93,39 @@ def clean_text(text):
 
 
 def scrape_lapd_news():
-    for year in ['2018']:
-        for month in ['january']:
-            feeds = scrape_news_year_month(year=year, month=month)
-    with open('lapd_news.csv', 'w') as csv_file:
-        csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(
-            ['title', 'url', 'what', 'when', 'where', 'who', 'text'])
-        for feed in feeds:
-            csv_writer.writerow([
-                feed.title,
-                feed.url,
-                feed.what,
-                feed.when,
-                feed.where,
-                feed.who,
-                feed.text])
+    out_dir = 'out'
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    for year in YEARS:
+        for month in MONTHS:
+            filename = '{}/lapd_news_{}_{}.csv'.format(out_dir, year, month)
+            if (os.path.exists(filename)):
+                continue  # already generated
+
+            try:
+                feeds = scrape_news_year_month(year=year, month=month)
+            except:
+                print('FAILED: year: {}, month: {}'.format(year, month))
+
+            with open(filename, 'w') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(
+                    ['title', 'url', 'what', 'when', 'where', 'who', 'text'])
+                for feed in feeds:
+                    csv_writer.writerow([
+                        feed.title,
+                        feed.url,
+                        feed.what,
+                        feed.when,
+                        feed.where,
+                        feed.who,
+                        feed.text])
 
 
 def scrape_news_year_month(year='2018', month='january'):
     base_url = 'http://www.lapdonline.org'
-    source = requests.get('{}/{}_{}'.format(base_url, month, year)).text
+    url = '{}/{}_{}'.format(base_url, month, year)
+    source = requests.get(url).text
     bs = BeautifulSoup(source, 'lxml')
 
     feeds = []
@@ -118,11 +170,13 @@ def scrape_feed(url):
                 continue
 
         if ('' == feed.text):
-            span = content.find('span')
-            if span:
-                text = ' '.join(s for s in span.next_siblings
-                                if isinstance(s, str) and s != '\n')
-                feed.text = clean_text(text)
+            text = ' '.join(s for s in content.descendants
+                            if isinstance(s, str) and s != '\n')
+            feed.text = clean_text(text)
+
+        if ('' == feed.text):
+            print('WARNING: failed to extract text!')
+
     return feed
 
 

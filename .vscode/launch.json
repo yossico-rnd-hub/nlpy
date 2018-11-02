@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal", 
+            "console": "integratedTerminal",
             "args": [
                 // "text2"
                 // "test/spacy/patterns",
@@ -22,8 +22,8 @@
                 // "1",
                 // "-f",
                 // "./tests/docs/text4",
-                "--url",
-                "http://www.lapdonline.org/january_2018/news_view/63909",
+                // "--url",
+                // "http://www.lapdonline.org/january_2018/news_view/63909",
             ]
         },
         {
