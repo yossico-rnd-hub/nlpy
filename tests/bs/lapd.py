@@ -96,30 +96,32 @@ def scrape_lapd_news():
     out_dir = 'out'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
+
     for year in YEARS:
-        for month in MONTHS:
-            filename = '{}/lapd_news_{}_{}.csv'.format(out_dir, year, month)
-            if (os.path.exists(filename)):
-                continue  # already generated
+        filename = '{}/lapd_news_{}.csv'.format(out_dir, year)
+        if (os.path.exists(filename)):
+            continue  # already generated
 
-            try:
-                feeds = scrape_news_year_month(year=year, month=month)
-            except:
-                print('FAILED: year: {}, month: {}'.format(year, month))
+        with open(filename, 'w') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerow(
+                ['title', 'url', 'what', 'when', 'where', 'who', 'text'])
 
-            with open(filename, 'w') as csv_file:
-                csv_writer = csv.writer(csv_file)
-                csv_writer.writerow(
-                    ['title', 'url', 'what', 'when', 'where', 'who', 'text'])
-                for feed in feeds:
-                    csv_writer.writerow([
-                        feed.title,
-                        feed.url,
-                        feed.what,
-                        feed.when,
-                        feed.where,
-                        feed.who,
-                        feed.text])
+            for month in MONTHS:
+                try:
+                    feeds = scrape_news_year_month(year=year, month=month)
+                except:
+                    print('FAILED: year: {}, month: {}'.format(year, month))
+                else:
+                    for feed in feeds:
+                        csv_writer.writerow([
+                            feed.title,
+                            feed.url,
+                            feed.what,
+                            feed.when,
+                            feed.where,
+                            feed.who,
+                            feed.text])
 
 
 def scrape_news_year_month(year='2018', month='january'):
