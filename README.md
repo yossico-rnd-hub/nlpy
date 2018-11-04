@@ -125,3 +125,125 @@ python setup.py sdist
 https://towardsdatascience.com/natural-language-processing-for-fuzzy-string-matching-with-python-6632b7824c49
 
 pip install fuzzywuzzy
+
+
+
+CRIME_LIST2 = '\
+dead \
+kill \
+injur \
+shot \
+shoot \
+stab \
+murder \
+rape \
+traffic \
+robber \
+robberi \
+miss \
+thiev \
+theft \
+suicid \
+fraud \
+struck \
+kidnup \
+homoside \
+car thift \
+hit and run \
+sexual assault \
+Arson \
+Blackmail \
+Bribery \
+Burglary \
+Embezzlement \
+Extortion \
+Fraud \
+Assassination \
+Assault \
+Child abuse \
+Harassment \
+Home invasion \
+Homicide \
+Intimidation \
+Kidnapping \
+Manslaughter \
+Murder \
+homicide \
+Invasion of privacy \
+Robbery \
+Torture \
+Sexual offences \
+Adultery Bigamy \
+Rape \
+Sexual assault \
+Sodomy \
+Blackmail \
+Bribery \
+Burglary \
+Embezzlement \
+Extortion \
+Fraud \
+Gambling \
+stolen property \
+Robbery \
+Smuggling \
+Perjury \
+drugs \
+Suicide \
+'
+
+[
+'abus', 
+'adulteri', 
+'arson', 
+'assassin', 
+'assault', 
+'bigami', 
+'blackmail', 
+'briberi', 
+'burglari', 
+'car', 
+'child', 
+'dead', 
+'drug', 
+'embezzl', 
+'extort', 
+'fraud', 
+'gambl', 
+'harass', 
+'hit', 
+'home', 
+'homicid', 
+'homosid', 
+'injur', 
+'intimid', 
+'invas', 
+'kidnap', 
+'kidnup', 
+'kill', 
+'manslaught', 
+'miss', 
+'murder', 
+'offenc', 
+'perjuri', 
+'privaci', 
+'properti', 
+'rape', 
+'robber', 
+'robberi', 
+'run', 
+'sexual', 
+'shoot', 
+'shot', 
+'smuggl', 
+'sodomi', 
+'stab', 
+'stolen', 
+'struck', 
+'suicid', 
+'theft', 
+'thiev', 
+'thift', 
+'tortur', 
+'traffic'
+]
