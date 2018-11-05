@@ -130,15 +130,19 @@ def scrape_news_year_month(year='2018', month='january'):
     source = requests.get(url).text
     bs = BeautifulSoup(source, 'lxml')
 
-    feeds = []
-    for feed_link in bs.find_all(class_='bodylinks'):
-        url = '{}{}'.format(base_url, feed_link.attrs['href'])
-        feed = scrape_feed(url)
-        if not feed.title:
-            feed.title = feed_link.text
-        feeds.append(feed)
-        print(feed.url)
-    return feeds
+    content = bs.find('section', id='content')
+    if content:
+        span9 = content.find('div', class_='span9')
+        if span9:
+            feeds = []
+            for feed_link in span9.find_all(class_='bodylinks'):
+                url = '{}{}'.format(base_url, feed_link.attrs['href'])
+                feed = scrape_feed(url)
+                if not feed.title:
+                    feed.title = feed_link.text
+                feeds.append(feed)
+                print(feed.url)
+            return feeds
 
 
 def scrape_feed(url):
