@@ -4,6 +4,7 @@ __pycache__
 tmp
 out
 models
+3rd-party
 tests/training/data/*.py
 tests/training/data/*.dev.json
 tests/training/data/*.train.json
