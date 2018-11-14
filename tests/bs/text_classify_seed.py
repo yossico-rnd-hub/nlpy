@@ -13,6 +13,8 @@ from spacy.matcher import Matcher
 nlp = spacy.load('en_core_web_sm')
 matcher = Matcher(nlp.vocab)
 
+MAX_FILES = 2
+MAX_TITLES = 10
 CRIME_PHRASES = [
     ('ADULTERY', 'adultery'),
     ('ARSON', 'arson'),
@@ -23,7 +25,7 @@ CRIME_PHRASES = [
     ('BURGLARY', 'burglary'),
     ('CAR_THEFT', 'car theft'),
     ('CHILD_ABUSE', 'child abuse'),
-    ('DETH', 'dead'),
+    ('DEATH', 'dead'),
     ('DRUGS', 'drugs'),
     ('EMBEZZLEMENT', 'embezzlement'),
     ('EXTORTION', 'extortion'),
@@ -32,6 +34,7 @@ CRIME_PHRASES = [
     ('HARASSMENT', 'harassment'),
     ('HIT_AND_RUN', 'hit and run'),
     ('HOME_INVASION', 'home invasion'),
+    ('INJURY', 'injur'),
     ('INJURY', 'injure'),
     ('INJURY', 'injury'),
     ('INTIMIDATION', 'intimidation'),
@@ -62,6 +65,7 @@ CRIME_PHRASES = [
     ('THEFT', 'theft'),
     ('THEFT', 'stolen property'),
     ('THEFT', 'thiev'),
+    ('CAR_THEFT', 'Car Thieves'),
     ('TORTURE', 'torture'),
     ('TRAFFIC_VIOLATIONS', 'traffic violations'),
     ('TRAFFIC_VIOLATIONS', 'Drunk Driver'),
@@ -84,7 +88,7 @@ def main(dir='out'):
 
     tagged = []
     untagged = []
-    for filename in os.listdir(dir)[:1]:
+    for filename in os.listdir(dir)[:MAX_FILES]:
         filename = os.path.join(dir, filename)
         print(filename)
         with open(filename, 'r') as csv_file:
@@ -93,7 +97,7 @@ def main(dir='out'):
             i = 0
             for row in reader:
                 i += 1
-                if i > 10:
+                if MAX_TITLES > 0 and i > MAX_TITLES:
                     break
                 title = row[0]
                 labels = get_labels(title)
@@ -102,14 +106,15 @@ def main(dir='out'):
                 else:
                     untagged.append(title)
 
-    for t in tagged[:5]:
+    for t in tagged[:10]:
         print(t)
-    for t in untagged[:5]:
-        print(t)
+    # for t in untagged[:5]:
+    #     print(t)
 
 
 def get_labels(text):
-    doc = nlp(normalize(text))
+    #doc = nlp(normalize(text))
+    doc = nlp(text)
     matches = matcher(doc)
 
     labels = []
