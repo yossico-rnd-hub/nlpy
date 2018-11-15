@@ -13,8 +13,10 @@ from spacy.matcher import Matcher
 nlp = spacy.load('en_core_web_sm')
 matcher = Matcher(nlp.vocab)
 
-MAX_FILES = 2
-MAX_TITLES = 10
+# lilo
+MAX_FILES = -1
+MAX_TITLES = -1
+
 CRIME_PHRASES = [
     ('ADULTERY', 'adultery'),
     ('ARSON', 'arson'),
@@ -33,6 +35,7 @@ CRIME_PHRASES = [
     ('GAMBLING', 'gambling'),
     ('HARASSMENT', 'harassment'),
     ('HIT_AND_RUN', 'hit and run'),
+    ('HIT_AND_RUN', 'hit & run'),
     ('HOME_INVASION', 'home invasion'),
     ('INJURY', 'injur'),
     ('INJURY', 'injure'),
@@ -73,11 +76,16 @@ CRIME_PHRASES = [
 
 
 @plac.annotations(
-    dir=("input directory to read from", "option", "d", str))
-def main(dir='out'):
-    if not os.path.exists(dir):
-        print("no such directory: '{}'".format(dir))
+    dir_in=("input directory to read from", "option", "i", str),
+    dir_out=("output directory", "option", "o", str),
+)
+def main(dir_in='data/lapd', dir_out='data/lapd2'):
+    if not os.path.exists(dir_in):
+        print("no such directory: '{}'".format(dir_in))
         return
+
+    if not os.path.exists(dir_out):
+        os.makedirs(dir_out)
 
     for label, phrase in CRIME_PHRASES:
         doc = nlp(phrase)
@@ -88,12 +96,19 @@ def main(dir='out'):
 
     tagged = []
     untagged = []
-    for filename in os.listdir(dir)[:MAX_FILES]:
-        filename = os.path.join(dir, filename)
-        print(filename)
-        with open(filename, 'r') as csv_file:
-            reader = csv.reader(csv_file)
+    for filename in os.listdir(dir_in)[:MAX_FILES]:
+        filename_in = os.path.join(dir_in, filename)
+        filename_out = os.path.join(dir_out, filename)
+        print(filename_in)
+        with open(filename_in, 'r') as csv_in, open(filename_out, 'w') as csv_out:
+            reader = csv.reader(csv_in)
+            writer = csv.writer(csv_out)
+            header = csv_in.readline()
+            header_out = 'labels,' + header
+            csv_out.write(header_out)
+
             next(reader, None)
+
             i = 0
             for row in reader:
                 i += 1
@@ -105,11 +120,29 @@ def main(dir='out'):
                     tagged.append((labels, title))
                 else:
                     untagged.append(title)
+                labels_out = ';'.join(labels) if len(labels) > 0 else ''
+                # row_out = "{},{}".format(labels_out, ','.join(row))
+                # csv_out.write(row_out)
+                row.insert(0, labels_out)
+                writer.writerow(row)
 
-    for t in tagged[:10]:
-        print(t)
+    # lilo
+    # for t in tagged[:10]:
+    #     print(t)
     # for t in untagged[:5]:
     #     print(t)
+
+
+def write_annotated():
+    # lilo:TODO
+    with open("infile.csv") as f_in, open("outfile.csv", 'w') as f_out:
+        # Write header unchanged
+        header = f_in.readline()
+        f_out.write(header)
+
+        # Transform the rest of the lines
+        for line in f_in:
+            f_out.write(line.lower())
 
 
 def get_labels(text):

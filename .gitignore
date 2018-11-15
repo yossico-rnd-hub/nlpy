@@ -3,6 +3,7 @@ __pycache__
 .ipynb_checkpoints
 tmp
 out
+data
 models
 3rd-party
 tests/training/data/*.py
