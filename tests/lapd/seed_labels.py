@@ -79,7 +79,7 @@ CRIME_PHRASES = [
     dir_in=("input directory to read from", "option", "i", str),
     dir_out=("output directory", "option", "o", str),
 )
-def main(dir_in='data/lapd', dir_out='data/lapd2'):
+def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
     if not os.path.exists(dir_in):
         print("no such directory: '{}'".format(dir_in))
         return
@@ -151,7 +151,7 @@ def get_labels(text):
     matches = matcher(doc)
 
     labels = []
-    for match_id, start, end in matches:
+    for match_id, _, _ in matches:
         label = nlp.vocab.strings[match_id]
         labels.append(label)
 
