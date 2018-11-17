@@ -120,9 +120,7 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
                     tagged.append((labels, title))
                 else:
                     untagged.append(title)
-                labels_out = ';'.join(labels) if len(labels) > 0 else ''
-                # row_out = "{},{}".format(labels_out, ','.join(row))
-                # csv_out.write(row_out)
+                labels_out = ';'.join(labels) if len(labels) > 0 else 'NONE'
                 row.insert(0, labels_out)
                 writer.writerow(row)
 
