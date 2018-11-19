@@ -105,7 +105,7 @@ def scrape_lapd_news():
         with open(filename, 'w') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(
-                ['title', 'url', 'what', 'when', 'where', 'who', 'text'])
+                ['id', 'title', 'url', 'what', 'when', 'where', 'who', 'text'])
 
             for month in MONTHS:
                 try:
@@ -113,8 +113,11 @@ def scrape_lapd_news():
                 except:
                     print('FAILED: year: {}, month: {}'.format(year, month))
                 else:
+                    doc_id = 0
                     for feed in feeds:
+                        doc_id += 1
                         csv_writer.writerow([
+                            '{}-{}-{}'.format(year, month, doc_id),
                             feed.title,
                             feed.url,
                             feed.what,
