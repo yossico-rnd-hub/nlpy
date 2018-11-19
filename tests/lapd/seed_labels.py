@@ -124,7 +124,7 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
                 i += 1
                 if MAX_TITLES > 0 and i > MAX_TITLES:
                     break
-                title = row[0]
+                title = row[1]
                 labels = get_labels(title)
                 if (len(labels) > 0):
                     tagged.append((labels, title))
