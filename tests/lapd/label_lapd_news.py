@@ -17,7 +17,7 @@ matcher = Matcher(nlp.vocab)
 MAX_FILES = -1
 MAX_TITLES = -1
 
-CRIME_PHRASES = [
+CRIME_LIST = [
     ('ABDUCTION', 'abduction'),
     ('ADULTERY', 'adultery'),
     ('ARSON', 'arson'),
@@ -117,8 +117,9 @@ CRIME_PHRASES = [
 @plac.annotations(
     dir_in=("input directory to read from", "option", "i", str),
     dir_out=("output directory", "option", "o", str),
+    xxx=("mask text", "flag", "x"),
 )
-def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
+def main(dir_in='data/lapd', dir_out='data/lapd.labeled', xxx=False):
     if not os.path.exists(dir_in):
         print("no such directory: '{}'".format(dir_in))
         return
@@ -127,7 +128,7 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
         os.makedirs(dir_out)
 
     with nlp.disable_pipes('ner', 'parser'):
-        for label, phrase in CRIME_PHRASES:
+        for label, phrase in CRIME_LIST:
             doc = nlp(phrase)
             pattern = []
             for w in doc:
@@ -163,6 +164,9 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
                     labels_out = '|'.join(labels) if len(
                         labels) > 0 else 'NONE'
                     row.insert(0, labels_out)
+                    if xxx:
+                        text = row[8]
+                        row[8] = mask(nlp, matcher, text)
                     writer.writerow(row)
 
     # lilo
@@ -172,8 +176,24 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
     #     print(t)
 
 
-def write_annotated():
+def mask(nlp, matcher, text):
     # lilo:TODO
+    doc = nlp(normalize(text))
+    matches = matcher(doc)
+
+    mask_indices = []
+    for _, from_, to_ in matches:
+        for i in range(from_, to_):
+            mask_indices.append(i)
+    mask_indices = set(mask_indices)
+
+    if len(mask_indices) > 0:
+        masked_text = ' '.join(t.orth_ if t.i not in mask_indices else 'XXXXX' for t in doc)
+        return masked_text
+    return text
+
+
+def write_annotated():
     with open("infile.csv") as f_in, open("outfile.csv", 'w') as f_out:
         # Write header unchanged
         header = f_in.readline()
