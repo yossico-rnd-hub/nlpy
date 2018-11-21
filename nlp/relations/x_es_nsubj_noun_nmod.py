@@ -30,7 +30,7 @@ class ES_NSUBJ_NOUN_NMOD_RelationExtractor(object):
 
         # start extraction from nsubj
         for subj in filter(lambda t: is_xsubj(t), doc):
-            if (not filter_subj(nsubj)):
+            if (not filter_subj(subj)):
                 continue  # skip none-entity
             logging.debug('(x:{}) subj: {}'.format(self.name, subj))
 
