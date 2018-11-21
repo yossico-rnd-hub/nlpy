@@ -18,29 +18,42 @@ MAX_FILES = -1
 MAX_TITLES = -1
 
 CRIME_PHRASES = [
+    ('ABDUCTION', 'abduction'),
     ('ADULTERY', 'adultery'),
     ('ARSON', 'arson'),
     ('ASSASSINATION', 'assassination'),
     ('ASSAULT', 'assault'),
+    ('BIGAMY', 'bigamy'),
     ('BLACKMAIL', 'blackmail'),
+    ('BOMBING', 'bombing'),
     ('BRIBERY', 'bribery'),
     ('BURGLARY', 'burglary'),
+    ('CAR_THEFT', 'Car Thieves'),
     ('CAR_THEFT', 'car theft'),
     ('CHILD_ABUSE', 'child abuse'),
+    ('CORRUPTION', 'corruption'),
+    ('CYBERCRIME', 'cybercrime'),
     ('DEATH', 'dead'),
+    ('DOMESTIC_VIOLENCE', 'domestic violence'),
     ('DRUGS', 'drugs'),
     ('DRUGS', 'narcotic'),
+    ('DRUNK_DRIVING', 'drunk driving'),
     ('DRUNKENNESS', 'drunk'),
     ('EMBEZZLEMENT', 'embezzlement'),
-    ('EMBEZZLEMENT', 'embezzlement'),
+    ('ESPIONAGE', 'espionage'),
     ('EXTORTION', 'extortion'),
     ('FORGERY', 'forgery'),
     ('FRAUD', 'fraud'),
     ('GAMBLING', 'gambling'),
+    ('GENOCIDE', 'genocide'),
     ('HARASSMENT', 'harassment'),
-    ('HIT_AND_RUN', 'hit and run'),
+    ('HIJACKING', 'hijacking'),
     ('HIT_AND_RUN', 'hit & run'),
+    ('HIT_AND_RUN', 'hit and run'),
     ('HOME_INVASION', 'home invasion'),
+    ('HOMICIDE', 'homicide'),
+    ('HOOLIGANISM', 'hooliganism'),
+    ('IDENTITY_THEFT', 'identity theft'),
     ('INJURY', 'injur'),
     ('INJURY', 'injure'),
     ('INJURY', 'injury'),
@@ -49,38 +62,54 @@ CRIME_PHRASES = [
     ('KIDNAPPING', 'kidnapping'),
     ('KIDNAPPING', 'kidnup'),
     ('KILLING', 'killing'),
+    ('LIBEL', 'libel'),
     ('LOITERING', 'loitering'),
+    ('LOOTING', 'looting'),
+    ('LYNCHING', 'lynching'),
     ('MANSLAUGHTER', 'manslaughter'),
+    ('MASSACRE', 'massacre'),
     ('MISSING', 'missing'),
-    ('MURDER', 'murder'),
-    ('MURDER', 'manslaughter'),
+    ('MUGGING', 'mugging'),
     ('MURDER', 'homicide'),
     ('MURDER', 'homoside'),
+    ('MURDER', 'manslaughter'),
+    ('MURDER', 'murder'),
     ('PERJURY', 'perjury'),
+    ('PICKPOCKETING', 'pickpocketing'),
+    ('PILFERING', 'pilfering'),
+    ('POACHING', 'poaching'),
     ('PORNOGRAPHY', 'pornograpy'),
     ('PROSTITUTION', 'prostitution'),
     ('RAPE', 'rape'),
+    ('RIOT', 'riot'),
     ('ROBBERY', 'robber'),
     ('ROBBERY', 'robbery'),
     ('SEXUAL_ASSAULT', 'sexual assault'),
     ('SEXUAL_ASSAULT', 'sexual offences'),
+    ('SHOOTING', 'fired at'),
     ('SHOOTING', 'shooting'),
     ('SHOOTING', 'shot'),
+    ('SHOPLIFTING', 'shoplifting'),
+    ('SLANDER', 'slander'),
     ('SMUGGLING', 'smuggling'),
     ('SODOMY', 'sodomy'),
+    ('SPEEDING', 'speeding'),
     ('STABBING', 'stabbing'),
     ('STRUCK', 'struck'),
     ('SUICIDE', 'suicid'),
     ('SUICIDE', 'suicide'),
-    ('THEFT', 'theft'),
+    ('TERRORISM', 'terrorism'),
     ('THEFT', 'larceny'),
     ('THEFT', 'stolen property'),
+    ('THEFT', 'theft'),
     ('THEFT', 'thiev'),
-    ('TRESPASS', 'trespass'),
-    ('CAR_THEFT', 'Car Thieves'),
     ('TORTURE', 'torture'),
-    ('TRAFFIC_VIOLATIONS', 'traffic violations'),
+    ('TRAFFICKING', 'trafficking'),
     ('TRAFFIC_VIOLATIONS', 'Drunk Driver'),
+    ('TRAFFIC_VIOLATIONS', 'traffic violations'),
+    ('TREASON', 'treason'),
+    ('TRESPASS', 'trespass'),
+    ('TRESPASSING', 'trespassing'),
     ('VANDALISM', 'vandalism'),
 ]
 
@@ -97,42 +126,44 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled'):
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
-    for label, phrase in CRIME_PHRASES:
-        doc = nlp(phrase)
-        pattern = []
-        for w in doc:
-            pattern.append({'lemma': '{}'.format(w.lemma_)})
-        matcher.add(label, None, pattern)
+    with nlp.disable_pipes('ner', 'parser'):
+        for label, phrase in CRIME_PHRASES:
+            doc = nlp(phrase)
+            pattern = []
+            for w in doc:
+                pattern.append({'lemma': '{}'.format(w.lemma_)})
+            matcher.add(label, None, pattern)
 
-    tagged = []
-    untagged = []
-    for filename in os.listdir(dir_in)[:MAX_FILES]:
-        filename_in = os.path.join(dir_in, filename)
-        filename_out = os.path.join(dir_out, filename)
-        print(filename_in)
-        with open(filename_in, 'r') as csv_in, open(filename_out, 'w') as csv_out:
-            reader = csv.reader(csv_in)
-            writer = csv.writer(csv_out)
-            header = csv_in.readline()
-            header_out = 'labels,' + header
-            csv_out.write(header_out)
+        tagged = []
+        untagged = []
+        for filename in os.listdir(dir_in)[:MAX_FILES]:
+            filename_in = os.path.join(dir_in, filename)
+            filename_out = os.path.join(dir_out, filename)
+            print(filename_in)
+            with open(filename_in, 'r') as csv_in, open(filename_out, 'w') as csv_out:
+                reader = csv.reader(csv_in)
+                writer = csv.writer(csv_out, delimiter=',')
+                header = csv_in.readline()
+                header_out = 'labels,' + header
+                csv_out.write(header_out)
 
-            next(reader, None)
+                next(reader, None)
 
-            i = 0
-            for row in reader:
-                i += 1
-                if MAX_TITLES > 0 and i > MAX_TITLES:
-                    break
-                title = row[1]
-                labels = get_labels(title)
-                if (len(labels) > 0):
-                    tagged.append((labels, title))
-                else:
-                    untagged.append(title)
-                labels_out = ';'.join(labels) if len(labels) > 0 else 'NONE'
-                row.insert(0, labels_out)
-                writer.writerow(row)
+                i = 0
+                for row in reader:
+                    i += 1
+                    if MAX_TITLES > 0 and i > MAX_TITLES:
+                        break
+                    title = row[1]
+                    labels = get_labels(title)
+                    if (len(labels) > 0):
+                        tagged.append((labels, title))
+                    else:
+                        untagged.append(title)
+                    labels_out = '|'.join(labels) if len(
+                        labels) > 0 else 'NONE'
+                    row.insert(0, labels_out)
+                    writer.writerow(row)
 
     # lilo
     # for t in tagged[:10]:
@@ -154,8 +185,7 @@ def write_annotated():
 
 
 def get_labels(text):
-    #doc = nlp(normalize(text))
-    doc = nlp(text)
+    doc = nlp(normalize(text))
     matches = matcher(doc)
 
     labels = []
@@ -171,8 +201,11 @@ def get_labels(text):
 
 
 def normalize(text):
-    normalized = gensim.parsing.preprocessing.preprocess_string(text)
-    return ' '.join(normalized)
+    # return text.lower()
+    doc = nlp(text)
+    return ' '.join(t.lemma_ for t in doc)
+    # normalized = gensim.parsing.preprocessing.preprocess_string(text)
+    # return ' '.join(normalized)
 
 
 if __name__ == '__main__':
