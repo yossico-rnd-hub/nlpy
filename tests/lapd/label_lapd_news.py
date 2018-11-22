@@ -135,6 +135,7 @@ def main(dir_in='data/lapd', dir_out='data/lapd.labeled', xxx=False):
                 pattern.append({'lemma': '{}'.format(w.lemma_)})
             matcher.add(label, None, pattern)
 
+        print("writing labeled output to: '{}'".format(dir_out))
         tagged = []
         untagged = []
         for filename in os.listdir(dir_in)[:MAX_FILES]:

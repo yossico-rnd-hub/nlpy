@@ -27,15 +27,17 @@ def generate_fasttext_train_test_files(data_dir):
     print("Using {} examples ({} training, {} evaluation)"
           .format(len(texts), len(train_data), len(test_data)))
 
+    out_dir = 'data/fasttext'
+
     # write train
-    ft_train = 'out/crime.train'
+    ft_train = '{}/crime.train'.format(out_dir)
     print('writing {} ...'.format(ft_train))
     with open(ft_train, 'w') as _file:
         for item in train_data:
             _file.write("{}\n".format(item))
 
     # write test
-    ft_test = 'out/crime.test'
+    ft_test = '{}/crime.test'.format(out_dir)
     print('writing {} ...'.format(ft_test))
     with open(ft_test, 'w') as _file:
         for item in test_data:
